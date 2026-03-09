@@ -1,0 +1,11 @@
+name: bte
+dependencies:
+  - python=3.11
+  - pip
+  - bte=0.9.3
+  - tqdm
+  - pandas=2.3.3
+  - numpy=2.3.4
+  - scipy
+  - jsonlines=1.2.0
+  - biopython=1.86
