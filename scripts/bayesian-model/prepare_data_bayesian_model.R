@@ -39,7 +39,9 @@ if(args$genome_region != 'Genome'){
   # Save scenarios with only the unique combinations for tge reguih
   df_data_viridian_region_by_group <- df_data_viridian_region %>% 
     group_by(synonymous_muts, non_synonymous_muts, syn_sites, nonsyn_sites) %>% 
-    summarise(n_branches = n()) %>% arrange(- n_branches)
+    summarise(n_branches = n()) %>% arrange(- n_branches) %>% 
+    ungroup() %>% 
+    mutate(i_row = 1:n())
   
   write_tsv(df_data_viridian_region_by_group, args$output_data_viridian_grouped)
   
@@ -62,7 +64,9 @@ if(args$genome_region != 'Genome'){
   
   df_whole_genome_by_group <- df_whole_genome %>% 
     group_by(synonymous_muts, non_synonymous_muts, syn_sites, nonsyn_sites) %>% 
-    summarise(n_branches = n()) %>% arrange(- n_branches)
+    summarise(n_branches = n()) %>% arrange(- n_branches) %>% 
+    ungroup() %>% 
+    mutate(i_row = 1:n())
   
   write_tsv(df_whole_genome_by_group, args$output_data_viridian_grouped)
 }
