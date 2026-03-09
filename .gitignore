@@ -1,0 +1,7 @@
+.snakemake/*
+data/viridian/*
+results/*
+
+*.Rhistory
+*.DS_Store
+
