@@ -1,0 +1,40 @@
+#	Gene	map	(genome	annotation)	of	SARS-CoV-2	in	GTF	format.
+#	For	gene	map	purpses	we	only	need	some	of	the	columns.	We	substitute	unused	values	with	"."	as	per	GTF	spec.
+#	See	GTF	format	reference	at	https://mblab.wustl.edu/GTF22.html
+#	seqname	source	feature	start	end	score	strand	frame	attribute
+MN908947	nextclade	CDS	26245	26469	.	+	0	gene_id "E"; transcript_id "E";
+MN908947	nextclade	start_codon	26245	26247	.	+	0	gene_id "E"; transcript_id "E";
+MN908947	nextclade	stop_codon	26470	26472	.	+	0	gene_id "E"; transcript_id "E";
+MN908947	nextclade	CDS	26523	27188	.	+	0	gene_id "M"; transcript_id "M";
+MN908947	nextclade	start_codon	26523	26525	.	+	0	gene_id "M"; transcript_id "M";
+MN908947	nextclade	stop_codon	27189	27191	.	+	0	gene_id "M"; transcript_id "M";
+MN908947	nextclade	CDS	28274	29530	.	+	0	gene_id "N"; transcript_id "N";
+MN908947	nextclade	start_codon	28274	28276	.	+	0	gene_id "N"; transcript_id "N";
+MN908947	nextclade	stop_codon	29531	29533	.	+	0	gene_id "N"; transcript_id "N";
+MN908947	nextclade	CDS	266	13462	.	+	0	gene_id "ORF1a"; transcript_id "ORF1a";
+MN908947	nextclade	start_codon	266	268	.	+	0	gene_id "ORF1a"; transcript_id "ORF1a";
+MN908947	nextclade	stop_codon	13466	13468	.	+	0	gene_id "ORF1a"; transcript_id "ORF1a";
+MN908947	nextclade	CDS	13468	21552	.	+	0	gene_id "ORF1b"; transcript_id "ORF1b";
+MN908947	nextclade	start_codon	13468	13470	.	+	0	gene_id "ORF1b"; transcript_id "ORF1b";
+MN908947	nextclade	stop_codon	21553	21555	.	+	0	gene_id "ORF1b"; transcript_id "ORF1b";
+MN908947	nextclade	CDS	25393	26217	.	+	0	gene_id "ORF3a"; transcript_id "ORF3a";
+MN908947	nextclade	start_codon	25393	25395	.	+	0	gene_id "ORF3a"; transcript_id "ORF3a";
+MN908947	nextclade	stop_codon	26218	26220	.	+	0	gene_id "ORF3a"; transcript_id "ORF3a";
+MN908947	nextclade	CDS	27202	27384	.	+	0	gene_id "ORF6"; transcript_id "ORF6";
+MN908947	nextclade	start_codon	27202	27204	.	+	0	gene_id "ORF6"; transcript_id "ORF6";
+MN908947	nextclade	stop_codon	27385	27387	.	+	0	gene_id "ORF6"; transcript_id "ORF6";
+MN908947	nextclade	CDS	27394	27756	.	+	0	gene_id "ORF7a"; transcript_id "ORF7a";
+MN908947	nextclade	start_codon	27394	27396	.	+	0	gene_id "ORF7a"; transcript_id "ORF7a";
+MN908947	nextclade	stop_codon	27757	27759	.	+	0	gene_id "ORF7a"; transcript_id "ORF7a";
+MN908947	nextclade	CDS	27756	27884	.	+	0	gene_id "ORF7b"; transcript_id "ORF7b";
+MN908947	nextclade	start_codon	27756	27758	.	+	0	gene_id "ORF7b"; transcript_id "ORF7b";
+MN908947	nextclade	stop_codon	27885	27887	.	+	0	gene_id "ORF7b"; transcript_id "ORF7b";
+MN908947	nextclade	CDS	27894	28256	.	+	0	gene_id "ORF8"; transcript_id "ORF8";
+MN908947	nextclade	start_codon	27894	27896	.	+	0	gene_id "ORF8"; transcript_id "ORF8";
+MN908947	nextclade	stop_codon	28257	28259	.	+	0	gene_id "ORF8"; transcript_id "ORF8";
+MN908947	nextclade	CDS	28284	28574	.	+	0	gene_id "ORF9b"; transcript_id "ORF9b";
+MN908947	nextclade	start_codon	28284	28286	.	+	0	gene_id "ORF9b"; transcript_id "ORF9b";
+MN908947	nextclade	stop_codon	28575	28577	.	+	0	gene_id "ORF9b"; transcript_id "ORF9b";
+MN908947	nextclade	CDS	21563	25381	.	+	0	gene_id "S"; transcript_id "S";
+MN908947	nextclade	start_codon	21563	21565	.	+	0	gene_id "S"; transcript_id "S";
+MN908947	nextclade	stop_codon	25382	25384	.	+	0	gene_id "S"; transcript_id "S";
