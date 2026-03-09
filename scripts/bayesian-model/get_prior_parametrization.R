@@ -3,6 +3,7 @@ library(argparse)
 
 collect_args <- function(){
   parser <- ArgumentParser()
+  
   parser$add_argument('--df_sites', type = 'character', help = 'TSV file containing site information')
   parser$add_argument('--df_aa_muts_coded', type = 'character', help = 'TSV file containing AA muts information')
   parser$add_argument('--df_parent_child', type = 'character', help = 'TSV file with child parent relationships')
