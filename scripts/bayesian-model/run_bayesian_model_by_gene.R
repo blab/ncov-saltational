@@ -21,8 +21,7 @@ args <- collect_args()
 df_prior <- read_tsv(args$df_prior_param)
 
 # Load gene data
-gene_data <- read_tsv(args$data_viridian_grouped) %>% 
-  mutate(i_row = 1:n())
+gene_data <- read_tsv(args$data_viridian_grouped)
 
 # Function to run model
 run_model <- function(df_prior, data_gene, gene, CV_prior){
