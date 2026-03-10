@@ -14,7 +14,7 @@ rule all:
         data_viridian = expand("results/input_model/data_viridian_{gene}.tsv", gene=GENES),
         data_viridian_grouped = expand("results/input_model/data_viridian_{gene}_grouped.tsv", gene=GENES),
         df_prior_parametrization = "results/input_model/df_prior_parametrization.tsv",
-        #posterior_simul = expand("results/posterior_predictive_checks/posterior_predictive_check_{gene}_CV_{cv_prior}.tsv", gene=GENES, cv_prior = CV_PRIORS),
+        posterior_simul = expand("results/posterior_predictive_checks/posterior_predictive_check_{gene}_CV_{cv_prior}.tsv", gene=GENES, cv_prior = CV_PRIORS),
 
         df_param_estim = expand("results/output_model/df_param_estim_{gene}_CV_{cv_prior}.tsv", gene=GENES, cv_prior = CV_PRIORS),
         df_BF = expand("results/output_model/df_BF_{gene}_CV_{cv_prior}.tsv", gene=GENES, cv_prior = CV_PRIORS),
@@ -24,6 +24,7 @@ rule all:
         ancestral_fasta = expand("results/alignment_adaptive_branches/alignment_adaptive_internal_nodes_CV_{cv_prior}_BF_{BF_threshold}.fasta", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         alignment_adaptive_final_nodes = expand("results/alignment_adaptive_branches/alignment_adaptive_final_nodes_CV_{cv_prior}_BF_{BF_threshold}.fasta", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         alignment_all_adaptive_branches = expand("results/alignment_adaptive_branches/alignment_adaptive_branches_CV_{cv_prior}_BF_{BF_threshold}.fasta", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
+        auspice_json = expand("results/nextclade/auspice_nextclade_adaptive_branches_CV_{cv_prior}_BF_{BF_threshold}.json", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
 
 rule params:
     input:
@@ -328,4 +329,21 @@ rule get_alignment_all_adaptive_branches:
     shell:
         """
         cat {input.alignment_adaptive_final_nodes} {input.alignment_adaptive_internal_nodes} > {output.alignment_all_adaptive_branches}
+        """
+
+rule nextclade:
+    input:
+        alignment_all_adaptive_branches = rules.get_alignment_all_adaptive_branches.output.alignment_all_adaptive_branches,
+    output:
+        auspice_json = "results/nextclade/auspice_nextclade_adaptive_branches_CV_{cv_prior}_BF_{BF_threshold}.json",
+        tree_nwk = "results/nextclade/tree_nextclade_adaptive_branches_CV_{cv_prior}_BF_{BF_threshold}.nwk"
+    params:
+        nextclade_dataset = "params/nextclade"
+    shell:
+        """
+        nextclade run \
+            --input-dataset {params.nextclade_dataset} \
+            --output-tree {output.auspice_json} \
+            --output-tree-nwk {output.tree_nwk} \
+            {input.alignment_all_adaptive_branches}
         """
