@@ -9,4 +9,8 @@ dependencies:
   - scipy
   - jsonlines=1.2.0
   - biopython=1.86
-  - bioconda::usher
+  - usher
+  - chronumental
+  - jax<0.4.36
+  - jaxlib<0.4.36
+  - numpyro<0.16
