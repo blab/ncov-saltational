@@ -14,12 +14,18 @@ rule all:
         data_viridian = expand("results/input_model/data_viridian_{gene}.tsv", gene=GENES),
         data_viridian_grouped = expand("results/input_model/data_viridian_{gene}_grouped.tsv", gene=GENES),
         df_prior_parametrization = "results/input_model/df_prior_parametrization.tsv",
-        posterior_simul = expand("results/posterior_predictive_checks/posterior_predictive_check_{gene}_CV_{cv_prior}.tsv", gene=GENES, cv_prior = CV_PRIORS),
+        #posterior_simul = expand("results/posterior_predictive_checks/posterior_predictive_check_{gene}_CV_{cv_prior}.tsv", gene=GENES, cv_prior = CV_PRIORS),
 
         df_param_estim = expand("results/output_model/df_param_estim_{gene}_CV_{cv_prior}.tsv", gene=GENES, cv_prior = CV_PRIORS),
         df_BF = expand("results/output_model/df_BF_{gene}_CV_{cv_prior}.tsv", gene=GENES, cv_prior = CV_PRIORS),
         name_adaptive_branches = expand("results/adaptive_branches/name_adaptive_branches_{gene}_CV_{cv_prior}_BF_{BF_threshold}.tsv", gene=GENES, cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         concat_name_adaptive_branches = expand("results/adaptive_branches/concat_name_adaptive_branches_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
+
+        df_name_strains_identical_to_internal_nodes = expand("results/adaptive_branches/df_strains_identical_to_internal_nodes_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
+        name_internal_nodes_no_identical_descendants = expand("results/adaptive_branches/name_adaptive_internal_branches_no_identical_descendants_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
+
+        ancestral_fasta = expand("results/alignment_adaptive_branches/alignment_adaptive_internal_nodes_CV_{cv_prior}_BF_{BF_threshold}.fasta", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
+        alignment_adaptive_final_nodes = expand("results/alignment_adaptive_branches/alignment_adaptive_final_nodes_CV_{cv_prior}_BF_{BF_threshold}.fasta", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
 
 rule params:
     input:
@@ -264,4 +270,88 @@ rule concat_name_adaptive_branches:
     shell:
         """
         tsv-append -H {input.name_adaptive_branches_across_genes} | tsv-uniq >> {output.concat_name_adaptive_branches}
+        """
+
+rule get_sample_names_identical_to_internal_adaptive_nodes:
+    input:
+        name_adaptive_branches = rules.concat_name_adaptive_branches.output.concat_name_adaptive_branches,
+        df_child_parent_relationships = rules.get_parent_child_relationship.output.df_parent_relationships,
+    output:
+        df_name_strains_identical_to_internal_nodes = "results/adaptive_branches/df_strains_identical_to_internal_nodes_CV_{cv_prior}_BF_{BF_threshold}.tsv"
+    shell:
+        """
+        tsv-filter -H --lt branch_length:1.0 {input.df_child_parent_relationships} \
+            | tsv-join -H \
+            --key-fields parent_name \
+            --filter-file <(
+                printf "parent_name\n"
+                cat {input.name_adaptive_branches}
+            ) \
+        | tsv-filter -H --regex 'parent_name:^node_' \
+        | tsv-summarize -H --group-by parent_name --first strain \
+        > {output.df_name_strains_identical_to_internal_nodes}
+        """
+
+rule get_name_internal_nodes_no_identical_descendants:
+    input:
+        name_adaptive_branches = rules.concat_name_adaptive_branches.output.concat_name_adaptive_branches,
+        df_name_strains_identical_to_internal_nodes = rules.get_sample_names_identical_to_internal_adaptive_nodes.output.df_name_strains_identical_to_internal_nodes,
+    output:
+        name_internal_nodes_no_identical_descendants = "results/adaptive_branches/name_adaptive_internal_branches_no_identical_descendants_CV_{cv_prior}_BF_{BF_threshold}.tsv"
+    shell:
+        """
+        tsv-filter -H --regex 'strain:^node_' <(printf "strain\n"; cat {input.name_adaptive_branches}) |
+        tsv-join -H \
+            --filter-file <(awk 'BEGIN{{FS=OFS="\t"}} NR==1 {{$1="strain"; $2="corresponding_strain"}} 1' {input.df_name_strains_identical_to_internal_nodes}) \
+            --key-fields strain \
+            --exclude | sed 1d \
+            > {output.name_internal_nodes_no_identical_descendants}
+        """
+
+rule get_name_internal_nodes_adaptive:
+    input:
+        name_adaptive_branches = rules.concat_name_adaptive_branches.output.concat_name_adaptive_branches,
+    output:
+        name_internal_nodes_adaptive = "results/adaptive_branches/name_adaptive_internal_branches_CV_{cv_prior}_BF_{BF_threshold}.tsv"
+    shell:
+        """
+        tsv-filter -H --regex 'strain:^node_' <(printf "strain\n"; cat {input.name_adaptive_branches}) | sed 1d > {output.name_internal_nodes_adaptive}
+        """
+
+rule ancestral_sequence_reconstruction:
+    "Perform ancestral sequence reconstruction for internal adaptive branches"
+    input:
+        df_child_parent_relationships = rules.get_parent_child_relationship.output.df_parent_relationships,
+        name_internal_nodes_adaptive = rules.get_name_internal_nodes_adaptive.output.name_internal_nodes_adaptive,
+        df_nuc_mut = rules.char_nuc_across_tree.output.df_nuc_mut,
+        ref_fasta = rules.params.input.usher_reference_fasta,
+    output:
+        output_fasta = "results/alignment_adaptive_branches/alignment_adaptive_internal_nodes_CV_{cv_prior}_BF_{BF_threshold}.fasta"
+    shell:
+        """
+        Rscript ./scripts/mat-manipulation/reconstruct_ancestral_seq.R \
+            --df_nuc_mut {input.df_nuc_mut} \
+            --ref_fasta {input.ref_fasta} \
+            --nodes_to_reconstruct {input.name_internal_nodes_adaptive} \
+            --df_child_parent {input.df_child_parent_relationships} \
+            --output_ancestral_fasta {output.output_fasta}
+        """
+
+rule get_viridian_alignment_adaptive_branches:
+    input:
+        name_adaptive_branches = rules.concat_name_adaptive_branches.output.concat_name_adaptive_branches,
+    output:
+        alignment_adaptive_final_nodes = "results/alignment_adaptive_branches/alignment_adaptive_final_nodes_CV_{cv_prior}_BF_{BF_threshold}.fasta",
+    params:
+        url_viridian_1 = "https://api.figshare.com/v2/file/download/45969777",
+        url_viridian_2 = "https://api.figshare.com/v2/file/download/49692480",
+        file_path_viridian_1 = "data/tmp/viridian_alignment_1.tar",
+        file_path_viridian_2 = "data/tmp/viridian_alignment_2.tar",
+        dir_unpacked_viridian = "data/tmp/",
+    shell:
+        """
+        Rscript ./scripts/mat-manipulation/download_viridian_alignment.R \
+            {params.url_viridian_1} {params.url_viridian_2} {params.file_path_viridian_1} {params.file_path_viridian_2} \
+            {params.dir_unpacked_viridian} {params.dir_unpacked_viridian} \
+            {input.name_adaptive_branches} {output.alignment_adaptive_final_nodes}
         """
