@@ -42,7 +42,6 @@ if __name__ == "__main__":
     parser.add_argument('--output_df_nuc_mutations', type=str, required=True, help='TSV output file with nuc mutation by branch')
     args = parser.parse_args()
 
-
     tree = read_tree(args.tree)
 
     tree_expansion = tree.breadth_first_expansion(reverse = True)
