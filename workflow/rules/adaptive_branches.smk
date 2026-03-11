@@ -15,8 +15,8 @@ Rules:
     - get_name_internal_nodes_adaptive: Separate internal from tip nodes
     - ancestral_sequence_reconstruction: Reconstruct sequences for internal nodes
     - get_viridian_alignment_adaptive_branches: Download tip sequences
-    - get_alignment_all_adaptive_branches: Combine all adaptive sequences
-    - get_metadata_all_adaptive_branches: Prepare metadata with dates
+    - get_alignment_all_adaptive_branches: Combine all adaptive sequences and get alignment
+    - get_metadata_all_adaptive_branches: Prepare metadata with dates from adaptive branches
 """
 
 

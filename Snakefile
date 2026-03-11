@@ -22,8 +22,7 @@ CV_PRIORS = [0.95, 1.5, 2.0]
 BF_THRESHOLDS = [31.62277660]
 
 # Include workflow modules
-include: "workflow/rules/viridian.smk"
-include: "workflow/rules/mutations.smk"
+include: "workflow/rules/viridian_analysis.smk"
 include: "workflow/rules/bayesian_model.smk"
 include: "workflow/rules/adaptive_branches.smk"
 include: "workflow/rules/proximity_subsample.smk"

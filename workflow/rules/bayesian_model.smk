@@ -11,9 +11,9 @@ This module handles:
 Rules:
     - prepare_data_model: Format mutation data for model input
     - get_prior_parametrization: Calculate prior parameters from data
-    - run_posterior_predictive_checks: Validate model assumptions
-    - run_bayesian_model: Estimate dN/dS and selection parameters
-    - get_BF_across_model_runs: Compute Bayes Factors for branch selection
+    - run_posterior_predictive_checks: Validate model
+    - run_bayesian_model: Estimate dN,dS and selection parameters
+    - get_BF_across_model_runs: Compute Bayes Factors for branch selection (dN/dS > 1)
 """
 
 
