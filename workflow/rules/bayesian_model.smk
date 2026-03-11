@@ -1,0 +1,104 @@
+"""
+Bayesian model for detecting adaptive evolution.
+
+This module handles:
+- Preparing data for Bayesian model input
+- Parametrizing priors based on tree-wide statistics
+- Running posterior predictive checks
+- Executing the Bayesian model to estimate selection parameters
+- Computing Bayes Factors to identify adaptive branches
+
+Rules:
+    - prepare_data_model: Format mutation data for model input
+    - get_prior_parametrization: Calculate prior parameters from data
+    - run_posterior_predictive_checks: Validate model assumptions
+    - run_bayesian_model: Estimate dN/dS and selection parameters
+    - get_BF_across_model_runs: Compute Bayes Factors for branch selection
+"""
+
+
+rule prepare_data_model:
+    """Prepare data for model run"""
+    input:
+        df_sites = rules.count_sites_per_branch.output.df_sites,
+        df_aa_muts_coded = rules.add_coded_status_aa_mut.output.df_aa_muts_coded,
+    output:
+        data_viridian = "results/input_model/data_viridian_{gene}.tsv",
+        data_viridian_grouped = "results/input_model/data_viridian_{gene}_grouped.tsv",
+    shell:
+        """
+        Rscript ./scripts/bayesian-model/prepare_data_bayesian_model.R \
+            --df_sites {input.df_sites} \
+            --df_aa_muts_coded {input.df_aa_muts_coded} \
+            --output_data_viridian {output.data_viridian} \
+            --output_data_viridian_grouped {output.data_viridian_grouped} \
+            --genome_region {wildcards.gene}
+        """
+
+
+rule get_prior_parametrization:
+    """Get prior parametrization for model run"""
+    input:
+        df_sites = rules.count_sites_per_branch.output.df_sites,
+        df_aa_muts_coded = rules.add_coded_status_aa_mut.output.df_aa_muts_coded,
+        df_parent_child_relationships = rules.get_parent_child_relationship.output.df_parent_relationships,
+    output:
+        df_prior_parametrization = "results/input_model/df_prior_parametrization.tsv"
+    shell:
+        """
+        Rscript ./scripts/bayesian-model/get_prior_parametrization.R \
+            --df_sites {input.df_sites} \
+            --df_aa_muts_coded {input.df_aa_muts_coded} \
+            --df_parent_child {input.df_parent_child_relationships} \
+            --df_prior_param {output.df_prior_parametrization}
+        """
+
+
+rule run_posterior_predictive_checks:
+    """Run posterior predictive checks for each gene and each CV prior"""
+    input:
+        data_viridian_grouped = rules.prepare_data_model.output.data_viridian_grouped,
+        df_prior_parametrization = rules.get_prior_parametrization.output.df_prior_parametrization,
+    output:
+        posterior_simul = "results/posterior_predictive_checks/posterior_predictive_check_{gene}_CV_{cv_prior}.tsv"
+    shell:
+        """
+        Rscript ./scripts/bayesian-model/run_posterior_predictive_checks.R \
+            --df_prior_param {input.df_prior_parametrization} \
+            --genome_region {wildcards.gene} \
+            --CV_prior {wildcards.cv_prior} \
+            --data_viridian_grouped {input.data_viridian_grouped} \
+            --output_posterior_simul {output.posterior_simul}
+        """
+
+
+rule run_bayesian_model:
+    """Run the Bayesian model for each gene and each CV prior"""
+    input:
+        data_viridian_grouped = rules.prepare_data_model.output.data_viridian_grouped,
+        df_prior_parametrization = rules.get_prior_parametrization.output.df_prior_parametrization,
+    output:
+        df_param_estim = "results/output_model/df_param_estim_{gene}_CV_{cv_prior}.tsv"
+    shell:
+        """
+        Rscript ./scripts/bayesian-model/run_bayesian_model_by_gene.R \
+            --data_viridian_grouped {input.data_viridian_grouped} \
+            --df_prior_param {input.df_prior_parametrization} \
+            --CV_prior {wildcards.cv_prior} \
+            --output_param_estim {output.df_param_estim} \
+            --genome_region {wildcards.gene}
+        """
+
+
+rule get_BF_across_model_runs:
+    """Get Bayes Factors across model runs for each gene and each CV prior"""
+    input:
+        df_param_estim = rules.run_bayesian_model.output.df_param_estim,
+    output:
+        df_BF = "results/output_model/df_BF_{gene}_CV_{cv_prior}.tsv"
+    shell:
+        """
+        Rscript ./scripts/bayesian-model/compute_BF_across_branches.R \
+            --df_param_estim {input.df_param_estim} \
+            --df_BF {output.df_BF}
+        """

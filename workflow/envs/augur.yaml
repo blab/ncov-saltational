@@ -1,0 +1,11 @@
+name: augur
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.11
+  - augur
+  - biopython
+  - numpy
+  - pandas
