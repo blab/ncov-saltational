@@ -10,6 +10,7 @@ rule all:
 
         df_parent_relationships = "results/bte/df_parent_child_relationship.tsv",
         df_n_descendants = "results/bte/df_n_descendants_per_node.tsv",
+        chronumental = "results/chronumental/chronumental_inferred_dates.tsv",
 
         data_viridian = expand("results/input_model/data_viridian_{gene}.tsv", gene=GENES),
         data_viridian_grouped = expand("results/input_model/data_viridian_{gene}_grouped.tsv", gene=GENES),
@@ -31,6 +32,68 @@ rule params:
         usher_reference_gtf = "params/reference/reference_seq_all.gtf",
         usher_reference_fasta = "params/reference/reference_seq.fasta",
         viridian_tree = "data/viridian/tree.all_viridian.202409.pb.gz",
+        viridian_taxonium = "data/viridian/tree.all_viridian.202409.jsonl.gz"
+
+rule convert_tree_newick:
+    "Convert UShER tree to newick format - This will be used to run Chronumental"
+    input:
+        usher_tree = rules.params.input.viridian_tree
+    output:
+        tree_newick = "results/viridian/viridian_tree.nwk"
+    conda:
+        "envs/bte.yaml"
+    shell:
+        """
+        matUtils extract \
+            --input-mat {input.usher_tree} \
+            --write-tree {output.tree_newick}
+        """
+
+rule get_metadata_from_taxonium:
+    "Get metadata stored in viridian tree and add reference sequence information"
+    input:
+        taxonium = rules.params.input.viridian_taxonium
+    output:
+        metadata = "results/viridian/metadata.tsv"
+    params:
+        name_reference = "MN908947",
+        date_reference = "2019-12-26", # hospital admission date
+        country_reference = "China",
+        pango_reference = "B"
+    conda:
+        "envs/bte.yaml"
+    shell:
+        """
+        python3 scripts/mat-manipulation/get_metadata_from_taxonium.py \
+            --input_taxonium {input.taxonium} \
+            --output_metadata {output.metadata} \
+            --name_reference {params.name_reference} \
+            --date_reference {params.date_reference} \
+            --country_reference {params.country_reference} \
+            --pango_reference {params.pango_reference}
+        """
+
+rule chronumental:
+    """Run chronumental to estimate time tree"""
+    input:
+        tree = rules.convert_tree_newick.output.tree_newick,
+        metadata = rules.get_metadata_from_taxonium.output.metadata
+    output:
+        inferred_dates = "results/chronumental/chronumental_inferred_dates.tsv",
+        timetree = "results/chronumental/chronumental_time_tree.pb.gz"
+    params:
+        reference_node = "MN908947"
+    conda:
+        "envs/bte.yaml"
+    shell:
+        """
+        chronumental \
+            --tree {input.tree} \
+            --dates {input.metadata} \
+            --dates_out {output.inferred_dates} \
+            --tree_out {output.timetree} \
+            --steps 2000
+        """ 
 
 rule char_nuc_across_tree:
     "List of nucleotide mutations across the UShER tree"
@@ -55,6 +118,8 @@ rule get_translations_per_node:
         reference_seq_fasta = rules.params.input.usher_reference_fasta,
     output:
         node_translations = "results/mutations/nodes_translations.tsv"
+    conda:
+        "envs/bte.yaml"
     shell:
         """
         matUtils summary \
