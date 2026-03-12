@@ -125,7 +125,6 @@ rule get_translations_per_node:
             --translate {output.node_translations}
         """
 
-
 rule tidy_node_translations:
     """Tidy the translations from matUtils summary to a more easily workable format"""
     input:
@@ -158,7 +157,6 @@ rule get_stop_codons:
             --df_aa_muts {input.df_aa_muts} \
             --output_df_stop_codons {output.df_stop_codons}
         """
-
 
 rule add_coded_status_aa_mut:
     """Add whether aa mutation is coded or not"""
