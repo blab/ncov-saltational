@@ -33,7 +33,7 @@ rule convert_tree_newick:
     output:
         tree_newick = "results/viridian/viridian_tree.nwk"
     conda:
-        "workflow/envs/bte.yaml"
+        "../envs/bte.yaml"
     shell:
         """
         matUtils extract \
@@ -54,7 +54,7 @@ rule get_metadata_from_taxonium:
         country_reference = "China",
         pango_reference = "B"
     conda:
-        "workflow/envs/bte.yaml"
+        "../envs/bte.yaml"
     shell:
         """
         python3 scripts/mat-manipulation/get_metadata_from_taxonium.py \
@@ -78,7 +78,7 @@ rule chronumental:
     params:
         reference_node = "MN908947"
     conda:
-        "workflow/envs/bte.yaml"
+        "../envs/bte.yaml"
     shell:
         """
         chronumental \
@@ -97,7 +97,7 @@ rule char_nuc_across_tree:
     output:
         df_nuc_mut = "results/mutations/df_nuc_mut.tsv"
     conda:
-        "workflow/envs/bte.yaml"
+        "../envs/bte.yaml"
     shell:
         """
         python scripts/mat-manipulation/get_nuc_mutation_across_genome.py \
@@ -115,7 +115,7 @@ rule get_translations_per_node:
     output:
         node_translations = "results/mutations/nodes_translations.tsv"
     conda:
-        "workflow/envs/bte.yaml"
+        "../envs/bte.yaml"
     shell:
         """
         matUtils summary \
@@ -150,7 +150,7 @@ rule get_stop_codons:
     output:
         df_stop_codons = "results/bte/df_stop_codons.tsv"
     conda:
-        "workflow/envs/bte.yaml"
+        "../envs/bte.yaml"
     shell:
         """
         python scripts/mat-manipulation/get_stop_codons_across_tree.py \
@@ -180,7 +180,7 @@ rule get_parent_child_relationship:
     output:
         df_parent_relationships = "results/bte/df_parent_child_relationship.tsv"
     conda:
-        "workflow/envs/bte.yaml"
+        "../envs/bte.yaml"
     shell:
         """
         python scripts/mat-manipulation/get_child_parent_relationship.py \
@@ -197,7 +197,7 @@ rule get_n_descendants_per_node:
         df_n_descendants = "results/bte/df_n_descendants_per_node.tsv",
         df_n_children = "results/bte/df_n_children_per_node.tsv"
     conda:
-        "workflow/envs/bte.yaml"
+        "../envs/bte.yaml"
     shell:
         """
         python scripts/mat-manipulation/get_n_descendants_per_node.py \
@@ -216,7 +216,7 @@ rule count_sites_per_branch:
     output:
         df_sites = "results/bte/df_sites_syn_non_syn_truncated_at_stop.tsv"
     conda:
-        "workflow/envs/bte.yaml"
+        "../envs/bte.yaml"
     shell:
         """
         python scripts/mat-manipulation/count_sites_per_branch.py \
