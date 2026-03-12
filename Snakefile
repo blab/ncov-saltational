@@ -9,11 +9,7 @@ Workflow stages:
     2. mutations: Mutation analysis and tree topology
     3. bayesian_model: Selection analysis with Bayesian modeling
     4. adaptive_branches: Identification and preparation of adaptive branches
-    5. proximity_subsample: Background sequence subsampling
-
-For detailed documentation, see:
-    - PROXIMITY_SUBSAMPLING.md: Proximity-based subsampling details
-    - WORKFLOW_STRUCTURE.md: Workflow organization and module descriptions
+    5. mutation_enrichment: Enrichment analysis of mutations in adaptive branches
 """
 
 # Global configuration
@@ -21,27 +17,18 @@ GENES = ['ORF1a', 'ORF1b', 'S', 'ORF3a', 'E', 'M', 'ORF6', 'ORF7a', 'ORF7b', 'OR
 CV_PRIORS = [0.95, 1.5, 2.0]
 BF_THRESHOLDS = [31.62277660]
 
-# Include workflow modules
-include: "workflow/rules/viridian_analysis.smk"
-include: "workflow/rules/bayesian_model.smk"
-include: "workflow/rules/adaptive_branches.smk"
-include: "workflow/rules/proximity_subsample.smk"
-
-
 rule all:
     input:
         df_nuc_mut = "results/mutations/df_nuc_mut.tsv",
         df_aa_muts_coded = "results/mutations/nodes_aa_muts_summary_coded.tsv",
         df_sites = "results/bte/df_sites_syn_non_syn_truncated_at_stop.tsv",
-
         df_parent_relationships = "results/bte/df_parent_child_relationship.tsv",
         df_n_descendants = "results/bte/df_n_descendants_per_node.tsv",
         chronumental = "results/chronumental/chronumental_inferred_dates.tsv",
-
         data_viridian = expand("results/input_model/data_viridian_{gene}.tsv", gene=GENES),
         data_viridian_grouped = expand("results/input_model/data_viridian_{gene}_grouped.tsv", gene=GENES),
         df_prior_parametrization = "results/input_model/df_prior_parametrization.tsv",
-        posterior_simul = expand("results/posterior_predictive_checks/posterior_predictive_check_{gene}_CV_{cv_prior}.tsv", gene=GENES, cv_prior = CV_PRIORS),
+        #posterior_simul = expand("results/posterior_predictive_checks/posterior_predictive_check_{gene}_CV_{cv_prior}.tsv", gene=GENES, cv_prior = CV_PRIORS),
 
         df_param_estim = expand("results/output_model/df_param_estim_{gene}_CV_{cv_prior}.tsv", gene=GENES, cv_prior = CV_PRIORS),
         df_BF = expand("results/output_model/df_BF_{gene}_CV_{cv_prior}.tsv", gene=GENES, cv_prior = CV_PRIORS),
@@ -52,12 +39,9 @@ rule all:
         alignment_adaptive_final_nodes = expand("results/alignment_adaptive_branches/alignment_adaptive_final_nodes_CV_{cv_prior}_BF_{BF_threshold}.fasta", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         alignment_all_adaptive_branches = expand("results/alignment_adaptive_branches/alignment_adaptive_branches_CV_{cv_prior}_BF_{BF_threshold}.fasta", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         metadata = expand("results/alignment_adaptive_branches/metadata_all_adaptive_branches_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
-        #auspice_json = expand("results/nextclade/auspice_nextclade_adaptive_branches_CV_{cv_prior}_BF_{BF_threshold}.json", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
-
-        # Proximity-based subsampling outputs
-        sequences_subsample = expand("results/alignment_adaptive_branches/sequences_subsample_CV_{cv_prior}_BF_{BF_threshold}.fasta", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
-        metadata_subsample = expand("results/alignment_adaptive_branches/metadata_subsample_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
-
+        
+        df_AA_pos_enrichment = expand("results/mutation_enrichment/df_AA_pos_enrichment_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
+        df_AA_mut_enrichment = expand("results/mutation_enrichment/df_AA_mut_enrichment_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
 
 rule params:
     input:
@@ -65,6 +49,12 @@ rule params:
         usher_reference_fasta = "params/reference/reference_seq.fasta",
         viridian_tree = "data/viridian/tree.all_viridian.202409.pb.gz",
         viridian_taxonium = "data/viridian/tree.all_viridian.202409.jsonl.gz"
+
+# Include workflow modules
+include: "workflow/rules/viridian_analysis.smk"
+include: "workflow/rules/bayesian_model.smk"
+include: "workflow/rules/adaptive_branches.smk"
+include: "workflow/rules/mutation_enrichment.smk"
 
 
 rule nextclade:
