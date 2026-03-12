@@ -70,8 +70,8 @@ get_OR_AA_mut <- function(df_aa_muts, vec_name_node_signif, threshold_mut_occ_fo
   }))
   
   
-  df_OR_by_mut$p_value_BH <- p.adjust(df_OR_by_pos$p_value, method = 'BH')
-  df_OR_by_mut$p_value_bonf <- p.adjust(df_OR_by_pos$p_value, method = 'bonferroni')
+  df_OR_by_mut$p_value_BH <- p.adjust(df_OR_by_mut$p_value, method = 'BH')
+  df_OR_by_mut$p_value_bonf <- p.adjust(df_OR_by_mut$p_value, method = 'bonferroni')
   
   return(df_OR_by_mut)
 }
