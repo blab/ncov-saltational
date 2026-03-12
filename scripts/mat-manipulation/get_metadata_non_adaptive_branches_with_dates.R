@@ -23,4 +23,5 @@ metadata_non_adaptive <- read_tsv(args$metadata) %>%
 
 # Save results
 write_tsv(metadata_non_adaptive, args$output_metadata)
-write.table(metadata_non_adaptive$strain, args$vec_tips_non_adaptive_with_dates)
+write.table(metadata_non_adaptive$strain, args$vec_tips_non_adaptive_with_dates,
+            row.names = FALSE, col.names = FALSE, quote = FALSE)
