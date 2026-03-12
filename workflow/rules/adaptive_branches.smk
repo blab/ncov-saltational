@@ -105,7 +105,6 @@ rule get_viridian_alignment_adaptive_branches:
             {input.name_adaptive_branches} {output.alignment_adaptive_final_nodes}
         """
 
-
 rule get_alignment_all_adaptive_branches:
     """Combine internal node and tip sequences for all adaptive branches"""
     input:
@@ -117,7 +116,6 @@ rule get_alignment_all_adaptive_branches:
         """
         cat {input.alignment_adaptive_final_nodes} {input.alignment_adaptive_internal_nodes} > {output.alignment_all_adaptive_branches}
         """
-
 
 rule get_metadata_all_adaptive_branches:
     """Prepare metadata for all adaptive branches with inferred dates"""
