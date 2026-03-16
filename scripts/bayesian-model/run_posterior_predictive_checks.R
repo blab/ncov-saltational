@@ -2,6 +2,8 @@ library(extraDistr)
 library(tidyverse)
 library(argparse)
 library(zipfR)
+library(doParallel)
+library(foreach)
 
 source('scripts/bayesian-model/utils_model.R')
 
@@ -36,7 +38,11 @@ simulate_from_posterior <- function(df_prior, gene_data, gene, CV_prior){
   # Load gene data
   n_replicate_simul <- 100
   
-  df_simul_from_posterior <- Reduce('bind_rows', lapply(1:nrow(gene_data), FUN = function(i_row){
+  n_cores <- 3
+  cl <- makeForkCluster(n_cores)
+  registerDoParallel(cl)
+  t0 <- Sys.time()
+  df_simul_from_posterior <- Reduce('bind_rows', foreach(i_row = 1:nrow(gene_data), .packages = c('tidyverse')) %dopar% {
     data_gene <- list('N' = gene_data$non_synonymous_muts[i_row], 
                       'S' = gene_data$synonymous_muts[i_row], 
                       'LN' = gene_data$nonsyn_sites[i_row],
@@ -54,7 +60,7 @@ simulate_from_posterior <- function(df_prior, gene_data, gene, CV_prior){
         summarise(n_branches_new = n()) %>% 
         mutate(i_row = i_row, i_simul = i_simul)
     }))
-  })) %>% 
+  }) %>% 
     mutate(gene = gene, CV_prior = CV_prior)
   
   return(df_simul_from_posterior)
