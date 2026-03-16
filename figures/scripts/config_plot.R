@@ -25,3 +25,11 @@ palette_spike <- c(
   'S2' = 'orange2',
   'Other S' = 'black'
 )
+
+## Colour for synonymous and non-synonymous
+col_synonymous <- 'darkcyan'
+col_non_synonymous <- 'firebrick2'
+
+## Colour for posterior and prior
+col_prior <- 'hotpink3'
+col_posterior <-'black'
