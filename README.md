@@ -2,29 +2,21 @@
 
 ## Setup & installation
 We use conda to define an environment containing all the required depencencies to run the Snakemake pipeline.
-We can then use conda to install the required dependencies.
-The environment can be created and activated using the following commands:
-
-```bash
-# Install
-conda env create -f envs/bte.yaml
-# Activate (not necessary here as the environment will be automatically activated within the Snakemake workflow)
-source activate bte
-```
-
-If needed, the environment can be deactivated / deleted using the following command:
-```bash
-# Deactivate 
-conda deactivate
-# Remove
-conda env remove --name bte
-```
 
 The `Snakefile` can be run using:
 
 ```bash
 snakemake --use-conda --conda-frontend conda --cores 1
 ```
+
+### NCBI API Key Setup
+
+The pipeline queries NCBI databases (BioSample and SRA) for metadata extraction. It is possible to add the API key to one's configuration by editing `config/config.yaml` and add your API key:
+```yaml
+ncbi_api_key: "your_api_key_here"
+```
+
+**Note**: The NCBI EDirect tools use the `NCBI_API_KEY` environment variable internally. The pipeline automatically sets this from the config file.
 
 ## Repository organisation
 
