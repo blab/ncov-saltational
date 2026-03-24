@@ -1,0 +1,104 @@
+acc,biosample,releasedate,collection_date_sam,geo_loc_name_country_calc,geo_loc_name_sam,jattr,date
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+,,,,,,,
+ERR13309756,SAMEA14396734,7/28/24,1/24/22,Denmark,NA,"{""bases"": 218426181, ""bytes"": 73932039, ""run_file_create_date"": ""2024-08-09T21:06:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13309729,SAMEA14406620,7/28/24,1/30/22,Denmark,NA,"{""bases"": 148227768, ""bytes"": 51096809, ""run_file_create_date"": ""2024-08-09T04:08:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR11797573,SAMEA14390912,9/1/23,1/17/22,Denmark,NA,"{""bases"": 136190809, ""bytes"": 47818783, ""run_file_create_date"": ""2023-09-03T11:26:00.000Z"", ""primary_search"": ""28483797""}",NA
+ERR12901781,SAMEA14406751,7/27/24,2/2/22,Denmark,NA,"{""bases"": 75601098, ""bytes"": 29726479, ""run_file_create_date"": ""2024-08-07T22:11:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13309490,SAMEA14396639,7/28/24,1/21/22,Denmark,NA,"{""bases"": 204860779, ""bytes"": 72494758, ""run_file_create_date"": ""2024-08-24T01:47:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13306516,SAMEA14390892,7/28/24,1/21/22,Denmark,NA,"{""bases"": 103368922, ""bytes"": 34527160, ""run_file_create_date"": ""2024-08-18T17:53:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13315371,SAMEA14396727,7/28/24,1/22/22,Denmark,NA,"{""bases"": 248620694, ""bytes"": 82620906, ""run_file_create_date"": ""2024-08-18T19:23:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13309391,SAMEA14354128,7/28/24,1/20/22,Denmark,NA,"{""bases"": 149184929, ""bytes"": 55082421, ""run_file_create_date"": ""2024-08-09T00:14:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13315045,SAMEA14396733,7/28/24,1/24/22,Denmark,NA,"{""bases"": 243681332, ""bytes"": 90256535, ""run_file_create_date"": ""2024-08-09T04:15:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13315940,SAMEA14396689,7/28/24,1/24/22,Denmark,NA,"{""bases"": 259616420, ""bytes"": 87087930, ""run_file_create_date"": ""2024-08-09T18:13:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12906097,SAMEA14406419,7/27/24,1/31/22,Denmark,NA,"{""bases"": 76881197, ""bytes"": 30925089, ""run_file_create_date"": ""2024-08-07T21:59:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12906086,SAMEA14406491,7/27/24,1/31/22,Denmark,NA,"{""bases"": 63536597, ""bytes"": 24659993, ""run_file_create_date"": ""2024-08-08T10:52:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12920769,SAMEA14454957,7/26/24,2/13/22,Denmark,NA,"{""bases"": 75148714, ""bytes"": 29397098, ""run_file_create_date"": ""2024-08-06T11:53:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13315103,SAMEA14390208,7/28/24,1/18/22,Denmark,NA,"{""bases"": 156231813, ""bytes"": 52618388, ""run_file_create_date"": ""2024-08-08T22:34:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13306435,SAMEA14390913,7/28/24,1/19/22,Denmark,NA,"{""bases"": 392865348, ""bytes"": 128446135, ""run_file_create_date"": ""2024-08-09T21:13:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13306749,SAMEA14390761,7/28/24,1/19/22,Denmark,NA,"{""bases"": 330069058, ""bytes"": 107681502, ""run_file_create_date"": ""2024-08-09T18:40:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13315051,SAMEA14397097,7/28/24,1/24/22,Denmark,NA,"{""bases"": 238477248, ""bytes"": 78777577, ""run_file_create_date"": ""2024-08-20T02:46:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12903016,SAMEA14406079,7/27/24,1/30/22,Denmark,NA,"{""bases"": 59974426, ""bytes"": 24023645, ""run_file_create_date"": ""2024-08-08T10:45:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12905110,SAMEA14455083,7/27/24,2/11/22,Denmark,NA,"{""bases"": 51207412, ""bytes"": 20044495, ""run_file_create_date"": ""2024-08-08T10:48:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12896149,SAMEA14390776,7/27/24,1/20/22,Denmark,NA,"{""bases"": 42076518, ""bytes"": 16378797, ""run_file_create_date"": ""2024-08-20T14:18:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13311246,SAMEA14396714,7/28/24,1/24/22,Denmark,NA,"{""bases"": 158191398, ""bytes"": 53095213, ""run_file_create_date"": ""2024-08-09T18:16:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13314869,SAMEA14390474,7/28/24,1/22/22,Denmark,NA,"{""bases"": 109646742, ""bytes"": 37224342, ""run_file_create_date"": ""2024-08-09T04:25:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13315949,SAMEA14396939,7/28/24,1/23/22,Denmark,NA,"{""bases"": 233900996, ""bytes"": 78443050, ""run_file_create_date"": ""2024-08-09T18:13:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12898472,SAMEA14390906,7/27/24,1/19/22,Denmark,NA,"{""bases"": 73103873, ""bytes"": 27365545, ""run_file_create_date"": ""2024-08-08T10:28:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12902496,SAMEA14390651,7/27/24,1/20/22,Denmark,NA,"{""bases"": 61118522, ""bytes"": 23757762, ""run_file_create_date"": ""2024-08-23T05:40:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13309904,SAMEA14396624,7/28/24,1/26/22,Denmark,NA,"{""bases"": 169053517, ""bytes"": 56469117, ""run_file_create_date"": ""2024-08-11T00:24:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13314725,SAMEA14406598,7/28/24,1/30/22,Denmark,NA,"{""bases"": 124512221, ""bytes"": 43222276, ""run_file_create_date"": ""2024-08-09T03:57:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12899779,SAMEA14396756,7/27/24,1/24/22,Denmark,NA,"{""bases"": 60594401, ""bytes"": 24092808, ""run_file_create_date"": ""2024-08-08T10:53:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13315370,SAMEA14396774,7/28/24,1/24/22,Denmark,NA,"{""bases"": 174978418, ""bytes"": 57826240, ""run_file_create_date"": ""2024-08-20T10:29:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13310493,SAMEA14390326,7/28/24,1/19/22,Denmark,NA,"{""bases"": 166490419, ""bytes"": 54225558, ""run_file_create_date"": ""2024-08-09T04:24:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13310440,SAMEA14390032,7/28/24,1/21/22,Denmark,NA,"{""bases"": 154581556, ""bytes"": 52610548, ""run_file_create_date"": ""2024-08-09T04:21:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12899556,SAMEA14396703,7/27/24,1/24/22,Denmark,NA,"{""bases"": 70756381, ""bytes"": 28132650, ""run_file_create_date"": ""2024-08-07T22:25:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12904958,SAMEA14454889,7/27/24,2/11/22,Denmark,NA,"{""bases"": 63006583, ""bytes"": 25018948, ""run_file_create_date"": ""2024-08-20T06:47:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13308573,SAMEA14390787,7/28/24,1/22/22,Denmark,NA,"{""bases"": 288186622, ""bytes"": 96659556, ""run_file_create_date"": ""2024-08-09T04:15:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR11797556,SAMEA14390480,9/1/23,1/22/22,Denmark,NA,"{""bases"": 136420973, ""bytes"": 45140100, ""run_file_create_date"": ""2023-09-03T11:26:00.000Z"", ""primary_search"": ""28483627""}",NA
+ERR11797572,SAMEA14390900,9/1/23,1/19/22,Denmark,NA,"{""bases"": 118645115, ""bytes"": 39528256, ""run_file_create_date"": ""2023-09-03T11:26:00.000Z"", ""primary_search"": ""28483785""}",NA
+ERR12905198,SAMEA14454763,7/27/24,2/11/22,Denmark,NA,"{""bases"": 36993800, ""bytes"": 14319405, ""run_file_create_date"": ""2024-08-20T02:43:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR11803420,SAMEA14396731,9/1/23,1/24/22,Denmark,NA,"{""bases"": 198092942, ""bytes"": 65511840, ""run_file_create_date"": ""2023-09-03T12:36:00.000Z"", ""primary_search"": ""28517546""}",NA
+ERR13311006,SAMEA14396656,7/28/24,1/23/22,Denmark,NA,"{""bases"": 302196452, ""bytes"": 100690278, ""run_file_create_date"": ""2024-08-09T04:19:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13306740,SAMEA14396953,7/28/24,1/23/22,Denmark,NA,"{""bases"": 161901409, ""bytes"": 54436522, ""run_file_create_date"": ""2024-08-09T04:15:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13306905,SAMEA14390773,7/28/24,1/21/22,Denmark,NA,"{""bases"": 275337911, ""bytes"": 90400903, ""run_file_create_date"": ""2024-08-09T03:57:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12901312,SAMEA14406261,7/27/24,1/30/22,Denmark,NA,"{""bases"": 75566633, ""bytes"": 30412970, ""run_file_create_date"": ""2024-08-08T10:59:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12899033,SAMEA14396726,7/27/24,1/23/22,Denmark,NA,"{""bases"": 66276033, ""bytes"": 26445313, ""run_file_create_date"": ""2024-08-20T02:46:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12900510,SAMEA14396955,7/27/24,1/25/22,Denmark,NA,"{""bases"": 55365235, ""bytes"": 21596736, ""run_file_create_date"": ""2024-08-08T11:06:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13310200,SAMEA14390461,7/28/24,1/20/22,Denmark,NA,"{""bases"": 231465665, ""bytes"": 75461702, ""run_file_create_date"": ""2024-08-09T21:03:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13315562,SAMEA14406742,7/28/24,1/31/22,Denmark,NA,"{""bases"": 168663198, ""bytes"": 58263518, ""run_file_create_date"": ""2024-08-09T04:13:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12899210,SAMEA14406259,7/27/24,1/26/22,Denmark,NA,"{""bases"": 78794386, ""bytes"": 31425551, ""run_file_create_date"": ""2024-08-21T01:36:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13314512,SAMEA14406071,7/28/24,1/26/22,Denmark,NA,"{""bases"": 266863814, ""bytes"": 91582631, ""run_file_create_date"": ""2024-08-09T04:21:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12905103,SAMEA14454769,7/27/24,2/13/22,Denmark,NA,"{""bases"": 30880748, ""bytes"": 12239389, ""run_file_create_date"": ""2024-08-08T10:53:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR11797551,SAMEA14390358,9/1/23,1/21/22,Denmark,NA,"{""bases"": 141659370, ""bytes"": 51764952, ""run_file_create_date"": ""2023-09-03T11:26:00.000Z"", ""primary_search"": ""28483600""}",NA
+ERR11797577,SAMEA14390924,9/1/23,1/22/22,Denmark,NA,"{""bases"": 224777722, ""bytes"": 74243549, ""run_file_create_date"": ""2023-09-03T11:26:00.000Z"", ""primary_search"": ""28483809""}",NA
+ERR13314217,SAMEA14390934,7/28/24,1/21/22,Denmark,NA,"{""bases"": 137453853, ""bytes"": 47290832, ""run_file_create_date"": ""2024-08-09T03:56:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12904694,SAMEA14406263,7/27/24,1/26/22,Denmark,NA,"{""bases"": 74599089, ""bytes"": 30084283, ""run_file_create_date"": ""2024-08-08T10:49:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12902627,SAMEA14396964,7/27/24,1/24/22,Denmark,NA,"{""bases"": 63455389, ""bytes"": 26138389, ""run_file_create_date"": ""2024-08-08T10:53:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13315717,SAMEA14396687,7/28/24,1/24/22,Denmark,NA,"{""bases"": 231293402, ""bytes"": 77675576, ""run_file_create_date"": ""2024-08-11T00:17:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12894623,SAMEA14390498,7/27/24,1/21/22,Denmark,NA,"{""bases"": 63121785, ""bytes"": 23815297, ""run_file_create_date"": ""2024-08-09T03:28:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12898622,SAMEA14390351,7/27/24,1/21/22,Denmark,NA,"{""bases"": 34998725, ""bytes"": 13637931, ""run_file_create_date"": ""2024-08-08T10:44:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR11797550,SAMEA14390355,9/1/23,1/20/22,Denmark,NA,"{""bases"": 213272894, ""bytes"": 70216192, ""run_file_create_date"": ""2023-09-03T11:26:00.000Z"", ""primary_search"": ""28483597""}",NA
+ERR12898225,SAMEA14390764,7/27/24,1/19/22,Denmark,NA,"{""bases"": 92276249, ""bytes"": 35303735, ""run_file_create_date"": ""2024-08-08T10:39:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR11797569,SAMEA14390779,9/1/23,1/20/22,Denmark,NA,"{""bases"": 167809245, ""bytes"": 58934214, ""run_file_create_date"": ""2023-09-03T11:26:00.000Z"", ""primary_search"": ""28483751""}",NA
+ERR11797566,SAMEA14390767,9/1/23,1/21/22,Denmark,NA,"{""bases"": 76954317, ""bytes"": 29479700, ""run_file_create_date"": ""2023-09-03T11:26:00.000Z"", ""primary_search"": ""28483739""}",NA
+ERR13308665,SAMEA14390184,7/28/24,1/19/22,Denmark,NA,"{""bases"": 70806227, ""bytes"": 23815863, ""run_file_create_date"": ""2024-08-09T04:13:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12894605,SAMEA14390936,7/27/24,1/21/22,Denmark,NA,"{""bases"": 56864973, ""bytes"": 21317896, ""run_file_create_date"": ""2024-08-08T10:40:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR11797548,SAMEA14390329,9/1/23,1/20/22,Denmark,NA,"{""bases"": 209652983, ""bytes"": 69125207, ""run_file_create_date"": ""2023-09-03T11:26:00.000Z"", ""primary_search"": ""28483571""}",NA
+ERR13309372,SAMEA14396704,7/28/24,1/24/22,Denmark,NA,"{""bases"": 204166323, ""bytes"": 67561734, ""run_file_create_date"": ""2024-08-10T00:49:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12898384,SAMEA14390769,7/27/24,1/21/22,Denmark,NA,"{""bases"": 61211476, ""bytes"": 23211834, ""run_file_create_date"": ""2024-08-07T22:15:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12900956,SAMEA14390010,7/27/24,1/19/22,Denmark,NA,"{""bases"": 51486183, ""bytes"": 19552615, ""run_file_create_date"": ""2024-08-08T10:56:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13308322,SAMEA14390786,7/28/24,1/22/22,Denmark,NA,"{""bases"": 68715370, ""bytes"": 22643420, ""run_file_create_date"": ""2024-08-09T00:12:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12901551,SAMEA14406254,7/27/24,1/27/22,Denmark,NA,"{""bases"": 63704423, ""bytes"": 25239932, ""run_file_create_date"": ""2024-08-21T06:36:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12901925,SAMEA14406244,7/27/24,1/26/22,Denmark,NA,"{""bases"": 63533694, ""bytes"": 25104327, ""run_file_create_date"": ""2024-08-08T10:53:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13310060,SAMEA14390780,7/28/24,1/21/22,Denmark,NA,"{""bases"": 281955653, ""bytes"": 91951250, ""run_file_create_date"": ""2024-08-09T04:21:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12905877,SAMEA14406243,7/27/24,1/27/22,Denmark,NA,"{""bases"": 50558149, ""bytes"": 19891352, ""run_file_create_date"": ""2024-08-08T10:45:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13308385,SAMEA14390349,7/28/24,1/18/22,Denmark,NA,"{""bases"": 264841103, ""bytes"": 85873297, ""run_file_create_date"": ""2024-08-09T04:03:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12921378,SAMEA14455094,7/26/24,2/13/22,Denmark,NA,"{""bases"": 68917274, ""bytes"": 26737460, ""run_file_create_date"": ""2024-08-07T01:23:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12902493,SAMEA14406415,7/27/24,1/26/22,Denmark,NA,"{""bases"": 82221285, ""bytes"": 32458951, ""run_file_create_date"": ""2024-08-24T01:26:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12895116,SAMEA14390193,7/27/24,1/18/22,Denmark,NA,"{""bases"": 55291753, ""bytes"": 20702068, ""run_file_create_date"": ""2024-08-08T10:46:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12898405,SAMEA14390321,7/27/24,1/21/22,Denmark,NA,"{""bases"": 47539606, ""bytes"": 18043176, ""run_file_create_date"": ""2024-08-08T10:38:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13315154,SAMEA14396948,7/28/24,1/24/22,Denmark,NA,"{""bases"": 234165567, ""bytes"": 77925832, ""run_file_create_date"": ""2024-08-09T00:09:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12903163,SAMEA14406619,7/27/24,1/29/22,Denmark,NA,"{""bases"": 75172167, ""bytes"": 29674307, ""run_file_create_date"": ""2024-08-08T10:50:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR11797512,SAMEA14390035,9/1/23,1/18/22,Denmark,NA,"{""bases"": 77264630, ""bytes"": 31415336, ""run_file_create_date"": ""2023-09-03T11:25:00.000Z"", ""primary_search"": ""28483187""}",NA
+ERR13283410,SAMEA14390602,7/28/24,1/21/22,Denmark,NA,"{""bases"": 169681828, ""bytes"": 56798555, ""run_file_create_date"": ""2024-08-19T10:36:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12904865,SAMEA14406100,7/27/24,1/27/22,Denmark,NA,"{""bases"": 69353290, ""bytes"": 27551411, ""run_file_create_date"": ""2024-08-19T00:48:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12899660,SAMEA14396763,7/27/24,1/24/22,Denmark,NA,"{""bases"": 49302022, ""bytes"": 18937311, ""run_file_create_date"": ""2024-08-08T10:49:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12899683,SAMEA14406104,7/27/24,1/30/22,Denmark,NA,"{""bases"": 73866354, ""bytes"": 28986495, ""run_file_create_date"": ""2024-08-08T10:40:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR13314868,SAMEA14390623,7/28/24,1/22/22,Denmark,NA,"{""bases"": 126797277, ""bytes"": 42791129, ""run_file_create_date"": ""2024-08-09T04:03:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12901947,SAMEA14406277,7/27/24,1/29/22,Denmark,NA,"{""bases"": 86066308, ""bytes"": 33680710, ""run_file_create_date"": ""2024-08-07T22:02:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12896191,SAMEA14397093,7/27/24,1/25/22,Denmark,NA,"{""bases"": 71108321, ""bytes"": 28416618, ""run_file_create_date"": ""2024-08-08T11:18:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12905164,SAMEA14406076,7/27/24,1/25/22,Denmark,NA,"{""bases"": 67074688, ""bytes"": 26554689, ""run_file_create_date"": ""2024-08-08T10:55:00.000Z"", ""primary_search"": ""1077563""}",NA
+ERR12898811,SAMEA14406494,7/27/24,1/29/22,Denmark,NA,"{""bases"": 71730267, ""bytes"": 28558883, ""run_file_create_date"": ""2024-08-21T01:36:00.000Z"", ""primary_search"": ""1077563""}",NA
