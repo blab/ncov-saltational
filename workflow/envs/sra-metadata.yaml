@@ -1,0 +1,11 @@
+name: sra-metadata
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - entrez-direct>=16.2  # EDirect tools (esearch, efetch, epost)
+  - tsv-utils  # TSV manipulation with column names
+  - r-base>=4.0
+  - r-tidyverse
+  - r-argparse
