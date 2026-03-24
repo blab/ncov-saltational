@@ -161,40 +161,144 @@ create_model <- function(data, prior_param){
                    prob = (prior_param$beta_S + data$LS) / (prior_param$beta_S + 2 * data$LS)))
   }
   
+  # Simulate from prior for dN and dS
+  simulate_from_prior_dN <- function(n_rep){
+    rgamma(n = n_rep,
+           shape = prior_param$alpha_N,
+           rate  = prior_param$beta_N)
+  }
+  
+  simulate_from_prior_dS <- function(n_rep){
+    rgamma(n = n_rep,
+           shape = prior_param$alpha_S,
+           rate  = prior_param$beta_S)
+  }
+  
+  # Simulate from posterior for dN and dS
+  simulate_from_posterior_dN <- function(n_rep){
+    rgamma(n = n_rep,
+           shape = prior_param$alpha_N + data$N,
+           rate  = prior_param$beta_N + data$LN)
+  }
+  
+  simulate_from_posterior_dS <- function(n_rep){
+    rgamma(n = n_rep,
+           shape = prior_param$alpha_S + data$S,
+           rate  = prior_param$beta_S + data$LS)
+  }
+  
   return(
     list(
       # Prior distribution
       'get_prior_density_dN' = get_prior_density_dN(),
       'get_prior_density_dS' = get_prior_density_dS(),
       'get_log_prior_density_omega' = get_log_prior_density_omega(),
-      
+
       # Posterior distribution
       'get_posterior_density_dN' = get_posterior_density_dN(),
       'get_posterior_density_dS' = get_posterior_density_dS(),
       'get_log_posterior_density_omega' = get_log_posterior_density_omega(),
-      
+
       'get_quantile_posterior_dN' = get_quantile_posterior_dN,
       'get_quantile_posterior_dS' = get_quantile_posterior_dS,
       'get_quantile_posterior_omega' = get_quantile_posterior_omega,
-      
+
       'mean_posterior_dN' = mean_posterior_dN,
       'mean_posterior_dS' = mean_posterior_dS,
       'mean_posterior_omega' = mean_posterior_omega,
       'mode_posterior_dN' = mode_posterior_dN,
       'mode_posterior_dS' = mode_posterior_dS,
       'mode_posterior_omega' = mode_posterior_omega,
-      
+
       # Probability that the posterior and prior for omega are > 1
       'posterior_proba_omega_greater_1' = posterior_proba_omega_greater_1,
       'prior_proba_omega_greater_1' = prior_proba_omega_greater_1,
-      
+
       # Marginal likelihood
       'marginal_likelihood_N' = marginal_likelihood_N,
       'marginal_likelihood_S' = marginal_likelihood_S,
-      
+
       # Simulations from the posterior
       'simulate_from_posterior_N' = simulate_from_posterior_N,
-      'simulate_from_posterior_S' = simulate_from_posterior_S
+      'simulate_from_posterior_S' = simulate_from_posterior_S,
+
+      'simulate_from_prior_dN' = simulate_from_prior_dN,
+      'simulate_from_prior_dS' = simulate_from_prior_dS,
+      'simulate_from_posterior_dN' = simulate_from_posterior_dN,
+      'simulate_from_posterior_dS' = simulate_from_posterior_dS
     )
   )
+}
+
+# Compute genome-wide parameter estimates from gene-level posteriors/priors
+# Uses hierarchical approach with site-weighted averaging across genes
+#
+# Args:
+#   branch_row: Single row from genome data (wide format with gene-specific columns)
+#   vec_genes: Vector of gene names
+#   prior_params_list: Named list of prior parameters for each gene
+#   n_rep: Number of Monte Carlo draws (default 1000)
+#   draw_type: "posterior" or "prior"
+#
+# Returns:
+#   List with dN_gen, dS_gen, omega_gen (each a vector of n_rep draws)
+compute_genome_draws <- function(branch_row, vec_genes,
+                                 prior_params_list,
+                                 n_rep = 1000,
+                                 draw_type = c("posterior", "prior")){
+
+  n_genes <- length(vec_genes)
+
+  # Initialize storage for draws
+  LN <- numeric(n_genes)
+  LS <- numeric(n_genes)
+  dN_mat <- matrix(NA_real_, nrow = n_genes, ncol = n_rep)
+  dS_mat <- matrix(NA_real_, nrow = n_genes, ncol = n_rep)
+
+  # For each gene, create model and generate draws
+  for (j in seq_along(vec_genes)) {
+    g <- vec_genes[j]
+
+    # Extract gene-specific data from wide-format row
+    LN[j] <- branch_row[[paste0("nonsyn_sites_", g)]]
+    LS[j] <- branch_row[[paste0("syn_sites_", g)]]
+
+    data_g <- list(
+      N  = branch_row[[paste0("non_synonymous_muts_", g)]],
+      S  = branch_row[[paste0("synonymous_muts_", g)]],
+      LN = LN[j],
+      LS = LS[j]
+    )
+
+    # Create gene-specific Bayesian model
+    model_g <- create_model(data = data_g, prior_param = prior_params_list[[g]])
+
+    # Generate Monte Carlo draws from posterior or prior
+    if (draw_type == "posterior") {
+      dN_mat[j, ] <- model_g$simulate_from_posterior_dN(n_rep)
+      dS_mat[j, ] <- model_g$simulate_from_posterior_dS(n_rep)
+    } else {
+      dN_mat[j, ] <- model_g$simulate_from_prior_dN(n_rep)
+      dS_mat[j, ] <- model_g$simulate_from_prior_dS(n_rep)
+    }
+  }
+
+  # Compute site-weighted genome-wide estimates
+  # Weight by available sites: more sites = more influence
+  weight_N <- LN / sum(LN)
+  weight_S <- LS / sum(LS)
+
+  dN_gen <- as.numeric(crossprod(weight_N, dN_mat))
+  dS_gen <- as.numeric(crossprod(weight_S, dS_mat))
+
+  # Compute omega, handling cases where dS is zero or very small
+  # Replace Inf/NaN with NA, which will be handled by summarize_draws
+  omega_gen <- dN_gen / dS_gen
+  omega_gen[!is.finite(omega_gen)] <- NA_real_
+
+  return(list(
+    dN_gen = dN_gen,
+    dS_gen = dS_gen,
+    omega_gen = omega_gen
+  ))
 }
