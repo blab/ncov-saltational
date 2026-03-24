@@ -290,11 +290,7 @@ compute_genome_draws <- function(branch_row, vec_genes,
 
   dN_gen <- as.numeric(crossprod(weight_N, dN_mat))
   dS_gen <- as.numeric(crossprod(weight_S, dS_mat))
-
-  # Compute omega, handling cases where dS is zero or very small
-  # Replace Inf/NaN with NA, which will be handled by summarize_draws
   omega_gen <- dN_gen / dS_gen
-  omega_gen[!is.finite(omega_gen)] <- NA_real_
 
   return(list(
     dN_gen = dN_gen,
