@@ -25,11 +25,33 @@ Rules:
     - count_sites_per_branch: Count syn/nonsyn sites per branch
 """
 
+rule subset_viridian_tree:
+    """
+    Subset the Viridian tree to only include strains from the filtered metadata.
+
+    This removes non-human samples (cell cultures, wastewater, etc.) identified
+    by the tidy_final_metadata rule.
+    """
+    input:
+        tree = rules.params.input.viridian_tree,
+        strains_to_keep = rules.tidy_final_metadata.output.strains_to_keep
+    output:
+        subset_tree = "results/viridian/viridian_tree_subset.pb.gz"
+    conda:
+        "../envs/bte.yaml"
+    shell:
+        """
+        matUtils extract \
+            --input-mat {input.tree} \
+            --samples {input.strains_to_keep} \
+            --write-mat {output.subset_tree}
+        """
+
 
 rule convert_tree_newick:
     """Convert UShER tree to newick format - This will be used to run Chronumental"""
     input:
-        usher_tree = rules.params.input.viridian_tree
+        usher_tree = rules.subset_viridian_tree.output.subset_tree
     output:
         tree_newick = "results/viridian/viridian_tree.nwk"
     conda:
@@ -41,37 +63,11 @@ rule convert_tree_newick:
             --write-tree {output.tree_newick}
         """
 
-
-rule get_metadata_from_taxonium:
-    """Get metadata stored in viridian tree and add reference sequence information"""
-    input:
-        taxonium = rules.params.input.viridian_taxonium
-    output:
-        metadata = "results/viridian/metadata.tsv"
-    params:
-        name_reference = "MN908947",
-        date_reference = "2019-12-26", # hospital admission date
-        country_reference = "China",
-        pango_reference = "B"
-    conda:
-        "../envs/bte.yaml"
-    shell:
-        """
-        python3 scripts/mat-manipulation/get_metadata_from_taxonium.py \
-            --input_taxonium {input.taxonium} \
-            --output_metadata {output.metadata} \
-            --name_reference {params.name_reference} \
-            --date_reference {params.date_reference} \
-            --country_reference {params.country_reference} \
-            --pango_reference {params.pango_reference}
-        """
-
-
 rule chronumental:
     """Run chronumental to estimate time tree"""
     input:
         tree = rules.convert_tree_newick.output.tree_newick,
-        metadata = rules.get_metadata_from_taxonium.output.metadata
+        metadata = rules.tidy_final_metadata.output.subset_metadata
     output:
         inferred_dates = "results/chronumental/chronumental_inferred_dates.tsv",
         timetree = "results/chronumental/chronumental_time_tree.pb.gz"
@@ -93,7 +89,7 @@ rule chronumental:
 rule char_nuc_across_tree:
     """List of nucleotide mutations across the UShER tree"""
     input:
-        tree = rules.params.input.viridian_tree,
+        tree = rules.subset_viridian_tree.output.subset_tree,
     output:
         df_nuc_mut = "results/mutations/df_nuc_mut.tsv"
     conda:
@@ -109,7 +105,7 @@ rule char_nuc_across_tree:
 rule get_translations_per_node:
     """Get mutation information across tree"""
     input:
-        mat = rules.params.input.viridian_tree,
+        mat = rules.subset_viridian_tree.output.subset_tree,
         reference_seq_gtf = rules.params.input.usher_reference_gtf,
         reference_seq_fasta = rules.params.input.usher_reference_fasta,
     output:
@@ -144,7 +140,7 @@ rule tidy_node_translations:
 rule get_stop_codons:
     """Get stop codons across tree for each node"""
     input:
-        tree = rules.params.input.viridian_tree,
+        tree = rules.subset_viridian_tree.output.subset_tree,
         df_aa_muts = rules.tidy_node_translations.output.aa_muts,
     output:
         df_stop_codons = "results/bte/df_stop_codons.tsv"
@@ -174,7 +170,7 @@ rule add_coded_status_aa_mut:
 rule get_parent_child_relationship:
     """Extract parent-child relationships from tree topology"""
     input:
-        tree = rules.params.input.viridian_tree,
+        tree = rules.subset_viridian_tree.output.subset_tree,
     output:
         df_parent_relationships = "results/bte/df_parent_child_relationship.tsv"
     conda:
@@ -190,7 +186,7 @@ rule get_parent_child_relationship:
 rule get_n_descendants_per_node:
     """Get number of descendants per node"""
     input:
-        tree = rules.params.input.viridian_tree,
+        tree = rules.subset_viridian_tree.output.subset_tree,
     output:
         df_n_descendants = "results/bte/df_n_descendants_per_node.tsv",
         df_n_children = "results/bte/df_n_children_per_node.tsv"
@@ -204,11 +200,10 @@ rule get_n_descendants_per_node:
             --output_df_n_children {output.df_n_children}
         """
 
-
 rule count_sites_per_branch:
     """Count the number of possible syn and nonsyn mutations available per gene on each branch of the MAT tree"""
     input:
-        tree = rules.params.input.viridian_tree,
+        tree = rules.subset_viridian_tree.output.subset_tree,
         reference_seq_gtf = rules.params.input.usher_reference_gtf,
         reference_seq_fasta = rules.params.input.usher_reference_fasta,
     output:
@@ -224,3 +219,4 @@ rule count_sites_per_branch:
             --results-file {output.df_sites} \
             --truncate-at-stop
         """
+
