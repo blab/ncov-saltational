@@ -2,6 +2,7 @@ library(extraDistr)
 library(tidyverse)
 library(argparse)
 library(zipfR)
+library(parallel)
 
 source('scripts/bayesian-model/utils_model.R')
 
@@ -12,6 +13,7 @@ collect_args <- function(){
   parser$add_argument('--CV_prior', type = 'double', help = 'CV for prior parametrization')
   parser$add_argument('--genome_region', type = 'character', help = 'Genome region (should be "Genome")')
   parser$add_argument('--output_param_estim', type = 'character', help = 'TSV file for model run')
+  parser$add_argument('--n_cores', type = 'integer', default = 1, help = 'Number of cores for parallel processing')
   return(parser$parse_args())
 }
 
@@ -19,10 +21,14 @@ args <- collect_args()
 
 # Run hierarchical Bayesian model for genome-wide analysis
 # Uses gene-level posteriors combined with site-weighted averaging
-run_genome_model <- function(df_prior, genome_data_grouped, CV_prior){
+run_genome_model <- function(df_prior, genome_data_grouped, CV_prior, n_cores = 1){
 
   # Define gene vector
   vec_genes <- c('ORF1a', 'ORF1b', 'S', 'ORF3a', 'E', 'M', 'ORF6', 'ORF7a', 'ORF7b', 'ORF8', 'N', 'ORF9b')
+
+  # Print progress information
+  cat(sprintf("Running genome-wide model with %d cores on %d unique branch patterns\n",
+              n_cores, nrow(genome_data_grouped)))
 
   # Create gene-specific prior parameters list
   prior_params_list <- lapply(vec_genes, FUN = function(curr_gene){
@@ -54,9 +60,8 @@ run_genome_model <- function(df_prior, genome_data_grouped, CV_prior){
     )
   }
 
-  # Run model for each unique branch pattern
-  df_param_estim <- Reduce('bind_rows', lapply(1:nrow(genome_data_grouped), FUN = function(i_row){
-
+  # Process each branch pattern (function to be run in parallel)
+  process_branch <- function(i_row) {
     branch_row <- genome_data_grouped[i_row, ]
 
     # Generate posterior and prior draws using hierarchical approach
@@ -153,19 +158,34 @@ run_genome_model <- function(df_prior, genome_data_grouped, CV_prior){
         CV_prior = CV_prior
       )
     )
-  }))
+  }
+
+  # Run model for all branch patterns with parallel processing
+  if (n_cores > 1) {
+    # Parallel processing
+    cat(sprintf("Using parallel processing with %d cores\n", n_cores))
+    results_list <- mclapply(1:nrow(genome_data_grouped),
+                             process_branch,
+                             mc.cores = n_cores)
+    df_param_estim <- bind_rows(results_list)
+  } else {
+    # Serial processing (for debugging or single core)
+    cat("Using serial processing (1 core)\n")
+    df_param_estim <- Reduce('bind_rows',
+                              lapply(1:nrow(genome_data_grouped), process_branch))
+  }
 
   return(df_param_estim)
 }
 
 # Load prior parametrization
-df_prior <- read_tsv(args$df_prior_param)
+df_prior <- read_tsv(args$df_prior_param, show_col_types = FALSE)
 
 # Load genome-level grouped data
-genome_data_grouped <- read_tsv(args$data_viridian_grouped)
+genome_data_grouped <- read_tsv(args$data_viridian_grouped, show_col_types = FALSE)
 
-# Run genome-wide model
-df_param_estim <- run_genome_model(df_prior, genome_data_grouped, args$CV_prior)
+# Run genome-wide model with parallelization
+df_param_estim <- run_genome_model(df_prior, genome_data_grouped, args$CV_prior, args$n_cores)
 
 # Save results
 write_tsv(df_param_estim, args$output_param_estim)
