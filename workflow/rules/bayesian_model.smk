@@ -36,6 +36,20 @@ rule prepare_data_model:
         """
 
 
+rule aggregate_genome_data:
+    """Convert genome-wide gene-level data to aggregated format for downstream compatibility"""
+    input:
+        data_viridian_wide = "results/input_model/data_viridian_Genome.tsv"
+    output:
+        data_viridian_aggregated = "results/input_model/data_viridian_Genome_aggregated.tsv"
+    shell:
+        """
+        Rscript ./scripts/bayesian-model/aggregate_genome_data.R \
+            --data_viridian_wide {input.data_viridian_wide} \
+            --output {output.data_viridian_aggregated}
+        """
+
+
 rule get_prior_parametrization:
     """Get prior parametrization for model run"""
     input:
@@ -61,14 +75,25 @@ rule run_posterior_predictive_checks:
         df_prior_parametrization = rules.get_prior_parametrization.output.df_prior_parametrization,
     output:
         posterior_simul = "results/posterior_predictive_checks/posterior_predictive_check_{gene}_CV_{cv_prior}.tsv"
+    threads: 8
+    params:
+        script = lambda wildcards: (
+            "./scripts/bayesian-model/run_posterior_predictive_checks_genome.R"
+            if wildcards.gene == "Genome"
+            else "./scripts/bayesian-model/run_posterior_predictive_checks.R"
+        ),
+        n_cores_arg = lambda wildcards, threads: (
+            f"--n_cores {threads}" if wildcards.gene == "Genome" else ""
+        )
     shell:
         """
-        Rscript ./scripts/bayesian-model/run_posterior_predictive_checks.R \
+        Rscript {params.script} \
             --df_prior_param {input.df_prior_parametrization} \
             --genome_region {wildcards.gene} \
             --CV_prior {wildcards.cv_prior} \
             --data_viridian_grouped {input.data_viridian_grouped} \
-            --output_posterior_simul {output.posterior_simul}
+            --output_posterior_simul {output.posterior_simul} \
+            {params.n_cores_arg}
         """
 
 
@@ -79,14 +104,25 @@ rule run_bayesian_model:
         df_prior_parametrization = rules.get_prior_parametrization.output.df_prior_parametrization,
     output:
         df_param_estim = "results/output_model/df_param_estim_{gene}_CV_{cv_prior}.tsv"
+    threads: 8
+    params:
+        script = lambda wildcards: (
+            "./scripts/bayesian-model/run_bayesian_model_genome.R"
+            if wildcards.gene == "Genome"
+            else "./scripts/bayesian-model/run_bayesian_model_by_gene.R"
+        ),
+        n_cores_arg = lambda wildcards, threads: (
+            f"--n_cores {threads}" if wildcards.gene == "Genome" else ""
+        )
     shell:
         """
-        Rscript ./scripts/bayesian-model/run_bayesian_model_by_gene.R \
+        Rscript {params.script} \
             --data_viridian_grouped {input.data_viridian_grouped} \
             --df_prior_param {input.df_prior_parametrization} \
             --CV_prior {wildcards.cv_prior} \
             --output_param_estim {output.df_param_estim} \
-            --genome_region {wildcards.gene}
+            --genome_region {wildcards.gene} \
+            {params.n_cores_arg}
         """
 
 
