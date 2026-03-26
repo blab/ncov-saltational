@@ -67,12 +67,12 @@ rule chronumental:
     """Run chronumental to estimate time tree"""
     input:
         tree = rules.convert_tree_newick.output.tree_newick,
-        metadata = rules.tidy_final_metadata.output.subset_metadata
+        metadata = rules.clean_dates.output.metadata
     output:
         inferred_dates = "results/chronumental/chronumental_inferred_dates.tsv",
         timetree = "results/chronumental/chronumental_time_tree.pb.gz"
     params:
-        reference_node = "MN908947"
+        reference_node = "SRR11597132"
     conda:
         "../envs/bte.yaml"
     shell:
@@ -82,6 +82,7 @@ rule chronumental:
             --dates {input.metadata} \
             --dates_out {output.inferred_dates} \
             --tree_out {output.timetree} \
+            --reference_node {params.reference_node} \
             --steps 2000
         """
 

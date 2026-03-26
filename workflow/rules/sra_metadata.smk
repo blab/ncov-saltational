@@ -474,3 +474,23 @@ rule tidy_final_metadata:
             --output_strains_to_keep {output.strains_to_keep} \
             --output_subset_metadata {output.subset_metadata}
         """
+
+
+rule clean_dates:
+    """
+    Remove entries with dates that are too old
+    """
+    input:
+        metadata = rules.tidy_final_metadata.output.subset_metadata,
+    output:
+        metadata = "results/sra_metadata/sra_metadata_just_clean_dates.tsv"
+    conda:
+        "../envs/sra-metadata.yaml"
+    shell:
+        """
+        Rscript scripts/sra-metadata/remove_incorrect_dates.R \
+            --metadata {input.metadata} \
+            --output_metadata {output.metadata}
+        """
+
+
