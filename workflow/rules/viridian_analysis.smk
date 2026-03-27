@@ -189,16 +189,14 @@ rule get_n_descendants_per_node:
     input:
         tree = rules.subset_viridian_tree.output.subset_tree,
     output:
-        df_n_descendants = "results/bte/df_n_descendants_per_node.tsv",
-        df_n_children = "results/bte/df_n_children_per_node.tsv"
+        df_n_descendants = "results/bte/df_n_descendants_per_node.tsv"
     conda:
         "../envs/bte.yaml"
     shell:
         """
         python scripts/mat-manipulation/get_n_descendants_per_node.py \
             --tree {input.tree} \
-            --output_df_n_descendants {output.df_n_descendants} \
-            --output_df_n_children {output.df_n_children}
+            --output_df_n_descendants {output.df_n_descendants}
         """
 
 rule count_sites_per_branch:
