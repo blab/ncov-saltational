@@ -2,7 +2,7 @@ library(tidyverse)
 library(binom)
 
 # Load adaptive branches names
-name_adaptive_branches <- read.table('../../results/adaptive_branches/concat_name_adaptive_branches_BF_31.6227766.tsv', 
+name_adaptive_branches <- read.table('../../results/adaptive_branches/concat_name_adaptive_branches_CV_1.7_BF_31.6227766.tsv', 
                                      header = F) %>% unlist() %>% as.character()
 
 # Load name of all branches
@@ -77,7 +77,7 @@ col_internal <- '#f7b274'
 col_terminal <- '#a7bafa'
 col_all <- 'gray35'
 
-scaler_nb_branches <- 5000
+scaler_nb_branches <- 10000
 plt_nb_branches_per_year <- df_branches_with_dates_branch_count_per_year %>% 
   select(year_final, n_adaptive_internal, n_adaptive_terminal) %>% 
   pivot_longer(cols = 2:3, names_to = 'branch_type', names_prefix = 'n_adaptive_',
