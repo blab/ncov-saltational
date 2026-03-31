@@ -13,7 +13,7 @@ rule get_name_internal_nodes_adaptive:
     input:
         name_adaptive_branches = rules.concat_name_adaptive_branches.output.concat_name_adaptive_branches,
     output:
-        name_internal_nodes_adaptive = "results/tree_building/name_adaptive_internal_branches_{BF_threshold}.tsv"
+        name_internal_nodes_adaptive = "results/tree_building/name_adaptive_internal_branches_CV_{cv_prior}_BF_{BF_threshold}.tsv"
     shell:
         """
         tsv-filter -H --regex 'strain:^node_' <(printf "strain\n"; cat {input.name_adaptive_branches}) | sed 1d > {output.name_internal_nodes_adaptive}
@@ -27,7 +27,8 @@ rule ancestral_sequence_reconstruction:
         df_nuc_mut = rules.char_nuc_across_tree.output.df_nuc_mut,
         ref_fasta = rules.params.input.usher_reference_fasta,
     output:
-        output_fasta = "results/tree_building/alignment_adaptive_internal_nodes_BF_{BF_threshold}.fasta"
+        output_fasta = "results/tree_building/alignment_adaptive_internal_nodes_CV_{cv_prior}_BF_{BF_threshold}.fasta"
+    threads: 4
     shell:
         """
         Rscript ./scripts/mat-manipulation/reconstruct_ancestral_seq.R \
@@ -35,7 +36,8 @@ rule ancestral_sequence_reconstruction:
             --ref_fasta {input.ref_fasta} \
             --nodes_to_reconstruct {input.name_internal_nodes_adaptive} \
             --df_child_parent {input.df_child_parent_relationships} \
-            --output_ancestral_fasta {output.output_fasta}
+            --output_ancestral_fasta {output.output_fasta} \
+            --n_cores {threads}
         """
 
 rule get_viridian_alignment_adaptive_branches:
@@ -43,7 +45,7 @@ rule get_viridian_alignment_adaptive_branches:
     input:
         name_adaptive_branches = rules.concat_name_adaptive_branches.output.concat_name_adaptive_branches,
     output:
-        alignment_adaptive_final_nodes = "results/tree_building/alignment_adaptive_final_nodes_BF_{BF_threshold}.fasta",
+        alignment_adaptive_final_nodes = "results/tree_building/alignment_adaptive_final_nodes_CV_{cv_prior}_BF_{BF_threshold}.fasta",
     params:
         url_viridian_1 = "https://api.figshare.com/v2/file/download/45969777",
         url_viridian_2 = "https://api.figshare.com/v2/file/download/49692480",
@@ -64,35 +66,10 @@ rule get_alignment_all_adaptive_branches:
         alignment_adaptive_final_nodes = rules.get_viridian_alignment_adaptive_branches.output.alignment_adaptive_final_nodes,
         alignment_adaptive_internal_nodes = rules.ancestral_sequence_reconstruction.output.output_fasta,
     output:
-        alignment_all_adaptive_branches = "results/alignment_adaptive_branches/alignment_adaptive_branches_BF_{BF_threshold}.fasta"
+        alignment_all_adaptive_branches = "results/alignment_adaptive_branches/alignment_adaptive_branches_CV_{cv_prior}_BF_{BF_threshold}.fasta"
     shell:
         """
         cat {input.alignment_adaptive_final_nodes} {input.alignment_adaptive_internal_nodes} > {output.alignment_all_adaptive_branches}
-        """
-
-
-
-
-
-
-
-
-
-rule get_metadata_all_adaptive_branches:
-    """Prepare metadata for all adaptive branches with inferred dates"""
-    input:
-        chronumental_inferred_dates = rules.chronumental.output.inferred_dates,
-        name_adaptive_branches = rules.concat_name_adaptive_branches.output.concat_name_adaptive_branches,
-        metadata = rules.tidy_final_metadata.output.subset_metadata,
-    output:
-        metadata = "results/alignment_adaptive_branches/metadata_all_adaptive_branches_CV_{cv_prior}_BF_{BF_threshold}.tsv"
-    shell:
-        """
-        Rscript ./scripts/mat-manipulation/get_dates_adaptive_branches.R \
-            --chronumental {input.chronumental_inferred_dates} \
-            --names_adapt_branches {input.name_adaptive_branches} \
-            --metadata {input.metadata} \
-            --output_metadata {output.metadata}
         """
 
 rule rename_internal_nodes_fasta:
@@ -100,27 +77,11 @@ rule rename_internal_nodes_fasta:
     input:
         internal_nodes = rules.ancestral_sequence_reconstruction.output.output_fasta,
     output:
-        renamed_fasta = "results/proximity/internal_nodes_renamed_CV_{cv_prior}_BF_{BF_threshold}.fasta"
+        renamed_fasta = temp("results/tree_building/internal_nodes_renamed_CV_{cv_prior}_BF_{BF_threshold}.fasta")
     shell:
         """
         # Rename sequence headers: node_XXX -> adaptive_node_XXX
         sed 's/>node_/>adaptive_node_/g' {input.internal_nodes} > {output.renamed_fasta}
-        """
-
-rule rename_internal_nodes_list:
-    """Create renamed list of internal adaptive nodes for extraction"""
-    input:
-        adaptive_branches = rules.concat_name_adaptive_branches.output.concat_name_adaptive_branches,
-    output:
-        renamed_nodes = "results/proximity/internal_nodes_renamed_list_CV_{cv_prior}_BF_{BF_threshold}.txt",
-        tips_only = "results/proximity/adaptive_branches_tips_only_CV_{cv_prior}_BF_{BF_threshold}.txt"
-    shell:
-        """
-        # Extract internal nodes and rename them
-        grep "^node_" {input.adaptive_branches} | sed 's/^node_/adaptive_node_/' > {output.renamed_nodes}
-
-        # Extract tips only (no internal nodes)
-        grep -v "^node_" {input.adaptive_branches} > {output.tips_only}
         """
 
 rule convert_internal_nodes_to_vcf:
@@ -129,7 +90,7 @@ rule convert_internal_nodes_to_vcf:
         reference = rules.params.input.usher_reference_fasta,
         internal_nodes = rules.rename_internal_nodes_fasta.output.renamed_fasta,
     output:
-        vcf = "results/proximity/internal_nodes_renamed_CV_{cv_prior}_BF_{BF_threshold}.vcf"
+        vcf = temp("results/tree_building/internal_nodes_renamed_CV_{cv_prior}_BF_{BF_threshold}.vcf")
     conda:
         "../envs/tree-proximity.yaml"
     shell:
@@ -145,12 +106,12 @@ rule convert_internal_nodes_to_vcf:
         """
 
 rule add_internal_nodes_to_tree:
-    """Add renamed internal nodes to Viridian tree using UShER"""
+    """Add renamed internal nodes to Viridian tree using UShER - this tree will then be used for proximity-based subsampling of background sequences for adaptive branches"""
     input:
-        tree = rules.params.input.viridian_tree,
+        tree = rules.subset_viridian_tree.output.subset_tree,
         vcf = rules.convert_internal_nodes_to_vcf.output.vcf,
     output:
-        tree_updated = "results/proximity/viridian_tree_with_internal_nodes_CV_{cv_prior}_BF_{BF_threshold}.pb"
+        tree_updated = "results/tree_building/viridian_tree_with_internal_nodes_CV_{cv_prior}_BF_{BF_threshold}.pb"
     threads: 4
     conda:
         "../envs/tree-proximity.yaml"
@@ -163,43 +124,84 @@ rule add_internal_nodes_to_tree:
             --threads {threads}
         """
 
-rule combine_all_adaptive_samples:
-    """Combine tips + renamed internal nodes for extraction"""
+rule get_adaptive_nodes_list_for_proximity:
+    """Create renamed list of internal adaptive nodes and combine with tips"""
     input:
-        tips = rules.rename_internal_nodes_list.output.tips_only,
-        renamed_nodes = rules.rename_internal_nodes_list.output.renamed_nodes,
+        adaptive_branches = rules.concat_name_adaptive_branches.output.concat_name_adaptive_branches,
     output:
-        all_samples = "results/proximity/all_adaptive_samples_CV_{cv_prior}_BF_{BF_threshold}.txt"
+        renamed_nodes = "results/tree_building/internal_nodes_renamed_list_CV_{cv_prior}_BF_{BF_threshold}.txt",
+        tips_only = "results/tree_building/adaptive_branches_tips_only_CV_{cv_prior}_BF_{BF_threshold}.txt",
+        combined_adaptive_branches = "results/tree_building/adaptive_branches_combined_CV_{cv_prior}_BF_{BF_threshold}.txt"
     shell:
         """
-        cat {input.tips} {input.renamed_nodes} > {output.all_samples}
+        # Extract internal nodes and rename them
+        grep "^node_" {input.adaptive_branches} | sed 's/^node_/adaptive_node_/' > {output.renamed_nodes}
+
+        # Extract tips only (no internal nodes)
+        grep -v "^node_" {input.adaptive_branches} > {output.tips_only}
+
+        # Combine renamed internal nodes and tips
+        cat {output.renamed_nodes} {output.tips_only} > {output.combined_adaptive_branches}
         """
 
-rule get_proximal_sequences_from_tree:
-    """Find 5 nearest phylogenetic neighbors for ALL adaptive branches (tips + internal) using matUtils extract"""
+
+rule sample_proximity_from_tree:
+    """Sample background sequences in proximity to adaptive branches from updated tree with internal nodes"""
     input:
         tree = rules.add_internal_nodes_to_tree.output.tree_updated,
-        all_samples = rules.combine_all_adaptive_samples.output.all_samples,
+        name_adaptive_branches = rules.get_adaptive_nodes_list_for_proximity.output.combined_adaptive_branches,
     output:
-        proximal_samples_all = "results/proximity/proximal_samples_all_CV_{cv_prior}_BF_{BF_threshold}.txt"
+        mat = "results/tree_building/proximity_tree_CV_{cv_prior}_BF_{BF_threshold}.pb.gz",
+        tree = "results/tree_building/proximity_tree_CV_{cv_prior}_BF_{BF_threshold}.nwk",
+        taxodium = "results/tree_building/proximity_tree_CV_{cv_prior}_BF_{BF_threshold}.jsonl.gz",
+        proximity_samples = "results/tree_building/proximity_samples_CV_{cv_prior}_BF_{BF_threshold}.txt"
+    params:
+        proximity_param = 5,
+        n_random_samples = 6000,
+        reference_gtf = rules.params.input.usher_reference_gtf,
+        reference_fasta = rules.params.input.usher_reference_fasta
     conda:
         "../envs/tree-proximity.yaml"
     shell:
         """
         matUtils extract \
             --input-mat {input.tree} \
-            --samples {input.all_samples} \
-            --select-nearest 5 \
-            --used-samples {output.proximal_samples_all}
+            --samples {input.name_adaptive_branches} \
+            --select-nearest {params.proximity_param} \
+            --add-random {params.n_random_samples} \
+            --used-samples {output.proximity_samples} \
+            --write-mat {output.mat} \
+            --write-tree {output.tree} \
+            --write-taxodium {output.taxodium} \
+            --title "Phylogenetic tree with adaptive branches" \
+            --include-nt \
+            --input-gtf {params.reference_gtf} \
+            --input-fasta {params.reference_fasta}
+
         """
 
-
-rule download_viridian_proximal_alignment:
-    """Download Viridian sequences for the 5 nearest phylogenetic neighbors (includes adaptive branches)"""
+rule get_proximity_background_samples_only:
+    """Filter proximity samples to exclude ALL adaptive branches (both internal and terminal) - keep only background/context samples"""
     input:
-        strain_names = rules.get_proximal_sequences_from_tree.output.proximal_samples_all,
+        proximity_samples = rules.sample_proximity_from_tree.output.proximity_samples,
+        adaptive_branches = rules.get_adaptive_nodes_list_for_proximity.output.combined_adaptive_branches,
     output:
-        alignment_proximal = "results/proximity/alignment_proximal_CV_{cv_prior}_BF_{BF_threshold}.fasta",
+        background_samples = "results/tree_building/proximity_background_only_CV_{cv_prior}_BF_{BF_threshold}.txt"
+    shell:
+        """
+        # Remove adaptive_node_* internal nodes, then remove all adaptive branches
+        comm -23 \
+            <(grep -v "^adaptive_node_" {input.proximity_samples} | sort) \
+            <(cat {input.adaptive_branches} | sort) \
+            > {output.background_samples}
+        """
+
+rule download_viridian_sequences_proximity_background:
+    """Download sequences for background/context samples from Viridian (excludes adaptive branches)"""
+    input:
+        background_samples = rules.get_proximity_background_samples_only.output.background_samples,
+    output:
+        alignment_background = "results/tree_building/alignment_proximity_background_CV_{cv_prior}_BF_{BF_threshold}.fasta"
     params:
         url_viridian_1 = "https://api.figshare.com/v2/file/download/45969777",
         url_viridian_2 = "https://api.figshare.com/v2/file/download/49692480",
@@ -209,21 +211,79 @@ rule download_viridian_proximal_alignment:
     shell:
         """
         Rscript ./scripts/mat-manipulation/download_viridian_alignment.R \
-            {params.url_viridian_1} {params.url_viridian_2} {params.file_path_viridian_1} {params.file_path_viridian_2} \
+            {params.url_viridian_1} {params.url_viridian_2} \
+            {params.file_path_viridian_1} {params.file_path_viridian_2} \
             {params.dir_unpacked_viridian} {params.dir_unpacked_viridian} \
-            {input.strain_names} {output.alignment_proximal}
+            {input.background_samples} {output.alignment_background}
         """
 
-
-rule combine_adaptive_with_proximal_context:
-    """Combine adaptive branches with their 5 nearest phylogenetic neighbors"""
+rule combine_proximity_alignment:
+    """Combine adaptive branches alignment with background sequences for full proximity tree alignment"""
     input:
-        adaptive = rules.get_alignment_all_adaptive_branches.output.alignment_all_adaptive_branches,
-        proximal = rules.download_viridian_proximal_alignment.output.alignment_proximal,
+        adaptive_alignment = rules.get_alignment_all_adaptive_branches.output.alignment_all_adaptive_branches,
+        background_alignment = rules.download_viridian_sequences_proximity_background.output.alignment_background,
     output:
-        combined = "results/proximity/adaptive_with_phylo_context_CV_{cv_prior}_BF_{BF_threshold}.fasta"
+        combined_alignment = "results/tree_building/alignment_proximity_all_CV_{cv_prior}_BF_{BF_threshold}.fasta"
     shell:
         """
-        cat {input.adaptive} {input.proximal} > {output.combined}
+        cat {input.adaptive_alignment} {input.background_alignment} > {output.combined_alignment}
         """
 
+rule augur_align_proximity_sequences:
+    """Align proximity sequences (adaptive + background) to reference genome"""
+    input:
+        sequences = rules.combine_proximity_alignment.output.combined_alignment,
+        reference = rules.params.input.usher_reference_fasta,
+    output:
+        alignment = "results/tree_building/aligned_proximity_sequences_CV_{cv_prior}_BF_{BF_threshold}.fasta"
+    threads: 4
+    shell:
+        """
+        augur align \
+            --sequences {input.sequences} \
+            --reference-sequence {input.reference} \
+            --output {output.alignment} \
+            --fill-gaps \
+            --nthreads {threads}
+        """
+
+rule get_metadata_proximity_samples:
+    """Aggregate metadata (dates) for all proximity samples (adaptive + context + random)"""
+    input:
+        proximity_samples = rules.sample_proximity_from_tree.output.proximity_samples,
+        chronumental = rules.chronumental.output.inferred_dates,
+        metadata = rules.tidy_final_metadata.output.subset_metadata,
+    output:
+        metadata = "results/tree_building/metadata_proximity_samples_CV_{cv_prior}_BF_{BF_threshold}.tsv"
+    shell:
+        """
+        Rscript ./scripts/tree-proximity/get_metadata_proximity_samples.R \
+            --proximity_samples {input.proximity_samples} \
+            --chronumental {input.chronumental} \
+            --metadata {input.metadata} \
+            --output_metadata {output.metadata}
+        """
+
+rule proximity_time_tree:
+    """Refine proximity tree with temporal information using augur refine"""
+    input:
+        tree = rules.sample_proximity_from_tree.output.tree,
+        alignment = rules.augur_align_proximity_sequences.output.alignment,
+        metadata = rules.get_metadata_proximity_samples.output.metadata,
+    output:
+        tree = "results/tree_building/proximity_time_tree_CV_{cv_prior}_BF_{BF_threshold}.nwk",
+        node_data = "results/tree_building/proximity_branch_lengths_CV_{cv_prior}_BF_{BF_threshold}.json"
+    threads: 4
+    shell:
+        """
+        augur refine \
+            --tree {input.tree} \
+            --alignment {input.alignment} \
+            --metadata {input.metadata} \
+            --output-tree {output.tree} \
+            --output-node-data {output.node_data} \
+            --timetree \
+            --coalescent opt \
+            --divergence-units mutations \
+            --keep-root
+        """
