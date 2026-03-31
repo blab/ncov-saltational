@@ -1,5 +1,6 @@
 library(tidyverse)
 library(argparse)
+library(parallel)
 
 collect_args <- function(){
   parser <- ArgumentParser()
@@ -34,29 +35,29 @@ get_OR_AA_mut <- function(df_aa_muts, vec_name_node_signif, threshold_mut_occ_fo
     filter(n_mutations >= threshold_mut_occ_for_inclusion) %>% 
     select(gene, mut_direction)
     
-  df_OR_by_mut <- Reduce('bind_rows', lapply(1:nrow(df_mutated_pos), FUN = function(i_row){
+  df_OR_by_mut <- Reduce('bind_rows', mclapply(1:nrow(df_mutated_pos), FUN = function(i_row){
     curr_gene <- df_mutated_pos$gene[i_row]
     curr_pos <- df_mutated_pos$mut_direction[i_row]
-    
-    df_muts_counts <- df_aa_muts_counts_by_branch_type %>% 
-      mutate(is_mut = (gene == curr_gene) & (mut_direction == curr_pos)) %>% 
+
+    df_muts_counts <- df_aa_muts_counts_by_branch_type %>%
+      mutate(is_mut = (gene == curr_gene) & (mut_direction == curr_pos)) %>%
       group_by(is_mut, is_adaptive) %>% summarise(n_mutations = sum(n_mutations))
-      
+
     n_mut_of_interest_adapt_branches <- df_muts_counts$n_mutations[df_muts_counts$is_adaptive == T & df_muts_counts$is_mut == T]
     n_mut_of_interest_normal_branches <- df_muts_counts$n_mutations[df_muts_counts$is_adaptive == F & df_muts_counts$is_mut == T]
     n_other_muts_adapt_branches <- df_muts_counts$n_mutations[df_muts_counts$is_adaptive == T & df_muts_counts$is_mut == F]
     n_other_muts_normal_branches <- df_muts_counts$n_mutations[df_muts_counts$is_adaptive == F & df_muts_counts$is_mut == F]
-    
+
     n_mut_of_interest_adapt_branches <- ifelse(length(n_mut_of_interest_adapt_branches) == 0, 0, n_mut_of_interest_adapt_branches)
     n_mut_of_interest_normal_branches <- ifelse(length(n_mut_of_interest_normal_branches) == 0, 0, n_mut_of_interest_normal_branches)
     n_other_muts_adapt_branches <- ifelse(length(n_other_muts_adapt_branches) == 0, 0, n_other_muts_adapt_branches)
     n_other_muts_normal_branches <- ifelse(length(n_other_muts_normal_branches) == 0, 0, n_other_muts_normal_branches)
-    
+
     mat_fisher <- matrix(c(n_mut_of_interest_adapt_branches, n_mut_of_interest_normal_branches, n_other_muts_adapt_branches, n_other_muts_normal_branches),
                          nrow = 2, ncol = 2, byrow = T)
-    
+
     f_test <- fisher.test(x = mat_fisher)
-    
+
     df_fisher <- tibble(OR = as.numeric(f_test$estimate),
                         OR_lower = as.numeric(f_test$conf.int[1]),
                         OR_upper = as.numeric(f_test$conf.int[2]),
@@ -67,7 +68,7 @@ get_OR_AA_mut <- function(df_aa_muts, vec_name_node_signif, threshold_mut_occ_fo
                         n_other_muts_normal_branches = n_other_muts_normal_branches,
                         gene = curr_gene,
                         mutation = curr_pos)
-  }))
+  }, mc.cores = detectCores() - 1))
   
   
   df_OR_by_mut$p_value_BH <- p.adjust(df_OR_by_mut$p_value, method = 'BH')
