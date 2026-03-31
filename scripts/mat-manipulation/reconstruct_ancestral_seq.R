@@ -1,6 +1,7 @@
 library(tidyverse)
 library(argparse)
 library(seqinr)
+library(parallel)
 
 collect_args <- function(){
   parser <- ArgumentParser()
@@ -9,6 +10,7 @@ collect_args <- function(){
   parser$add_argument('--nodes_to_reconstruct', type = 'character', help = 'TSV file with names of ancestral nodes to be reconstructed')
   parser$add_argument('--df_child_parent', type = 'character', help = 'TSV file with child parent relationships')
   parser$add_argument('--output_ancestral_fasta', type = 'character', help = 'FASTA file for output ancestral sequence')
+  parser$add_argument('--n_cores', type = 'integer', default = 1, help = 'Number of cores to use for parallelization')
   return(parser$parse_args())
 }
 
@@ -54,10 +56,11 @@ get_mutations_from_root <- function(node_name, root_name = 'node_1', df_child_pa
   df_position_within_path <- tibble(position_id = 1:length(path_to_root),
                                     strain = path_to_root)
   
-  df_mut_from_root <- df_nuc_mut %>% 
-    filter(strain %in% path_to_root) %>% 
-    left_join(df_position_within_path) %>% 
-    group_by(nuc_position) %>% filter(position_id == min(position_id)) %>%  # Only retain last mutated nuc
+  df_mut_from_root <- df_nuc_mut %>%
+    filter(strain %in% path_to_root) %>%
+    left_join(df_position_within_path, by = "strain") %>%
+    group_by(nuc_position) %>%
+    filter(position_id == min(position_id)) %>%  # Only retain last mutated nuc
     ungroup()
 
   return(df_mut_from_root)
@@ -76,10 +79,15 @@ get_alignment_node <- function(node_name, root_name, df_child_parent, df_nuc_mut
   return(node_alignment)
 }
 
-# Reconstruct ancestral sequences
-list_ancestral_sequences <- lapply(vec_nodes_to_reconstruct, FUN = function(node_name){
+# Determine number of cores to use
+n_cores <- min(args$n_cores, parallel::detectCores())
+message(sprintf("Using %d cores for parallelization", n_cores))
+
+# Reconstruct ancestral sequences in parallel
+list_ancestral_sequences <- mclapply(vec_nodes_to_reconstruct,
+                                      FUN = function(node_name){
   toupper(get_alignment_node(node_name, root_name = 'node_1', df_child_parent, df_nuc_mut, ref_alignment))
-})
+}, mc.cores = n_cores)
 
 # Save output
 write.fasta(list_ancestral_sequences, file.out = args$output_ancestral_fasta, names = vec_nodes_to_reconstruct)
