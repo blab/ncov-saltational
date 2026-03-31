@@ -21,7 +21,7 @@ args <- collect_args()
 
 # Run hierarchical Bayesian model for genome-wide analysis
 # Uses gene-level posteriors combined with site-weighted averaging
-run_genome_model <- function(df_prior, genome_data_grouped, CV_prior, n_cores = 1){
+run_genome_model <- function(df_prior, genome_data_grouped, CV_prior, n_cores = 8){
 
   # Define gene vector
   vec_genes <- c('ORF1a', 'ORF1b', 'S', 'ORF3a', 'E', 'M', 'ORF6', 'ORF7a', 'ORF7b', 'ORF8', 'N', 'ORF9b')
@@ -29,6 +29,9 @@ run_genome_model <- function(df_prior, genome_data_grouped, CV_prior, n_cores = 
   # Print progress information
   cat(sprintf("Running genome-wide model with %d cores on %d unique branch patterns\n",
               n_cores, nrow(genome_data_grouped)))
+  cat(sprintf("Each pattern processes %d genes with %d Monte Carlo draws\n", length(vec_genes), 1000))
+  cat(sprintf("Estimated total computations: %s\n",
+              format(nrow(genome_data_grouped) * length(vec_genes) * 2000, big.mark = ",")))
 
   # Create gene-specific prior parameters list
   prior_params_list <- lapply(vec_genes, FUN = function(curr_gene){
@@ -59,132 +62,135 @@ run_genome_model <- function(df_prior, genome_data_grouped, CV_prior, n_cores = 
       posterior_97.5 = unname(quantile(x, 0.975))
     )
   }
-
-  # Process each branch pattern (function to be run in parallel)
-  process_branch <- function(i_row) {
-    branch_row <- genome_data_grouped[i_row, ]
-
-    # Generate posterior and prior draws using hierarchical approach
-    # (compute_genome_draws imported from utils_model.R)
-    posterior_draws <- compute_genome_draws(
-      branch_row, vec_genes, prior_params_list,
-      n_rep = 1000, draw_type = 'posterior'
-    )
-
-    prior_draws <- compute_genome_draws(
-      branch_row, vec_genes, prior_params_list,
-      n_rep = 1000, draw_type = 'prior'
-    )
-
-    # Aggregate observed quantities across genes for output metadata
-    synonymous_muts <- sum(sapply(vec_genes, function(g) branch_row[[paste0("synonymous_muts_", g)]]))
-    non_synonymous_muts <- sum(sapply(vec_genes, function(g) branch_row[[paste0("non_synonymous_muts_", g)]]))
-    syn_sites <- sum(sapply(vec_genes, function(g) branch_row[[paste0("syn_sites_", g)]]))
-    nonsyn_sites <- sum(sapply(vec_genes, function(g) branch_row[[paste0("nonsyn_sites_", g)]]))
-
-    # Summarize posterior draws for each parameter
-    summary_posterior_dN <- summarize_draws(posterior_draws$dN_gen)
-    summary_posterior_dS <- summarize_draws(posterior_draws$dS_gen)
-    summary_posterior_omega <- summarize_draws(posterior_draws$omega_gen)
-
-    # Compute probability that omega > 1 (positive selection)
-    posterior_proba_omega_above_1 <- sum(posterior_draws$omega_gen > 1) / length(posterior_draws$omega_gen)
-    prior_proba_omega_above_1 <- sum(prior_draws$omega_gen > 1) / length(prior_draws$omega_gen)
-
-    # Format output to match run_bayesian_model_by_gene.R structure
-    # Creates 3 rows per branch pattern: dN, dS, omega
-    bind_rows(
-      # dN row
-      tibble(
-        posterior_mean = summary_posterior_dN["posterior_mean"],
-        posterior_mode = summary_posterior_dN["posterior_mode"],
-        posterior_median = summary_posterior_dN["posterior_median"],
-        posterior_2.5 = summary_posterior_dN["posterior_2.5"],
-        posterior_97.5 = summary_posterior_dN["posterior_97.5"],
-        param = "dN",
-        i_row = i_row,
-        posterior_proba_omega_greater_1 = NA_real_,
-        prior_proba_omega_greater_1 = NA_real_,
-        marginal_LH_N = NA_real_,
-        marginal_LH_S = NA_real_,
-        synonymous_muts = synonymous_muts,
-        non_synonymous_muts = non_synonymous_muts,
-        syn_sites = syn_sites,
-        nonsyn_sites = nonsyn_sites,
-        n_branches = branch_row[["n_branches"]],
-        gene = "Genome",
-        CV_prior = CV_prior
-      ),
-      # dS row
-      tibble(
-        posterior_mean = summary_posterior_dS["posterior_mean"],
-        posterior_mode = summary_posterior_dS["posterior_mode"],
-        posterior_median = summary_posterior_dS["posterior_median"],
-        posterior_2.5 = summary_posterior_dS["posterior_2.5"],
-        posterior_97.5 = summary_posterior_dS["posterior_97.5"],
-        param = "dS",
-        i_row = i_row,
-        posterior_proba_omega_greater_1 = NA_real_,
-        prior_proba_omega_greater_1 = NA_real_,
-        marginal_LH_N = NA_real_,
-        marginal_LH_S = NA_real_,
-        synonymous_muts = synonymous_muts,
-        non_synonymous_muts = non_synonymous_muts,
-        syn_sites = syn_sites,
-        nonsyn_sites = nonsyn_sites,
-        n_branches = branch_row[["n_branches"]],
-        gene = "Genome",
-        CV_prior = CV_prior
-      ),
-      # omega row
-      tibble(
-        posterior_mean = summary_posterior_omega["posterior_mean"],
-        posterior_mode = summary_posterior_omega["posterior_mode"],
-        posterior_median = summary_posterior_omega["posterior_median"],
-        posterior_2.5 = summary_posterior_omega["posterior_2.5"],
-        posterior_97.5 = summary_posterior_omega["posterior_97.5"],
-        param = "omega",
-        i_row = i_row,
-        posterior_proba_omega_greater_1 = posterior_proba_omega_above_1,
-        prior_proba_omega_greater_1 = prior_proba_omega_above_1,
-        marginal_LH_N = NA_real_,
-        marginal_LH_S = NA_real_,
-        synonymous_muts = synonymous_muts,
-        non_synonymous_muts = non_synonymous_muts,
-        syn_sites = syn_sites,
-        nonsyn_sites = nonsyn_sites,
-        n_branches = branch_row[["n_branches"]],
-        gene = "Genome",
-        CV_prior = CV_prior
+  
+  
+  # Add logic for chunk processing
+  df_param_estim_all <- NULL
+  chunk_size <- 32000
+  n_chunks <- ceiling(nrow(genome_data_grouped) / chunk_size)
+  
+  for(id_chunk in 1:n_chunks){
+    t0 <- Sys.time()
+    chunk_beginning <- chunk_size * (id_chunk - 1) + 1
+    chunk_end <- chunk_beginning + chunk_size - 1
+    chunk_end <- min(chunk_end, nrow(genome_data_grouped))
+    print(paste('Processing rows', chunk_beginning, 'to', chunk_end))
+    
+    df_param_estim <- Reduce('bind_rows', mclapply(chunk_beginning:chunk_end, FUN = function(i_row){
+      
+      branch_row <- genome_data_grouped[i_row, ]
+      
+      # Generate posterior and prior draws using hierarchical approach
+      # (compute_genome_draws imported from utils_model.R)
+      posterior_draws <- compute_genome_draws(
+        branch_row, vec_genes, prior_params_list,
+        n_rep = 100, draw_type = 'posterior'
       )
-    )
+      
+      prior_draws <- compute_genome_draws(
+        branch_row, vec_genes, prior_params_list,
+        n_rep = 100, draw_type = 'prior'
+      )
+      
+      # Aggregate observed quantities across genes for output metadata
+      synonymous_muts <- sum(sapply(vec_genes, function(g) branch_row[[paste0("synonymous_muts_", g)]]))
+      non_synonymous_muts <- sum(sapply(vec_genes, function(g) branch_row[[paste0("non_synonymous_muts_", g)]]))
+      syn_sites <- sum(sapply(vec_genes, function(g) branch_row[[paste0("syn_sites_", g)]]))
+      nonsyn_sites <- sum(sapply(vec_genes, function(g) branch_row[[paste0("nonsyn_sites_", g)]]))
+      
+      # Summarize posterior draws for each parameter
+      summary_posterior_dN <- summarize_draws(posterior_draws$dN_gen)
+      summary_posterior_dS <- summarize_draws(posterior_draws$dS_gen)
+      summary_posterior_omega <- summarize_draws(posterior_draws$omega_gen)
+      
+      # Compute probability that omega > 1 (positive selection)
+      posterior_proba_omega_above_1 <- sum(posterior_draws$omega_gen > 1) / length(posterior_draws$omega_gen)
+      prior_proba_omega_above_1 <- sum(prior_draws$omega_gen > 1) / length(prior_draws$omega_gen)
+      
+      # Format output to match run_bayesian_model_by_gene.R structure
+      # Creates 3 rows per branch pattern: dN, dS, omega
+      bind_rows(
+        # dN row
+        tibble(
+          posterior_mean = summary_posterior_dN["posterior_mean"],
+          posterior_mode = summary_posterior_dN["posterior_mode"],
+          posterior_median = summary_posterior_dN["posterior_median"],
+          posterior_2.5 = summary_posterior_dN["posterior_2.5"],
+          posterior_97.5 = summary_posterior_dN["posterior_97.5"],
+          param = "dN",
+          i_row = i_row,
+          posterior_proba_omega_greater_1 = NA_real_,
+          prior_proba_omega_greater_1 = NA_real_,
+          marginal_LH_N = NA_real_,
+          marginal_LH_S = NA_real_,
+          synonymous_muts = synonymous_muts,
+          non_synonymous_muts = non_synonymous_muts,
+          syn_sites = syn_sites,
+          nonsyn_sites = nonsyn_sites,
+          n_branches = branch_row[["n_branches"]],
+          gene = "Genome",
+          CV_prior = CV_prior
+        ),
+        # dS row
+        tibble(
+          posterior_mean = summary_posterior_dS["posterior_mean"],
+          posterior_mode = summary_posterior_dS["posterior_mode"],
+          posterior_median = summary_posterior_dS["posterior_median"],
+          posterior_2.5 = summary_posterior_dS["posterior_2.5"],
+          posterior_97.5 = summary_posterior_dS["posterior_97.5"],
+          param = "dS",
+          i_row = i_row,
+          posterior_proba_omega_greater_1 = NA_real_,
+          prior_proba_omega_greater_1 = NA_real_,
+          marginal_LH_N = NA_real_,
+          marginal_LH_S = NA_real_,
+          synonymous_muts = synonymous_muts,
+          non_synonymous_muts = non_synonymous_muts,
+          syn_sites = syn_sites,
+          nonsyn_sites = nonsyn_sites,
+          n_branches = branch_row[["n_branches"]],
+          gene = "Genome",
+          CV_prior = CV_prior
+        ),
+        # omega row
+        tibble(
+          posterior_mean = summary_posterior_omega["posterior_mean"],
+          posterior_mode = summary_posterior_omega["posterior_mode"],
+          posterior_median = summary_posterior_omega["posterior_median"],
+          posterior_2.5 = summary_posterior_omega["posterior_2.5"],
+          posterior_97.5 = summary_posterior_omega["posterior_97.5"],
+          param = "omega",
+          i_row = i_row,
+          posterior_proba_omega_greater_1 = posterior_proba_omega_above_1,
+          prior_proba_omega_greater_1 = prior_proba_omega_above_1,
+          marginal_LH_N = NA_real_,
+          marginal_LH_S = NA_real_,
+          synonymous_muts = synonymous_muts,
+          non_synonymous_muts = non_synonymous_muts,
+          syn_sites = syn_sites,
+          nonsyn_sites = nonsyn_sites,
+          n_branches = branch_row[["n_branches"]],
+          gene = "Genome",
+          CV_prior = CV_prior
+        )
+      )
+    }, mc.cores = n_cores))
+    
+    df_param_estim_all <- bind_rows(df_param_estim_all, df_param_estim)
+    t1 <- Sys.time()
+    print(paste('Took', round(t1 - t0, 2), 'minutes'))
   }
-
-  # Run model for all branch patterns with parallel processing
-  if (n_cores > 1) {
-    # Parallel processing
-    cat(sprintf("Using parallel processing with %d cores\n", n_cores))
-    results_list <- mclapply(1:nrow(genome_data_grouped),
-                             process_branch,
-                             mc.cores = n_cores)
-    df_param_estim <- bind_rows(results_list)
-  } else {
-    # Serial processing (for debugging or single core)
-    cat("Using serial processing (1 core)\n")
-    df_param_estim <- Reduce('bind_rows',
-                              lapply(1:nrow(genome_data_grouped), process_branch))
-  }
-
-  return(df_param_estim)
+  
+  return(df_param_estim_all)
 }
 
 # Load prior parametrization
-df_prior <- read_tsv(args$df_prior_param, show_col_types = FALSE)
+df_prior <- read_tsv(args$df_prior_param)
 
 # Load genome-level grouped data
-genome_data_grouped <- read_tsv(args$data_viridian_grouped, show_col_types = FALSE)
+genome_data_grouped <- read_tsv(args$data_viridian_grouped)
 
-# Run genome-wide model with parallelization
+# Run genome-wide model
 df_param_estim <- run_genome_model(df_prior, genome_data_grouped, args$CV_prior, args$n_cores)
 
 # Save results
