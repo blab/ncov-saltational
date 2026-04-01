@@ -4,7 +4,7 @@ rule calculate_AA_pos_enrichment:
         df_aa_muts_coded = rules.add_coded_status_aa_mut.output.df_aa_muts_coded,
         name_adaptive_branches = rules.concat_name_adaptive_branches.output.concat_name_adaptive_branches,
     output:
-        df_AA_pos_enrichment = "results/mutation_enrichment/df_AA_pos_enrichment_BF_{BF_threshold}.tsv"
+        df_AA_pos_enrichment = "results/mutation_enrichment/df_AA_pos_enrichment_CV_{cv_prior}_BF_{BF_threshold}.tsv"
     shell:
         """
         Rscript ./scripts/mutation-enrichment/calculate_AA_pos_enrichment.R \
@@ -19,7 +19,7 @@ rule calculate_AA_mut_enrichment:
         df_aa_muts_coded = rules.add_coded_status_aa_mut.output.df_aa_muts_coded,
         name_adaptive_branches = rules.concat_name_adaptive_branches.output.concat_name_adaptive_branches,
     output:
-        df_AA_mut_enrichment = "results/mutation_enrichment/df_AA_mut_enrichment_BF_{BF_threshold}.tsv"
+        df_AA_mut_enrichment = "results/mutation_enrichment/df_AA_mut_enrichment_CV_{cv_prior}_BF_{BF_threshold}.tsv"
     shell:
         """
         Rscript ./scripts/mutation-enrichment/calculate_AA_mut_enrichment.R \
