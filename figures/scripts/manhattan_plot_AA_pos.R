@@ -8,15 +8,17 @@ gene_nuc_coord <- read_csv('../param/proteins_nucleotide_coordinates.csv')
 gene_aa_coord <- read_csv('../param/proteins_aa_coordinates.csv')
 
 # Load OR by AA position
-df_OR_AA_pos <- read_tsv('../../results/mutation_enrichment/df_AA_pos_enrichment_CV_1.5_BF_31.6227766.tsv')
+df_OR_AA_pos <- read_tsv('../../results/mutation_enrichment/df_AA_pos_enrichment_CV_1.7_BF_31.6227766.tsv')
 
-get_manhattan_plot <- function(df_OR_AA_pos, threshold_inclusion = 2, 
+get_manhattan_plot <- function(df_OR_AA_pos, threshold_inclusion = 1, 
                                gene_nuc_coord, gene_aa_coord,
                                add_gene_regions = T, add_position_outisde_spike = T){
   # Add nucleotide coordinates to df_OR_AA_pos
   df_OR_with_coords <- df_OR_AA_pos %>% 
     filter(threshold_for_inclusion == threshold_inclusion) %>% 
     left_join(gene_aa_coord, by = 'gene')
+  
+  max_y_axis <- max(-log10(df_OR_with_coords$p_value))
   
   baseline_plot <- df_OR_with_coords %>% 
     ggplot() +
@@ -28,7 +30,7 @@ get_manhattan_plot <- function(df_OR_AA_pos, threshold_inclusion = 2,
                        breaks = seq(0, 29000, 2000)) +
     scale_y_continuous(name = expression(-log[10](p[value])),
                        expand = expansion(mult = c(0.01, 0.01)),
-                       breaks = seq(0, 50, 5)) +
+                       breaks = seq(0, max_y_axis, 10)) +
     scale_alpha_manual(breaks = c(T, F), values = c(0.8, 0.1),
                        guide = 'none') +
     scale_shape_manual(breaks = c(T, F), values = c(16, 15), name = 'Non-synonymous mutation', 
@@ -61,27 +63,27 @@ get_manhattan_plot <- function(df_OR_AA_pos, threshold_inclusion = 2,
                             start = c(21563 + (319-1) * 3, 21563 + (13-1) * 3),
                             stop = c(21563 + (542-1) * 3 - 1, 21563 + (302-1) * 3 - 1))
     
-    max_y_axis <- max(-log10(df_OR_with_coords$p_value))
+    height_boxes <- 7
     
     baseline_plot <- baseline_plot +
       geom_rect(data = coord_NSP,
-                aes(xmin = start, xmax = stop, ymin = max_y_axis + 2, ymax = max_y_axis + 4, fill = gene),
+                aes(xmin = start, xmax = stop, ymin = max_y_axis + height_boxes, ymax = max_y_axis + 2 * height_boxes, fill = gene),
                 alpha = 0.2) +
       geom_text(data = coord_NSP,
-                aes(x = (start + stop)/2, y = max_y_axis + 3, label = label_NSP),
+                aes(x = (start + stop)/2, y = max_y_axis + height_boxes * 3/ 2, label = label_NSP),
                 colour = colorspace::darken(palette_regions_binary[1:15], .3)) +
       geom_rect(data = coord_S1S2,
-                aes(xmin = start, xmax = stop, ymin = max_y_axis + 2, ymax = max_y_axis + 4),
+                aes(xmin = start, xmax = stop, ymin = max_y_axis + height_boxes, ymax = max_y_axis + 2 * height_boxes),
                 alpha = 0.2,
                 fill = palette_spike[c('Other S1', 'S2')]) +
       geom_text(data = coord_S1S2,
-                aes(x = (start + stop)/2, y = max_y_axis + 3, label = gene),
+                aes(x = (start + stop)/2, y = max_y_axis +height_boxes * 3/ 2, label = gene),
                 colour = palette_spike[c('Other S1', 'S2')]) +
       geom_rect(data = coord_RBD_NTD,
-                aes(xmin = start, xmax = stop, ymin = max_y_axis, ymax = max_y_axis + 2),
+                aes(xmin = start, xmax = stop, ymin = max_y_axis, ymax = max_y_axis + height_boxes),
                 alpha = 0.2, fill = palette_spike[c('NTD', 'RBD')]) +
       geom_text(data = coord_RBD_NTD,
-                aes(x = (start + stop)/2, y = max_y_axis + 1, label = gene),
+                aes(x = (start + stop)/2, y = max_y_axis + height_boxes / 2, label = gene),
                 colour =  colorspace::darken(palette_spike[c('NTD', 'RBD')], 0.1)) +
       scale_fill_manual(values = palette_regions_binary, guide = 'none') 
   }
@@ -99,8 +101,9 @@ get_manhattan_plot <- function(df_OR_AA_pos, threshold_inclusion = 2,
 }
 
 
-manhattan_plot <- get_manhattan_plot(df_OR_AA_pos, threshold_inclusion = 2, 
-                                     gene_nuc_coord, gene_aa_coord, add_gene_regions = T, add_position_outisde_spike = F)
+manhattan_plot <- get_manhattan_plot(df_OR_AA_pos, threshold_inclusion = 1, 
+                                     gene_nuc_coord, gene_aa_coord,
+                                     add_gene_regions = T, add_position_outisde_spike = F)
 
 
 png('../mutation_enrichment/manhattan_plot_more_frequent_AA_pos.png',
