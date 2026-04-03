@@ -1,5 +1,7 @@
 library(RColorBrewer)
 
+# Script containing color used for the visualization
+
 # Palette definitions
 ## Genome regions
 palette_genes <- c(
