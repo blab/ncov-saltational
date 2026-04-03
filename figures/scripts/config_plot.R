@@ -33,3 +33,7 @@ col_non_synonymous <- 'firebrick2'
 ## Colour for posterior and prior
 col_prior <- 'hotpink3'
 col_posterior <-'black'
+
+## Colour for adaptive and non-adaptive branches
+col_adaptive <- 'orange2'
+col_non_adaptive <- 'darkgrey'
