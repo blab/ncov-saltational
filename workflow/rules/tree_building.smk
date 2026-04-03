@@ -60,18 +60,6 @@ rule get_viridian_alignment_adaptive_branches:
             {input.name_adaptive_branches} {output.alignment_adaptive_final_nodes}
         """
 
-rule get_alignment_all_adaptive_branches:
-    """Combine internal node and tip sequences for all adaptive branches"""
-    input:
-        alignment_adaptive_final_nodes = rules.get_viridian_alignment_adaptive_branches.output.alignment_adaptive_final_nodes,
-        alignment_adaptive_internal_nodes = rules.ancestral_sequence_reconstruction.output.output_fasta,
-    output:
-        alignment_all_adaptive_branches = "results/alignment_adaptive_branches/alignment_adaptive_branches_CV_{cv_prior}_BF_{BF_threshold}.fasta"
-    shell:
-        """
-        cat {input.alignment_adaptive_final_nodes} {input.alignment_adaptive_internal_nodes} > {output.alignment_all_adaptive_branches}
-        """
-
 rule rename_internal_nodes_fasta:
     """Rename internal nodes in FASTA to avoid conflicts when adding to tree (node_XXX -> adaptive_node_XXX)"""
     input:
@@ -82,6 +70,19 @@ rule rename_internal_nodes_fasta:
         """
         # Rename sequence headers: node_XXX -> adaptive_node_XXX
         sed 's/>node_/>adaptive_node_/g' {input.internal_nodes} > {output.renamed_fasta}
+        """
+
+
+rule get_alignment_all_adaptive_branches:
+    """Combine internal node and tip sequences for all adaptive branches"""
+    input:
+        alignment_adaptive_final_nodes = rules.get_viridian_alignment_adaptive_branches.output.alignment_adaptive_final_nodes,
+        alignment_adaptive_internal_nodes = rules.rename_internal_nodes_fasta.output.renamed_fasta,
+    output:
+        alignment_all_adaptive_branches = "results/alignment_adaptive_branches/alignment_adaptive_branches_CV_{cv_prior}_BF_{BF_threshold}.fasta"
+    shell:
+        """
+        cat {input.alignment_adaptive_final_nodes} {input.alignment_adaptive_internal_nodes} > {output.alignment_all_adaptive_branches}
         """
 
 rule convert_internal_nodes_to_vcf:
@@ -180,6 +181,22 @@ rule sample_proximity_from_tree:
 
         """
 
+rule normalize_tree_branch_lengths:
+    """Normalize branch lengths from mutation counts to substitutions per site for TreeTime compatibility"""
+    input:
+        tree = rules.sample_proximity_from_tree.output.mat,
+    output:
+        tree_normalized = "results/tree_building/proximity_tree_normalized_CV_{cv_prior}_BF_{BF_threshold}.nwk"
+    conda:
+        "../envs/bte.yaml"
+    shell:
+        """
+        python scripts/tree-proximity/convert_tree_units_to_mutations_per_site.py \
+            --tree {input.tree} \
+            --genome_length 29903 \
+            --output_newick {output.tree_normalized}
+        """
+
 rule get_proximity_background_samples_only:
     """Filter proximity samples to exclude ALL adaptive branches (both internal and terminal) - keep only background/context samples"""
     input:
@@ -205,9 +222,9 @@ rule download_viridian_sequences_proximity_background:
     params:
         url_viridian_1 = "https://api.figshare.com/v2/file/download/45969777",
         url_viridian_2 = "https://api.figshare.com/v2/file/download/49692480",
-        file_path_viridian_1 = "data/tmp/viridian_alignment_1.tar",
-        file_path_viridian_2 = "data/tmp/viridian_alignment_2.tar",
-        dir_unpacked_viridian = "data/tmp/",
+        file_path_viridian_1 = "data/tmp/viridian_alignment_1_background_CV_{cv_prior}_BF_{BF_threshold}.tar",
+        file_path_viridian_2 = "data/tmp/viridian_alignment_2_background_CV_{cv_prior}_BF_{BF_threshold}.tar",
+        dir_unpacked_viridian = "data/tmp/viridian_background_CV_{cv_prior}_BF_{BF_threshold}/",
     shell:
         """
         Rscript ./scripts/mat-manipulation/download_viridian_alignment.R \
@@ -267,7 +284,7 @@ rule get_metadata_proximity_samples:
 rule proximity_time_tree:
     """Refine proximity tree with temporal information using augur refine"""
     input:
-        tree = rules.sample_proximity_from_tree.output.tree,
+        tree = rules.normalize_tree_branch_lengths.output.tree_normalized,
         alignment = rules.augur_align_proximity_sequences.output.alignment,
         metadata = rules.get_metadata_proximity_samples.output.metadata,
     output:
@@ -285,5 +302,21 @@ rule proximity_time_tree:
             --timetree \
             --coalescent opt \
             --divergence-units mutations \
-            --keep-root
+            --keep-root \
+            --year-bounds 2019 2024
+        """
+
+rule export_time_tree:
+    """Export proximity time tree as Auspice JSON for visualization"""
+    input:
+        tree = rules.proximity_time_tree.output.tree,
+        node_data = rules.proximity_time_tree.output.node_data,
+    output:
+        auspice_json = "results/tree_building/auspice_tree_CV_{cv_prior}_BF_{BF_threshold}.json"
+    shell:
+        """
+        augur export v2 \
+            --tree {input.tree} \
+            --node-data {input.node_data} \
+            --output {output.auspice_json}
         """
