@@ -1,22 +1,14 @@
-# 
+# Saltational events in SARS-CoV-2
 
-## Setup & installation
-We use conda to define an environment containing all the required depencencies to run the Snakemake pipeline.
+## Abstract
 
-The `Snakefile` can be run using:
+## Repository organization
+This repository is organized around a Snakemake workflow that enables to process and analyze the viridian data, download SRA metadata, run the Bayesian model we developed, identify adaptive branches, visualize the adaptive branches in the context of the global SARS-CoV-2 phylogeny and investigate mutation patterns in adaptive branches. 
 
-```bash
-snakemake --use-conda --conda-frontend conda --cores 1
-```
+This repository is organized in sub-folders as follows:
+- ```figures/``` contains the figures and the scripts to generate the figures (both from the main text and the supplementary information) associated with the manuscript. 
+- ```manuscript/``` contains the manuscript.
+- ```scripts/``` contains the custom scripts used in the workflow.
+- ```workflow/``` contains the Snakemake files and environment files used in the main Snakefile.
 
-### NCBI API Key Setup
-
-The pipeline queries NCBI databases (BioSample and SRA) for metadata extraction. It is possible to add the API key to one's configuration by editing `config/config.yaml` and add your API key:
-```yaml
-ncbi_api_key: "your_api_key_here"
-```
-
-**Note**: The NCBI EDirect tools use the `NCBI_API_KEY` environment variable internally. The pipeline automatically sets this from the config file.
-
-## Repository organisation
 
