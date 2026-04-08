@@ -61,7 +61,7 @@ get_summary_from_posterior_simul_PDF_NS <- function(gene, CV_prior){
   )
 }
 
-vec_CV <- sprintf("%.1f", c(1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0))
+vec_CV <- sprintf("%.1f", c(0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0))
 vec_genes <- c('ORF1a', 'ORF1b', 'S', 'ORF3a', 'E', 'M', 'ORF6', 'ORF7a', 'ORF7b', 'ORF8', 'N', 'ORF9b')
 
 df_PDF_NS <- Reduce('bind_rows', lapply(vec_CV, FUN = function(CV_prior){
