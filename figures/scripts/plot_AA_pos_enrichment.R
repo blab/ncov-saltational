@@ -8,6 +8,21 @@ gene_aa_coord <- read_csv('../param/proteins_aa_coordinates.csv')
 # Load OR by AA position
 df_OR_AA_pos <- read_tsv('../../results/mutation_enrichment/df_AA_pos_enrichment_CV_1.7_BF_31.6227766.tsv')
 
+# Load name of adaptive paths
+vec_name_node_adapt <- read.table('../../results/adaptive_branches/concat_name_adaptive_branches_CV_1.7_BF_31.6227766.tsv') %>% unlist() %>% as.character()
+
+# Load AA mutations information and get proportion of adaptive branches with each mutation
+df_aa_muts <- read_tsv('../../results/mutations/nodes_aa_muts_summary_coded.tsv') %>% 
+  filter(is_coded) %>% # Coded AA mut
+  filter(aa_new != aa_initial) %>% # Non-synonymous
+  rename(strain = node_id) %>% 
+  filter(strain %in% vec_name_node_adapt) %>% 
+  mutate(has_mut = T) %>% 
+  select(strain, gene, aa_muts_position, has_mut) %>% 
+  group_by(gene, aa_muts_position) %>% 
+  summarise(n_adapt_branches_with_mut = n()) %>% 
+  mutate(prop_adapt_branches_with_mut = n_adapt_branches_with_mut / length(vec_name_node_adapt))
+
 # Manhattan plot
 get_manhattan_plot <- function(df_OR_AA_pos, threshold_inclusion = 1, 
                                gene_nuc_coord, gene_aa_coord,
@@ -140,8 +155,39 @@ get_barplot_nb_enriched_positions <- function(df_OR_AA_pos, threshold_inclusion)
   
   return(barplot_nb_enriched_positions_by_gene)
 }
+get_barplot_nb_enriched_positions_within_S <- function(df_OR_AA_pos, threshold_inclusion){
+  
+  df_nb_positions_per_S_region <- df_OR_AA_pos %>% 
+    filter(gene == 'S', threshold_for_inclusion == threshold_inclusion) %>% filter(p_value_BH < 0.05) %>% 
+    mutate(region = case_when(position >= 13 & position <= 302 ~ 'NTD',
+                              position >= 319 & position <= 541 ~ 'RBD',
+                              position >= 13 & position <= 685 ~ 'Other S1',
+                              position >= 686 & position <= 1273 ~ 'S2',
+                              T ~ 'Other S')) %>% 
+    group_by(region) %>% summarise(n_pos = n()) %>% 
+    mutate(region = factor(region, levels = c( 'Other S1', 'RBD', 'NTD', 'S2', 'Other S')),
+           region_plot = case_when(region %in% c('NTD', 'RBD', 'Other S1') ~ 'S1',
+                                   region == 'S2' ~ 'S2',
+                                   T ~ 'Other'),
+           region_plot = factor(region_plot, levels = c('S1', 'S2', 'Other')))
+  
+  barplot_nb_enriched_positions_by_gene <- df_nb_positions_per_S_region %>% 
+    ggplot(aes(x = region_plot, y = n_pos, fill = region, group = region)) +
+    geom_bar(stat = 'identity') +
+    scale_x_discrete(name = 'Subunit') +
+    scale_y_continuous(name = 'Number of enriched positions', 
+                       expand = expansion(mult = c(0., 0.1))) +
+    scale_fill_manual(breaks = c('NTD', 'RBD'), values = c(palette_spike['NTD'], palette_spike['RBD']), name = 'Domain', 
+                      na.value = palette_genes['S']) +
+    theme_classic() +
+    theme(axis.text = element_text(size = 11),
+          axis.text.x = element_text(angle = 45, hjust = 1., vjust = 1.))
+  
+  return(barplot_nb_enriched_positions_by_gene)
+}
 
 barplot_nb_enriched_positions_by_gene <- get_barplot_nb_enriched_positions(df_OR_AA_pos, 1)
+barplot_nb_enriched_positions_S_by_subunit <- get_barplot_nb_enriched_positions_within_S(df_OR_AA_pos, 1)
 
 pdf('../figure_mutation_enrichment/barplot_nb_enriched_positions_by_gene.pdf',
     height = 2.8, width = 4.)
@@ -151,6 +197,95 @@ png('../figure_mutation_enrichment/barplot_nb_enriched_positions_by_gene.png',
     height = 2.8, width = 4., res = 350, units = 'in')
 plot(barplot_nb_enriched_positions_by_gene)
 dev.off()
+pdf('../figure_mutation_enrichment/barplot_nb_enriched_positions_S_by_subunit.pdf',
+    height = 2.8, width = 2.8)
+plot(barplot_nb_enriched_positions_S_by_subunit)
+dev.off()
+png('../figure_mutation_enrichment/barplot_nb_enriched_positions_S_by_subunit.png',
+    height = 2.8, width = 2.8, res = 350, units = 'in')
+plot(barplot_nb_enriched_positions_S_by_subunit)
+dev.off()
 
-## Make barplot with nb of enriched positions within S by region
 ## Could make the same plot with prop of time it's mutated.
+get_plot_OR_func_prop_adapt_branches_labels <- function(df_OR_AA_pos, threshold_inclusion, df_aa_muts, 
+                                                        vec_genes, 
+                                                        prop_threshold = 0., OR_threshold = 1., 
+                                                        xmin = NA, xmax = NA, ymin = NA, ymax = NA){
+  
+  OR_value_inf <- max(df_OR_AA_pos$OR[is.finite(df_OR_AA_pos$OR)])*2.
+  
+  label_125 <- function(x) {
+    m <- signif(x / 10^floor(log10(x)), 12)   # mantissa
+    labs <- scales::label_percent(accuracy = 0.1)(x)
+    ifelse(m %in% c(1, 2, 5), labs, "")
+  }
+  
+  plot_OR_func_prop_branches_with_mut <- df_OR_AA_pos %>% 
+    filter(threshold_for_inclusion == threshold_inclusion) %>% 
+    filter(gene %in% vec_genes) %>% 
+    left_join(df_aa_muts, by = c('position' = 'aa_muts_position', 'gene')) %>% 
+    mutate(OR = ifelse(is.infinite(OR), OR_value_inf, OR)) %>% 
+    ggplot(aes(x = prop_adapt_branches_with_mut, 
+               y = OR, colour = gene)) +
+    geom_point(aes(alpha = p_value_BH < 0.05)) +
+    geom_text_repel(data = df_OR_AA_pos %>% 
+                      filter(threshold_for_inclusion == threshold_inclusion) %>% 
+                      left_join(df_aa_muts, by = c('position' = 'aa_muts_position', 'gene')) %>% 
+                      mutate(OR = ifelse(is.infinite(OR), OR_value_inf, OR)) %>% 
+                      filter(gene %in% vec_genes) %>% 
+                      filter(prop_adapt_branches_with_mut > prop_threshold, 
+                             OR > OR_threshold, 
+                             p_value_BH < 0.05),
+                    aes(label = position),
+                    size = 3.5,
+                    max.time = 20, min.segment.length = 0., max.overlaps = Inf) +
+    scale_x_continuous(labels = label_125,
+                       trans = 'log',
+                       expand = expansion(mult = c(0.065, 0.06)),
+                       breaks = c(seq(1e-3, 9e-3, 1e-3), seq(1e-2, 9e-2, 1e-2), seq(1e-1, 9e-1, 1e-1)),
+                       name = 'Proportion of adaptive branches with mutation at position')  +
+    scale_y_continuous(name = 'OR',
+                       trans = 'log', 
+                       expand = expansion(mult = c(0.02, 0.02)),
+                       breaks = c(0.1, 0.2, 0.5, 1.0, 2.0, 5, 10, 20, 50, 100, 200, OR_value_inf),
+                       labels = c(0.1, 0.2, 0.5, 1.0, 2.0, 5, 10, 20, 50, 100, 200, 'Inf')
+    ) +
+    scale_colour_manual(breaks = names(palette_genes), values = palette_genes, name = 'Gene') +
+    scale_alpha_manual(breaks = c(T, F), values = c(0.9, .05), guide = 'none') +
+    theme_classic() +
+    coord_cartesian(ylim = c(ymin, ymax), xlim = c(xmin, xmax)) +
+    theme(axis.title = element_text(size = 11), axis.text = element_text(size = 11),
+          strip.background = element_blank(), strip.text = element_blank()) +
+    guides(colour = guide_legend(override.aes = list(label = '')))
+  
+  return(plot_OR_func_prop_branches_with_mut)
+}
+
+scatter_plot_OR_func_get_plot_OR_func_prop_branches_with_mut_zoom <- 
+  get_plot_OR_func_prop_adapt_branches_labels(df_OR_AA_pos, 1, df_aa_muts,
+                                              names(palette_genes), 
+                                              0.01, 5.,
+                                              0.002, NA, 2.5, 70)
+
+scatter_plot_OR_func_get_plot_OR_func_prop_branches_with_mut <- 
+  get_plot_OR_func_prop_adapt_branches_labels(df_OR_AA_pos, 1, df_aa_muts,
+                                              names(palette_genes), 
+                                              0.01, 5,
+                                              NA, NA, 1., NA)
+
+scatter_plot_OR_func_get_plot_OR_func_prop_branches_with_mut_no_zoom <- 
+  get_plot_OR_func_prop_adapt_branches_labels(df_OR_AA_pos, 1, df_aa_muts,
+                                              names(palette_genes), 
+                                              1., 1000,
+                                              NA, NA, NA, NA)
+
+
+pdf('../figure_mutation_enrichment/scatter_plot_OR_func_mut_prevalence_pos.pdf',
+    height = 4., width = 6.)
+plot(scatter_plot_OR_func_get_plot_OR_func_prop_branches_with_mut)
+dev.off()
+png('../figure_mutation_enrichment/scatter_plot_OR_func_mut_prevalence_pos.png',
+    height = 4., width = 6., res = 350, units = 'in')
+plot(scatter_plot_OR_func_get_plot_OR_func_prop_branches_with_mut)
+dev.off()
+

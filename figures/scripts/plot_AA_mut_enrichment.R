@@ -18,8 +18,8 @@ df_aa_muts <- read_tsv('../../results/mutations/nodes_aa_muts_summary_coded.tsv'
   rename(strain = node_id) %>% 
   filter(strain %in% vec_name_node_adapt) %>% 
   mutate(has_mut = T) %>% 
-  select(strain, full_mut, has_mut) %>% 
-  group_by(full_mut) %>% 
+  select(strain, gene, full_mut, has_mut) %>% 
+  group_by(gene, full_mut) %>% 
   summarise(n_adapt_branches_with_mut = n()) %>% 
   mutate(prop_adapt_branches_with_mut = n_adapt_branches_with_mut / length(vec_name_node_adapt))
 
@@ -38,7 +38,7 @@ get_plot_OR_func_prop_adapt_branches_labels_zoom_S_regions <- function(df_OR_AA_
                               position_within_gene >= 13 & position_within_gene <= 685 ~ 'Other S1',
                               position_within_gene >= 686 & position_within_gene <= 1273 ~ 'S2',
                               T ~ 'Other S')) %>% 
-    left_join(df_aa_muts, by = c('mutation' = 'full_mut')) 
+    left_join(df_aa_muts, by = c('mutation' = 'full_mut', 'gene')) 
   
   tmp_df <- tmp_df %>% 
     mutate(OR = ifelse(is.infinite(OR), OR_value_inf, OR))
@@ -83,13 +83,13 @@ get_plot_OR_func_prop_adapt_branches_labels_zoom_genes_split_x_axis <- function(
   
   plot_OR_func_prop_branches_with_mut <- df_OR_AA_mut %>% 
     filter(gene %in% vec_genes) %>% 
-    left_join(df_aa_muts, by = c('mutation' = 'full_mut')) %>% 
+    left_join(df_aa_muts, by = c('mutation' = 'full_mut', 'gene')) %>% 
     mutate(OR = ifelse(is.infinite(OR), OR_value_inf, OR)) %>% 
     ggplot(aes(x = prop_adapt_branches_with_mut, 
                y = OR, colour = gene)) +
     geom_point(aes(alpha = p_value_BH < 0.05)) +
     geom_text_repel(data = df_OR_AA_mut %>% 
-                      left_join(df_aa_muts, by = c('mutation' = 'full_mut')) %>% 
+                      left_join(df_aa_muts, by = c('mutation' = 'full_mut', 'gene')) %>% 
                       mutate(OR = ifelse(is.infinite(OR), OR_value_inf, OR)) %>% 
                       filter(gene %in% vec_genes) %>% 
                       filter(prop_adapt_branches_with_mut > prop_threshold, 
