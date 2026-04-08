@@ -75,7 +75,7 @@ rule run_posterior_predictive_checks:
         df_prior_parametrization = rules.get_prior_parametrization.output.df_prior_parametrization,
     output:
         posterior_simul = "results/posterior_predictive_checks/posterior_predictive_check_{gene}_CV_{cv_prior}.tsv"
-    threads: 8
+    threads: lambda wildcards: 8 if wildcards.gene == "Genome" else 1
     params:
         script = lambda wildcards: (
             "./scripts/bayesian-model/run_posterior_predictive_checks_genome.R"
