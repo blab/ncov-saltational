@@ -64,7 +64,7 @@ confint(multi_log_reg_having_descendants)
 
 ### COUNT MODEL
 name_cols_syn_non_syn <- c(paste0('n_non_syn_', vec_genes), paste0('n_syn_', vec_genes))
-vec_thresholds_n_descendants <- c(1e5)
+vec_thresholds_n_descendants <- c(1e2, 1e5, 5e5, 1e6)
 df_negbin_zero_inflated_joint <- Reduce('bind_rows', lapply(vec_thresholds_n_descendants, FUN = function(curr_threshold){
   run_zero_infl_negbin_reg(df_saltational_descendants, 
                            name_cols_syn_non_syn,
@@ -72,14 +72,14 @@ df_negbin_zero_inflated_joint <- Reduce('bind_rows', lapply(vec_thresholds_n_des
     mutate(threshold_n_descendants_inclusion = curr_threshold)
 }))
 
-
-plot_negbbin_zero_infl <- function(df_negbin_zero_inflated_joint){
+plot_negbbin_zero_infl <- function(df_negbin_zero_inflated_joint, threshold_to_plot){
   label_1 <- function(x) {
     m <- signif(x / 10^floor(log10(x)), 12)
     ifelse(m %in% c(1), x, "")
   }
   
   plot_zero_infl_negbin <- df_negbin_zero_inflated_joint %>% 
+    filter(abs(threshold_n_descendants_inclusion - threshold_to_plot) < 1e-6) %>% 
     mutate(gene = factor(gene, levels = names(palette_genes)),
            is_signif = (lower_param > 0) | (upper_param < 0)) %>% 
     ggplot(aes(x = gene, y = exp(param_estim), shape = mut_type, colour = gene)) +
@@ -105,7 +105,8 @@ plot_negbbin_zero_infl <- function(df_negbin_zero_inflated_joint){
   return(plot_zero_infl_negbin)
 }
 
-plt_param_estim_negbin <- plot_negbbin_zero_infl(df_negbin_zero_inflated_joint)
+plt_param_estim_negbin <- plot_negbbin_zero_infl(df_negbin_zero_inflated_joint, 5e5)
+plot(plt_param_estim_negbin)
 
 pdf('../figure_descendant_analysis/fold_change_nb_descendants_1_extra_mutation_zero_infl_negbin_joint.pdf',
     height = 4., width = 5.)
@@ -115,3 +116,31 @@ png('../figure_descendant_analysis/fold_change_nb_descendants_1_extra_mutation_z
     height = 4., width = 5., res = 350, units = 'in')
 plot(plt_param_estim_negbin)
 dev.off()
+
+
+plt_sensitivity_estimates_large_branches <- df_negbin_zero_inflated_joint %>% 
+  mutate(gene = factor(gene, levels = names(palette_genes))) %>% 
+  ggplot(aes(x = as.factor(threshold_n_descendants_inclusion), 
+             y = exp(param_estim), group = interaction(gene),
+             colour = gene)) +
+  geom_point() +
+  geom_linerange(aes(ymin = exp(lower_param), ymax = exp(upper_param))) +
+  scale_x_discrete(name = 'Threshold for branch exclusion', 
+                   breaks = c(1e3, 1e5, 5e5, 1e6), 
+                   labels = c('1,000', '100,000', '500,000', '1,000,000')
+  ) +
+  scale_y_continuous(minor_breaks =
+                       minor_breaks_log(smallest = 1, detail = 1),
+                     breaks = c(1e-4, 1e-3, 1e-2, 1e-1, 1e0, 1e1, 1e2, 1e3, 1e4),
+                     labels = c(expression(10^{-4}), expression(10^{-3}), expression(10^{-2}),
+                                expression(10^{-1}), expression(10^{0}), expression(10^{1}),
+                                expression(10^{2}), expression(10^{3}), expression(10^{4})),
+                     trans = 'log',
+                     name = 'Fold change in number of descendants\nfrom one additional mutation') +
+  facet_grid(mut_type ~ gene) +
+  scale_colour_manual(values = palette_genes, guide = 'none')  +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1.),
+        strip.background = element_rect(fill = 'white'))
+
+plot(plt_sensitivity_estimates_large_branches)

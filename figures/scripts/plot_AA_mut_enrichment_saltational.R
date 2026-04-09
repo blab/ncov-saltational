@@ -142,8 +142,8 @@ get_plot_OR_func_prop_adapt_branches_labels_zoom_genes <- function(df_OR_AA_mut,
 }
 
 
-prop_threshold_labels <- 0.015
-OR_threshold_labels <- 10
+prop_threshold_labels <- 0.005
+OR_threshold_labels <- 5
 x_max_plot <- NA
 y_min_plot <- 1.
 y_max_plot <- NA

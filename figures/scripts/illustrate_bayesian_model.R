@@ -224,6 +224,25 @@ df_BF_Spike <- get_omega_estim_from_example(df_prior, range_S_values = 0:8,
                                                           '1.5-2.0 (Very strong)',
                                                           '2+ (Decisive)')))
 
+
+df_BF_Spike_Kass_Raftery <- get_omega_estim_from_example(df_prior, range_S_values = 0:8, 
+                                                        range_N_values = 0:20,
+                                                        CV_prior = 1.7) %>% 
+  mutate(posterior_odds = posterior_proba_omega_greater_1 / (1. - posterior_proba_omega_greater_1),
+         prior_odds = prior_proba_omega_greater_1 / (1. - prior_proba_omega_greater_1),
+         BF = posterior_odds / prior_odds) %>%
+  mutate(BF_bins_KR = case_when(BF < 1. ~ 'Negative (< 1)',
+                                BF < 3 ~ 'Not worth more than a bare mention (1-3)',
+                                BF < 20 ~ 'Positive (3-20)',
+                                BF < 150 ~ 'Strong (20-150)',
+                                T ~ 'Very strong (> 150)'),
+         BF_bins_KR = factor(BF_bins_KR, levels = c('Negative (< 1)',
+                                                    'Not worth more than a bare mention (1-3)',
+                                                    'Positive (3-20)',
+                                                    'Strong (20-150)',
+                                                    'Very strong (> 150)')))
+
+
 heatmap_BF_func_SN <- df_BF_Spike %>% 
   ggplot(aes(x = N, y = S)) +
   geom_tile(aes(fill = log10_BF_bins)) +
@@ -246,6 +265,30 @@ heatmap_BF_func_SN <- df_BF_Spike %>%
         strip.text = element_text(colour = 'white', size = 11),
         panel.grid.minor = element_blank())
 
+heatmap_BF_func_SN_Kass_Raftery <- df_BF_Spike_Kass_Raftery %>% 
+  ggplot(aes(x = N, y = S)) +
+  geom_tile(aes(fill = BF_bins_KR)) +
+  scale_fill_manual(values = brewer.pal(5, 'BuPu'),
+                    name = expression(paste(BF[omega > 1], ' interpretation'))) +
+  scale_y_continuous(name = expression(S[i]), breaks = seq(0., 10., 1.),
+                     expand = expansion(mult = c(0., 0.))) +
+  scale_x_continuous(name = expression(N[i]), 
+                     breaks = seq(0., 20., 1.),
+                     labels = c(0, '', 2, '', 4, '', 6, '', 8, '', 10, '', 
+                                12, '', 14, '', 16, '', 18, '', 20),
+                     expand = expansion(mult = c(0., 0.))) +
+  coord_fixed(xlim = c(-0.5, 20.5)) +
+  theme_bw() +
+  theme(axis.text = element_text(size = 11),
+        axis.title = element_text(size = 12),
+        legend.text = element_text(size = 11),
+        legend.title = element_text(size = 12),
+        strip.background = element_rect(fill = 'gray22'),
+        strip.text = element_text(colour = 'white', size = 11),
+        panel.grid.minor = element_blank())
+
+plot(heatmap_BF_func_SN_Kass_Raftery)
+
 pdf('../figure_model_illustration//heatmap_BF_spike_func_N_S.pdf',
     height = 2.5, width = 7.)
 plot(heatmap_BF_func_SN)
@@ -253,5 +296,14 @@ dev.off()
 png('../figure_model_illustration//heatmap_BF_spike_func_N_S.png',
     height = 2.5, width = 7., res = 350, units = 'in')
 plot(heatmap_BF_func_SN)
+dev.off()
+
+pdf('../figure_model_illustration//heatmap_BF_spike_func_N_S_KS.pdf',
+    height = 2.5, width = 8.)
+plot(heatmap_BF_func_SN_Kass_Raftery)
+dev.off()
+png('../figure_model_illustration//heatmap_BF_spike_func_N_S_KS.png',
+    height = 2.5, width = 8., res = 350, units = 'in')
+plot(heatmap_BF_func_SN_Kass_Raftery)
 dev.off()
 

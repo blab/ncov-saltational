@@ -7,10 +7,10 @@ gene_nuc_coord <- read_csv('../param/proteins_nucleotide_coordinates.csv')
 gene_aa_coord <- read_csv('../param/proteins_aa_coordinates.csv')
 
 # Load OR by AA position
-df_OR_AA_pos <- read_tsv('../../results/mutation_enrichment/df_AA_pos_enrichment_saltational_CV_1.7_BF_31.6227766.tsv')
+df_OR_AA_pos <- read_tsv('../../results/mutation_enrichment/df_AA_pos_enrichment_saltational_CV_1.7_BF_20.tsv')
 
 # Load name of adaptive paths
-vec_name_node_adapt <- read.table('../../results/saltational_branches/name_saltational_branches_CV_1.7_BF_31.6227766.tsv') %>% unlist() %>% as.character()
+vec_name_node_adapt <- read.table('../../results/saltational_branches/name_saltational_branches_CV_1.7_BF_20.tsv') %>% unlist() %>% as.character()
 
 # Load AA mutations information and get proportion of adaptive branches with each mutation
 df_aa_muts <- read_tsv('../../results/mutations/nodes_aa_muts_summary_coded.tsv') %>% 
@@ -266,7 +266,7 @@ get_plot_OR_func_prop_adapt_branches_labels <- function(df_OR_AA_pos, threshold_
 scatter_plot_OR_func_get_plot_OR_func_prop_branches_with_mut <- 
   get_plot_OR_func_prop_adapt_branches_labels(df_OR_AA_pos, 1, df_aa_muts,
                                               names(palette_genes), 
-                                              0.02, 10,
+                                              0.01, 5,
                                               NA, NA, 1., NA)
 
 scatter_plot_OR_func_get_plot_OR_func_prop_branches_with_mut_no_zoom <- 
