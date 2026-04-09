@@ -219,3 +219,68 @@ rule count_sites_per_branch:
             --truncate-at-stop
         """
 
+rule reconstruct_ancestral_country:
+    "Infer country of internal nodes in the viridian tree"
+    input:
+        tree = rules.subset_viridian_tree.output.subset_tree,
+        metadata = rules.prepare_metadata_with_locations.output.metadata,
+        country_mapping = rules.params.input.country_mapping
+    output:
+        inferred_countries = "results/bte/inferred_countries.tsv"
+    params:
+        location_col = "country"
+    conda:
+        "../envs/bte.yaml"
+    shell:
+        """
+        python scripts/mat-manipulation/reconstruct_ancestral_location.py \
+            --tree {input.tree} \
+            --metadata {input.metadata} \
+            --country_mapping {input.country_mapping} \
+            --location_col {params.location_col} \
+            --output_locations {output.inferred_countries}
+        """
+
+rule reconstruct_ancestral_subregion:
+    "Infer subregion of internal nodes in the viridian tree"
+    input:
+        tree = rules.subset_viridian_tree.output.subset_tree,
+        metadata = rules.prepare_metadata_with_locations.output.metadata,
+        country_mapping = rules.params.input.country_mapping
+    output:
+        inferred_subregions = "results/bte/inferred_subregions.tsv"
+    params:
+        location_col = "subregion"
+    conda:
+        "../envs/bte.yaml"
+    shell:
+        """
+        python scripts/mat-manipulation/reconstruct_ancestral_location.py \
+            --tree {input.tree} \
+            --metadata {input.metadata} \
+            --country_mapping {input.country_mapping} \
+            --location_col {params.location_col} \
+            --output_locations {output.inferred_subregions}
+        """
+
+rule reconstruct_ancestral_continent:
+    "Infer continent of internal nodes in the viridian tree"
+    input:
+        tree = rules.subset_viridian_tree.output.subset_tree,
+        metadata = rules.prepare_metadata_with_locations.output.metadata,
+        country_mapping = rules.params.input.country_mapping
+    output:
+        inferred_continents = "results/bte/inferred_continents.tsv"
+    params:
+        location_col = "continent"
+    conda:
+        "../envs/bte.yaml"
+    shell:
+        """
+        python scripts/mat-manipulation/reconstruct_ancestral_location.py \
+            --tree {input.tree} \
+            --metadata {input.metadata} \
+            --country_mapping {input.country_mapping} \
+            --location_col {params.location_col} \
+            --output_locations {output.inferred_continents}
+        """
