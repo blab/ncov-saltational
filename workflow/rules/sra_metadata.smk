@@ -493,4 +493,22 @@ rule clean_dates:
             --output_metadata {output.metadata}
         """
 
+rule prepare_metadata_with_locations:
+    """
+    Prepare metadata for inferring internal node location
+    """
+    input:
+        sra_metadata = rules.tidy_final_metadata.output.subset_metadata,
+        taxonium_metadata = rules.get_metadata_from_taxonium.output.metadata,
+    output:
+        metadata = "results/sra_metadata/sra_metadata_countries.tsv"
+    shell:
+        """
+        Rscript scripts/sra-metadata/prepare_metadata_countries.R \
+            --sra_metadata {input.sra_metadata} \
+            --taxonium_metadata {input.taxonium_metadata} \
+            --output_metadata {output.metadata}
+        """
+
+
 
