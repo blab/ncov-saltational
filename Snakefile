@@ -40,6 +40,9 @@ rule all:
         df_parent_relationships = "results/bte/df_parent_child_relationship.tsv",
         df_n_descendants = "results/bte/df_n_descendants_per_node.tsv",
         chronumental = "results/chronumental/chronumental_inferred_dates.tsv",
+        inferred_countries = "results/bte/inferred_countries.tsv",
+        inferred_continents = "results/bte/inferred_continents.tsv",
+        inferred_subregions = "results/bte/inferred_subregions.tsv",
 
         # Bayesian model run
         data_viridian = expand("results/input_model/data_viridian_{gene}.tsv", gene=GENES),
@@ -55,6 +58,7 @@ rule all:
 
         # Saltational branches characterization
         name_saltational_branches = expand("results/saltational_branches/name_saltational_branches_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
+        name_saltational_branches_by_genome_region = expand("results/saltational_branches/name_saltational_branches_{gene}_CV_{cv_prior}_BF_{BF_threshold}.tsv", gene=GENES, cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         ancestral_saltational = expand("results/saltational_branches/sequences_saltational_internal_CV_{cv_prior}_BF_{BF_threshold}.fasta", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         tree_with_internal_saltational = expand("results/saltational_branches/viridian_tree_with_internal_nodes_CV_{cv_prior}_BF_{BF_threshold}.pb.gz", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         proximity_saltational_samples = expand("results/tree_with_saltational/proximity_samples_CV_{cv_prior}_BF_{BF_threshold}.txt", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
@@ -83,7 +87,8 @@ rule params:
         usher_reference_gtf = "params/reference/reference_seq_all.gtf",
         usher_reference_fasta = "params/reference/reference_seq.fasta",
         viridian_tree = "data/viridian/tree.all_viridian.202409.pb.gz",
-        viridian_taxonium = "data/viridian/tree.all_viridian.202409.jsonl.gz"
+        viridian_taxonium = "data/viridian/tree.all_viridian.202409.jsonl.gz",
+        country_mapping = "params/mapping/country_to_continent_mapping.csv"
     params:
         ncbi_sra_url = "ftp://ftp.ncbi.nlm.nih.gov/sra/reports/Metadata/SRA_Accessions.tab",
         sra_metadata_download_batch_size = 1000
