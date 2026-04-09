@@ -73,6 +73,24 @@ rule name_saltational_branches:
             --output_name_saltational_branches {output.name_saltational_branches}
         """
 
+rule name_saltational_branches_by_genome_region:
+    """Get the names of the saltational paths across the tree for each gene and each CV prior"""
+    input:
+        name_adaptive_branches = rules.get_name_adaptive_branches.output.name_adaptive_branches,
+        df_aa_muts = rules.add_coded_status_aa_mut.output.df_aa_muts_coded
+    output:
+        name_saltational_branches = "results/saltational_branches/name_saltational_branches_{gene}_CV_{cv_prior}_BF_{BF_threshold}.tsv",
+    params:
+        percentile_threshold_nonsyn = 0.995
+    shell:
+        """
+        Rscript ./scripts/branch-analysis/get_saltational_branches.R \
+            --name_adaptive_branches {input.name_adaptive_branches} \
+            --df_aa_muts_coded {input.df_aa_muts} \
+            --percentile_threshold_nonsyn {params.percentile_threshold_nonsyn} \
+            --output_name_saltational_branches {output.name_saltational_branches}
+        """
+
 rule get_name_internal_nodes_saltational_branches:
     """Identify which saltational branches are internal nodes (vs tips)"""
     input:
