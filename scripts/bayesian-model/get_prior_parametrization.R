@@ -6,6 +6,7 @@ collect_args <- function(){
   
   parser$add_argument('--df_sites', type = 'character', help = 'TSV file containing site information')
   parser$add_argument('--df_aa_muts_coded', type = 'character', help = 'TSV file containing AA muts information')
+  parser$add_argument('--name_recombinants_to_remove', type = 'character', help = 'Text file with recombinant branches to remove')
   parser$add_argument('--df_parent_child', type = 'character', help = 'TSV file with child parent relationships')
   parser$add_argument('--df_prior_param', type = 'character', help = 'Output file with prior parametrization')
   return(parser$parse_args())
@@ -13,12 +14,16 @@ collect_args <- function(){
 
 args <- collect_args()
 
+# Load name of strains to remove from analysis
+name_recombinants <- read.table(args$name_recombinants_to_remove) %>% unlist() %>% as.character()
+
 # Load number of sites
-df_site_counts <- read_tsv(args$df_sites)
+df_site_counts <- read_tsv(args$df_sites) %>% 
+  filter(! node_id %in% name_recombinants)
 
 # Load child parent relationship to get all the nodes
 df_parent_child <- read_tsv(args$df_parent_child) %>% 
-  filter(strain != 'node_1') %>% # Remove root sequence (Not a branch)
+  filter(strain != 'node_1', ! strain %in% name_recombinants) %>% # Remove root sequence (Not a branch) and recombinants
   select(strain, branch_length)
 
 # Get number of coded AA mutations by gene by branch
@@ -26,6 +31,7 @@ df_aa_mut_all <- read_tsv(args$df_aa_muts_coded) %>%
   mutate(is_synonymous = (aa_initial == aa_new)) %>% 
   filter(is_coded) %>% 
   rename(strain = node_id) %>% 
+  filter(! strain %in% name_recombinants) %>% 
   group_by(strain, gene) %>% 
   summarise(n_mut_synonymous = sum(is_synonymous),
             n_mut_non_synonymous = sum(! is_synonymous))
