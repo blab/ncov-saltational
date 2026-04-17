@@ -22,6 +22,7 @@ rule prepare_data_model:
     input:
         df_sites = rules.count_sites_per_branch.output.df_sites,
         df_aa_muts_coded = rules.add_coded_status_aa_mut.output.df_aa_muts_coded,
+        name_recombinants = rules.get_branches_leading_to_recombinant_clades.output.name_strains_leading_to_recombinant_clades,
     output:
         data_viridian = "results/input_model/data_viridian_{gene}.tsv",
         data_viridian_grouped = "results/input_model/data_viridian_{gene}_grouped.tsv",
@@ -30,6 +31,7 @@ rule prepare_data_model:
         Rscript ./scripts/bayesian-model/prepare_data_bayesian_model.R \
             --df_sites {input.df_sites} \
             --df_aa_muts_coded {input.df_aa_muts_coded} \
+            --name_recombinants_to_remove {input.name_recombinants} \
             --output_data_viridian {output.data_viridian} \
             --output_data_viridian_grouped {output.data_viridian_grouped} \
             --genome_region {wildcards.gene}
@@ -56,11 +58,13 @@ rule get_prior_parametrization:
         df_sites = rules.count_sites_per_branch.output.df_sites,
         df_aa_muts_coded = rules.add_coded_status_aa_mut.output.df_aa_muts_coded,
         df_parent_child_relationships = rules.get_parent_child_relationship.output.df_parent_relationships,
+        name_recombinants = rules.get_branches_leading_to_recombinant_clades.output.name_strains_leading_to_recombinant_clades,
     output:
         df_prior_parametrization = "results/input_model/df_prior_parametrization.tsv"
     shell:
         """
         Rscript ./scripts/bayesian-model/get_prior_parametrization.R \
+            --name_recombinants_to_remove {input.name_recombinants} \
             --df_sites {input.df_sites} \
             --df_aa_muts_coded {input.df_aa_muts_coded} \
             --df_parent_child {input.df_parent_child_relationships} \
