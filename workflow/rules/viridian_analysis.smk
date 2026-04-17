@@ -47,7 +47,6 @@ rule subset_viridian_tree:
             --write-mat {output.subset_tree}
         """
 
-
 rule convert_tree_newick:
     """Convert UShER tree to newick format - This will be used to run Chronumental"""
     input:
@@ -86,7 +85,6 @@ rule chronumental:
             --steps 2000
         """
 
-
 rule char_nuc_across_tree:
     """List of nucleotide mutations across the UShER tree"""
     input:
@@ -101,7 +99,6 @@ rule char_nuc_across_tree:
             --tree {input.tree} \
             --output_df_nuc_mutations {output.df_nuc_mut}
         """
-
 
 rule get_translations_per_node:
     """Get mutation information across tree"""
@@ -137,7 +134,6 @@ rule tidy_node_translations:
             --output_aa_mutations {output.aa_muts}
         """
 
-
 rule get_stop_codons:
     """Get stop codons across tree for each node"""
     input:
@@ -167,7 +163,6 @@ rule add_coded_status_aa_mut:
         Rscript ./scripts/mat-manipulation/get_non_coded_positions.R {input.df_aa_muts} {input.df_stop_codons} {output.df_aa_muts_coded}
         """
 
-
 rule get_parent_child_relationship:
     """Extract parent-child relationships from tree topology"""
     input:
@@ -183,11 +178,11 @@ rule get_parent_child_relationship:
             --output_parent_relationship {output.df_parent_relationships}
         """
 
-
 rule get_n_descendants_per_node:
     """Get number of descendants per node"""
     input:
         tree = rules.subset_viridian_tree.output.subset_tree,
+        metadata_dates = rules.clean_dates.output.metadata
     output:
         df_n_descendants = "results/bte/df_n_descendants_per_node.tsv"
     conda:
@@ -196,7 +191,38 @@ rule get_n_descendants_per_node:
         """
         python scripts/mat-manipulation/get_n_descendants_per_node.py \
             --tree {input.tree} \
+            --metadata_dates {input.metadata_dates} \
             --output_df_n_descendants {output.df_n_descendants}
+        """
+
+rule get_clades_per_node:
+    """Get clade for each node"""
+    input:
+        tree = rules.subset_viridian_tree.output.subset_tree,
+    output:
+        df_clades = "results/bte/df_clade_per_node.tsv"
+    conda:
+        "../envs/bte.yaml"
+    shell:
+        """
+        python scripts/mat-manipulation/get_clades_per_node.py \
+            --tree {input.tree} \
+            --output_df_clades {output.df_clades}
+        """
+
+rule get_branches_leading_to_recombinant_clades:
+    """Get branches leading to recombinant clades"""
+    input:
+        df_clades = rules.get_clades_per_node.output.df_clades,
+        df_parent_relationships = rules.get_parent_child_relationship.output.df_parent_relationships
+    output:
+        name_strains_leading_to_recombinant_clades = "results/bte/name_strains_leading_to_recombinant_clades.txt"
+    shell:
+        """
+        Rscript scripts/mat-manipulation/get_branches_leading_to_recombinant_clades.R \
+            --df_clades {input.df_clades} \
+            --df_child_parent {input.df_parent_relationships} \
+            --name_branches_leading_to_recombinant {output.name_strains_leading_to_recombinant_clades}
         """
 
 rule count_sites_per_branch:
