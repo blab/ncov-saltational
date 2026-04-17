@@ -5,6 +5,7 @@ collect_args <- function(){
   parser <- ArgumentParser()
   parser$add_argument('--df_sites', type = 'character', help = 'TSV file containing site information')
   parser$add_argument('--df_aa_muts_coded', type = 'character', help = 'TSV file containing AA muts information')
+  parser$add_argument('--name_recombinants_to_remove', type = 'character', help = 'Text file with recombinant branches to remove')
   parser$add_argument('--genome_region', type = 'character', help = 'Gene region')
   parser$add_argument('--output_data_viridian', type = 'character', help = 'Output file ')
   parser$add_argument('--output_data_viridian_grouped', type = 'character', help = 'Output file ')
@@ -16,14 +17,19 @@ args <- collect_args()
 # Define gene vector for genome-wide analysis
 vec_genes <- c('ORF1a', 'ORF1b', 'S', 'ORF3a', 'E', 'M', 'ORF6', 'ORF7a', 'ORF7b', 'ORF8', 'N', 'ORF9b')
 
+# Load name of strains to remove from analysis
+name_recombinants <- read.table(args$name_recombinants_to_remove) %>% unlist() %>% as.character()
+
 # Load number of sites
-df_site_counts <- read_tsv(args$df_sites)
+df_site_counts <- read_tsv(args$df_sites) %>% 
+  filter(! node_id %in% name_recombinants)
 
 # Get number of coded AA mutations by gene by branch
 df_aa_mut_all <- read_tsv(args$df_aa_muts_coded) %>% 
   mutate(is_synonymous = (aa_initial == aa_new)) %>% 
   filter(is_coded) %>% 
   rename(strain = node_id) %>% 
+  filter(! strain %in% name_recombinants) %>% 
   group_by(strain, gene) %>% 
   summarise(synonymous_muts = sum(is_synonymous),
             non_synonymous_muts = sum(! is_synonymous))
