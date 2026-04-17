@@ -1,0 +1,8 @@
+name: mutation-opportunity
+dependencies:
+  - python=3.11
+  - bte
+  - tqdm
+  - pandas
+  - biopython
+  - gtfparse
