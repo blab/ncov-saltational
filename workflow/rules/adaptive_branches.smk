@@ -244,3 +244,52 @@ rule normalize_saltational_tree_branch_lengths:
             --genome_length 29903 \
             --output_newick {output.tree_normalized}
         """
+
+rule export_metadata_for_taxonium_visualization:
+    input:
+        df_child_parent = rules.get_parent_child_relationship.output.df_parent_relationships,
+        name_saltational_branches = rules.name_saltational_branches.output.name_saltational_branches,
+        inferred_country = rules.reconstruct_ancestral_country.output.inferred_countries,
+        inferred_subregion = rules.reconstruct_ancestral_subregion.output.inferred_subregions,
+        inferred_continent = rules.reconstruct_ancestral_continent.output.inferred_continents,
+        df_aa_muts = rules.add_coded_status_aa_mut.output.df_aa_muts_coded,
+        sra_metadata = rules.tidy_final_metadata.output.subset_metadata
+    output:
+        metadata = "results/saltational_branches/metadata_taxonium_CV_{cv_prior}_BF_{BF_threshold}.tsv",
+    shell:
+        """
+        Rscript scripts/mat-manipulation/get_metadata_for_taxonium_export.R \
+            --df_child_parent {input.df_child_parent} \
+            --name_saltational_branches {input.name_saltational_branches} \
+            --inferred_country {input.inferred_country} \
+            --inferred_subregion {input.inferred_subregion} \
+            --inferred_continent {input.inferred_continent} \
+            --df_aa_muts {input.df_aa_muts} \
+            --sra_metadata {input.sra_metadata} \
+            --output_metadata {output.metadata}
+        """
+
+
+rule export_tree_with_saltational_to_taxonium:
+    """Export tree with saltational branches to Taxonium format"""
+    input:
+        tree = rules.add_internal_nodes_saltational_to_tree.output.tree_updated,
+        metadata = rules.export_metadata_for_taxonium_visualization.output.metadata,
+    output:
+        taxonium = "results/saltational_branches/taxonium_saltational_CV_{cv_prior}_BF_{BF_threshold}.jsonl.gz",
+    params:
+        columns_to_include = "strain,branch_length,is_saltational,country,subregion,continent,n_synonymous,n_non_synonymous,age,sex,subdivision_full,subdivision_1,subdivision_2",
+        #title = "Saltational branches within viridian SARS-CoV-2 tree",
+        title = 'Salt',
+        config_file = "",
+        reference_gb = "params/reference/reference_seq.gb"
+    shell:
+        """
+        usher_to_taxonium \
+            -i {input.tree} \
+            -g {params.reference_gb} \
+            -o {output.taxonium} \
+            -m {input.metadata} \
+            -c {params.columns_to_include} \
+            -t {params.title}
+        """
