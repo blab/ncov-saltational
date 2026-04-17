@@ -117,7 +117,6 @@ png('../figure_descendant_analysis/fold_change_nb_descendants_1_extra_mutation_z
 plot(plt_param_estim_negbin)
 dev.off()
 
-
 plt_sensitivity_estimates_large_branches <- df_negbin_zero_inflated_joint %>% 
   mutate(gene = factor(gene, levels = names(palette_genes))) %>% 
   ggplot(aes(x = as.factor(threshold_n_descendants_inclusion), 

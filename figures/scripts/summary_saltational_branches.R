@@ -4,7 +4,7 @@ source('config_plot.R')
 vec_genes <- names(palette_genes)
 
 df_adapt_branches_per_gene <- Reduce('bind_rows', lapply(vec_genes, FUN = function(curr_gene){
-  read_tsv(paste0('../../results/saltational_branches/name_saltational_branches_', curr_gene, '_CV_1.7_BF_20.tsv'),
+  read_tsv(paste0('../../results/saltational_branches/name_saltational_branches_', curr_gene, '_CV_1.8_BF_20.tsv'),
            col_names = F) %>% 
     summarise(n_adaptive_branches = n()) %>% 
     mutate(gene = curr_gene)

@@ -1,11 +1,11 @@
 library(tidyverse)
 library(scales)
-library(glmnet)
+library(binom)
 source('utils_descendants_analysis.R')
 source('config_plot.R')
 
 # Load saltational branches names
-name_saltational_branches <- read.table('../../results/saltational_branches/name_saltational_branches_CV_1.7_BF_20.tsv', header = F) %>%
+name_saltational_branches <- read.table('../../results/saltational_branches/name_saltational_branches_CV_1.8_BF_20.tsv', header = F) %>%
   unlist() %>% as.character()
 
 # Load descendants information
@@ -18,17 +18,19 @@ df_descendant_counts <- read_tsv('../../results/bte/df_n_descendants_per_node.ts
   filter(strain %in% name_saltational_branches) %>% 
   mutate(has_descendants = n_terminal_descendants > 1)
 
+# Get proportion of saltational branches with descendants
+n_salt_with_descendants <- sum(df_descendant_counts$has_descendants)
+n_salt <- length(df_descendant_counts$has_descendants)
+prop_salt_with_descendants <- n_salt_with_descendants/n_salt
+CI_prop_salt_with_descendants <- prop.test(x = n_salt_with_descendants, n = n_salt)$conf.int
 
+  
 # Load mutation enrichment information
-df_OR_AA_pos <- read_tsv('../../results/mutation_enrichment/df_AA_pos_enrichment_saltational_CV_1.7_BF_20.tsv') %>% 
-  filter(threshold_for_inclusion == 1)
-df_OR_AA_mut <- read_tsv('../../results/mutation_enrichment/df_AA_mut_enrichment_saltational_CV_1.7_BF_20.tsv') %>% 
+df_OR_AA_mut <- read_tsv('../../results/mutation_enrichment/df_AA_mut_enrichment_saltational_CV_1.8_BF_20.tsv') %>% 
   filter(threshold_for_inclusion == 1)
 
 enriched_AA_mut <- df_OR_AA_mut %>% filter(p_value_BH < 0.05) %>% select(gene, mutation) %>% 
   mutate(mut_full = paste0(gene, ':', mutation))
-enriched_AA_pos <- df_OR_AA_pos %>% filter(p_value_BH < 0.05) %>% select(gene, position) %>% 
-  mutate(mut_full = paste0(gene, ':', position))
 
 # Load AA mutation information
 df_aa_muts <- read_tsv('../../results/mutations/nodes_aa_muts_summary_coded.tsv') %>% 
@@ -83,7 +85,6 @@ get_OR_having_descendants_having_muts <- function(df_aa_muts,
   
   return(df_OR_having_descendants_by_mut)
 }
-
 
 
 get_OR_having_descendants_having_muts_among_enriched_muts_non_syn <- function(df_aa_muts, 
@@ -163,68 +164,76 @@ get_OR_having_descendants_having_muts_at_pos_among_enriched_pos_non_syn <- funct
   return(df_OR_having_descendants_by_mut)
 }
 
-df_OR_having_descendants_by_mut <- 
+df_prop_with_descendants_by_mut <- 
   get_OR_having_descendants_having_muts_among_enriched_muts_non_syn(df_aa_muts, 
                                                                     df_descendants,
-                                                                    enriched_AA_mut)
-df_OR_having_descendants_by_mut$p_value_BH <- p.adjust(df_OR_having_descendants_by_mut$p_value, method = 'BH')
+                                                                    enriched_AA_mut) %>% 
+  mutate(n_with_mut = n_with_mut_with_descendants + n_with_mut_without_descendants,
+         prop_with_descendants = n_with_mut_with_descendants/n_with_mut)
 
-df_OR_having_descendants_by_pos <- 
-  get_OR_having_descendants_having_muts_at_pos_among_enriched_pos_non_syn(df_aa_muts, 
-                                                                          df_descendants,
-                                                                          enriched_AA_pos)
-df_OR_having_descendants_by_pos$p_value_BH <- p.adjust(df_OR_having_descendants_by_pos$p_value, method = 'BH')
+df_prop_with_descendants_by_mut$p_value_BH_descendants <- p.adjust(df_prop_with_descendants_by_mut$p_value, method = 'BH')
+
+scatter_plot_prop_with_desc_func_nb_branches_with_muts <- df_prop_with_descendants_by_mut %>% rename(OR_desc = OR) %>% 
+  left_join(df_OR_AA_mut %>% select(gene, mutation, OR) %>% rename(OR_mut = OR),
+            by = c('gene', 'aa_muts_direction' = 'mutation')) %>% 
+  mutate(gene = factor(gene, levels = names(palette_genes))) %>% 
+  ggplot(aes(x = n_with_mut, 
+             y = prop_with_descendants, colour = gene)) +
+  geom_hline(yintercept = prop_salt_with_descendants, color = 'darkgrey') +
+  annotate("rect", 
+           xmin = 0, xmax = Inf, 
+           ymin = CI_prop_salt_with_descendants[1],
+           ymax = CI_prop_salt_with_descendants[2], 
+           alpha = 0.2, fill = 'darkgrey') +
+  geom_point() +
+  ggrepel::geom_text_repel(data = df_prop_with_descendants_by_mut %>%
+                             rename(OR_desc = OR) %>% 
+                             left_join(df_OR_AA_mut %>% select(gene, mutation, OR) %>% rename(OR_mut = OR),
+                                       by = c('gene', 'aa_muts_direction' = 'mutation')) %>% 
+                             filter(OR_mut > 5, n_with_mut > 4),
+                           aes(label = aa_muts_direction), 
+                           min.segment.length = 0.,
+                           max.overlaps = Inf) +
+  scale_x_continuous(trans = 'log',
+                     breaks = c(1:10, 15, 20, 30, 40),
+                     name = 'Number of saltational branches with mutation') +
+  scale_y_continuous(name = 'Proportion of branches with descendants', 
+                     breaks = seq(0., 1., 0.2)) +
+  scale_colour_manual(values = palette_genes,
+                      name = 'Gene') +
+  theme_bw() +
+  theme(panel.grid.minor.x = element_blank()) +
+  guides(colour = guide_legend(override.aes = list(label = '')))
+
+set.seed(2)
+pdf('../figure_descendant_analysis/prop_branches_with_desc_func_nb_branches_with_mut.pdf',
+    height = 5.5, width = 8.5)
+plot(scatter_plot_prop_with_desc_func_nb_branches_with_muts)
+dev.off()  
+png('../figure_descendant_analysis/prop_branches_with_desc_func_nb_branches_with_mut.png',
+    height = 5.5, width = 8.5, res = 350, units = 'in')
+plot(scatter_plot_prop_with_desc_func_nb_branches_with_muts)
+dev.off()  
+
+### Volcano plot
+df_prop_with_descendants_by_mut %>% rename(OR_desc = OR) %>% 
+  mutate(gene = factor(gene, levels = names(palette_genes))) %>% 
+  ggplot(aes(x = log10(OR_desc), y = - log10(p_value), colour = gene)) +
+  geom_point() +
+  scale_colour_manual(values = palette_genes,
+                      name = 'Gene') +
+  theme_bw() 
 
 
-
-# df_OR_having_descendants_by_mut <- 
-#   get_OR_having_descendants_having_muts(df_aa_muts, 
-#                                         df_descendants,
-#                                         threshold_mutation_occurence_inclusion = 0)
-
-
-
-df_OR_having_descendants_by_mut %>% filter(OR_lower > 1. | OR_upper < 1.) %>% View()
-
-df_OR_having_descendants_by_pos %>% filter(OR_lower > 1.| OR_upper < 1.) %>% View()
-
-df_aa_muts %>% filter(gene == 'ORF1b', aa_muts_direction == '1000L') %>% 
-  left_join(df_descendant_counts, by = 'strain') %>% View()
-df_aa_muts %>% filter(gene == 'M', aa_muts_direction == '82T') %>% 
-  left_join(df_descendant_counts, by = 'strain') %>% View()
-df_aa_muts %>% filter(gene == 'S', aa_muts_direction == '477N') %>% 
-  left_join(df_descendant_counts, by = 'strain') %>% View()
-
-df_OR_having_descendants_by_pos %>% 
-  arrange(-OR) %>% mutate(rank = 1:n()) %>% 
-  ggplot(aes(x = rank, y = OR, colour = gene, alpha = p_value < 0.05)) +
+df_prop_with_descendants_by_mut %>% 
+  filter(n_with_mut_with_descendants + n_with_mut_without_descendants >= 4) %>% 
+  mutate(gene = factor(gene, levels = names(palette_genes))) %>% 
+  ggplot(aes(x = reorder(paste0(gene , ':', aa_muts_direction), OR), y = OR, colour = gene)) +
   geom_point() +
   geom_linerange(aes(ymin = OR_lower, ymax = OR_upper)) +
+  facet_wrap(. ~ gene == 'S', scales = 'free') +
   scale_y_continuous(trans = 'log') +
-  scale_colour_manual(values = palette_genes, name = 'Gene') +
-  scale_alpha_manual(breaks = c(T, F), values = c(1., 0.5), guide = 'none')
+  scale_colour_manual(values = palette_genes, 
+                      name = 'Gene') +
+  coord_flip()
 
-df_OR_having_descendants_by_mut %>% 
-  filter(n_with_mut_with_descendants + n_with_mut_without_descendants >= 5 | OR_lower > 1. | OR_upper < 1.) %>% 
-  arrange(- OR ) %>% mutate(rank = 1:n()) %>% 
-  ggplot(aes(x = rank, y = OR, colour = gene)) +
-  geom_point() +
-  geom_linerange(aes(ymin = OR_lower, ymax = OR_upper)) +
-  scale_y_continuous(trans = 'log') +
-  scale_colour_manual(values = palette_genes)
-  
-
-df_OR_having_descendants_by_mut %>% 
-  filter(n_with_mut_with_descendants + n_with_mut_without_descendants >= 5 | OR_lower > 1. | OR_upper < 1.) %>% 
-  arrange(- OR ) %>% mutate(rank = 1:n()) %>% 
-  ggplot(aes(x = rank, 
-             y = n_with_mut_with_descendants/(n_with_mut_with_descendants + n_with_mut_without_descendants), 
-             fill = gene, colour = gene)) +
-  geom_bar(stat = 'identity') +
-  #geom_linerange(aes(ymin = OR_lower, ymax = OR_upper)) +
-  #scale_y_continuous(trans = 'log') +
-  scale_colour_manual(values = palette_genes) +
-  scale_fill_manual(values = palette_genes)
-
-df_OR_having_descendants_by_mut %>% 
-  filter(OR_lower > 1.)

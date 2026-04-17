@@ -176,7 +176,7 @@ get_summary_from_posterior_simul_PDF_S <- function(gene, CV_prior){
   )
 }
 
-vec_CV <- sprintf("%.1f", c(0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0))
+vec_CV <- sprintf("%.1f", c(1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5))
 vec_genes <- c('ORF1a', 'ORF1b', 'S', 'ORF3a', 'E', 'M', 'ORF6', 'ORF7a', 'ORF7b', 'ORF8', 'N', 'ORF9b')
 
 df_PDF_NS <- Reduce('bind_rows', lapply(vec_CV, FUN = function(CV_prior){
@@ -189,6 +189,10 @@ CV_maximizing_cor <- df_PDF_NS %>%
   group_by(CV) %>% 
   summarise(cor = cor(log(n_branches_true + 1), log(median_n_branches_new + 1), method = 'pearson')) %>% 
   filter(cor == max(cor)) %>% select(CV) %>% unlist() %>% as.numeric()
+
+df_PDF_NS %>% 
+  group_by(CV) %>% 
+  summarise(cor = cor(log(n_branches_true + 1), log(median_n_branches_new + 1), method = 'pearson')) %>% View()
 
 df_PDF_NS_Genome <- Reduce('bind_rows', lapply(CV_maximizing_cor, FUN = function(CV_prior){
   Reduce('bind_rows', lapply('Genome', FUN = function(gene){
@@ -346,7 +350,7 @@ get_CV_maximizing_cor <- function(df_PDF_NS){
 
 # Posterior predictive checks across CV
 panel_across_genes_CV <- plot_predicted_number_branches_func_observed_func_genes_CV(df_PDF_NS, 
-                                                                                   CVs_to_plot = c(0.8, 1.5, 2.0))
+                                                                                   CVs_to_plot = c(1.0, 1.5, 2.0, 2.5))
 
 png('../figure_model_illustration/posterior_predictive_checks_func_CV.png',
     height = 5., width = 8., res = 350, units = 'in')

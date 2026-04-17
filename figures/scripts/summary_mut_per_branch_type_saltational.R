@@ -5,7 +5,7 @@ source('config_plot.R')
 vec_genes <- names(palette_genes)
 
 # Load adaptive branches names
-name_adaptive_branches <- read.table('../../results/saltational_branches/name_saltational_branches_CV_1.7_BF_20.tsv', 
+name_adaptive_branches <- read.table('../../results/saltational_branches/name_saltational_branches_CV_1.8_BF_20.tsv', 
                                      header = F) %>% unlist() %>% as.character()
 
 # Load number of mutations by branch
@@ -129,8 +129,6 @@ get_boxplot_mut_count_per_branch_type <- function(mut_count_genome, name_adaptiv
 
 boxplot_mut_count_by_branch_type <- get_boxplot_mut_count_per_branch_type(mut_count_genome, name_adaptive_branches)
 
-plot(boxplot_mut_count_by_branch_type)
-
 pdf('../figure_saltational_branches/boxplot_mut_counts_per_branch_type.pdf',
     height = 2.2, width = 5.)
 plot(boxplot_mut_count_by_branch_type)
@@ -139,7 +137,6 @@ png('../figure_saltational_branches/boxplot_mut_counts_per_branch_type.png',
     height = 2.2, width = 5., res = 350, units = 'in')
 plot(boxplot_mut_count_by_branch_type)
 dev.off()
-
 
 # Distribution of mutations oer gene
 get_mut_frequency_by_gene_by_branch_type <- function(df_aa_muts){
@@ -177,4 +174,3 @@ png('../figure_saltational_branches/mut_frequency_by_gene_by_branch_type.png',
 plot(hist_mut_freq_by_branch_type)
 dev.off()
 
-# 

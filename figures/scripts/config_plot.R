@@ -28,6 +28,10 @@ palette_spike <- c(
   'Other S' = 'black'
 )
 
+## Palette for NSPs
+palette_NSPs <- c(brewer.pal(12, 'Set3'), 'black', 'gray55', 'deeppink3')
+names(palette_NSPs) <- paste0('NSP', c(1:10, 12:16))
+
 ## Colour for synonymous and non-synonymous
 col_synonymous <- 'darkcyan'
 col_non_synonymous <- 'firebrick2'
