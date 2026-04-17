@@ -475,7 +475,6 @@ rule tidy_final_metadata:
             --output_subset_metadata {output.subset_metadata}
         """
 
-
 rule clean_dates:
     """
     Remove entries with dates that are too old
@@ -509,6 +508,3 @@ rule prepare_metadata_with_locations:
             --taxonium_metadata {input.taxonium_metadata} \
             --output_metadata {output.metadata}
         """
-
-
-
