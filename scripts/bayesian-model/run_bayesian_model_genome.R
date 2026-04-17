@@ -84,12 +84,12 @@ run_genome_model <- function(df_prior, genome_data_grouped, CV_prior, n_cores = 
       # (compute_genome_draws imported from utils_model.R)
       posterior_draws <- compute_genome_draws(
         branch_row, vec_genes, prior_params_list,
-        n_rep = 100, draw_type = 'posterior'
+        n_rep = 1000, draw_type = 'posterior'
       )
       
       prior_draws <- compute_genome_draws(
         branch_row, vec_genes, prior_params_list,
-        n_rep = 100, draw_type = 'prior'
+        n_rep = 1000, draw_type = 'prior'
       )
       
       # Aggregate observed quantities across genes for output metadata
