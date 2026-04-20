@@ -82,3 +82,20 @@ rule get_mutation_opportunity_saltational:
             --reference_fasta {input.reference_seq_fasta} \
             --output_df_opportunity {output.df_opportunity}
         """
+
+rule calculate_AA_mut_enrichment_saltational_account_opportunity:
+    """Calculate enrichment of AA mutations at each position within saltational branches"""
+    input:
+        df_aa_muts_coded = rules.add_coded_status_aa_mut.output.df_aa_muts_coded,
+        name_saltational_branches = rules.name_saltational_branches.output.name_saltational_branches,
+        df_opportunity = rules.get_mutation_opportunity_saltational.output.df_opportunity,
+    output:
+        df_AA_mut_enrichment = "results/mutation_enrichment/df_AA_mut_enrichment_saltational_opportunity_CV_{cv_prior}_BF_{BF_threshold}.tsv"
+    shell:
+        """
+        Rscript ./scripts/mutation-enrichment/calculate_AA_mut_enrichment_account_background.R \
+            --df_aa_muts {input.df_aa_muts_coded} \
+            --df_mutation_opportunity {input.df_opportunity} \
+            --name_adaptive_branches {input.name_saltational_branches} \
+            --output_df_enrichment {output.df_AA_mut_enrichment}
+        """
