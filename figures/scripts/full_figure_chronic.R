@@ -1,3 +1,4 @@
+### This script reproduces Figure 4
 library(tidyverse)
 library(ggrepel)
 library(ggpubr)
@@ -5,6 +6,10 @@ library(patchwork)
 library(binom)
 source('utils_plot_chronic.R')
 source('config_plot.R')
+
+#############################
+### LOADING MODEL RESULTS ###
+#############################
 
 # Load recurrent mutations in deers / minks / persistent infections
 frequent_mutations_summary <- get_frequent_mutations_summary('../../data/frequent_mutations/frequent_mutations_minks_deers.csv',
@@ -24,7 +29,8 @@ df_OR_chronic_saltational <- compute_OR_muts_chronic_infections_saltational('../
                                                                             '../../results/mutations/nodes_aa_muts_summary_coded.tsv',
                                                                             name_saltational_branches)
 
-# Load proportion of 
+# Get proportion of branches that are saltational by country
+# and yearly HIV deaths per 1,000
 df_inferred_countries <- read_tsv('../../results/bte/inferred_countries.tsv') %>% mutate(scale = 'Country')
 df_prop_saltational_branches_per_country <- get_prop_salt_branches_per_location(name_saltational_branches, df_inferred_countries)
 
