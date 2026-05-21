@@ -20,8 +20,9 @@
 ### Figure 5
 - [plot_saltational_branches_with_descendants.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_saltational_branches_with_descendants.R) 
 contains the script to reproduce Figure 5A and 5B.
-- [](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure 5C.
+- [plot_fold_change_nb_desc_nb_muts_by_gene.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_fold_change_nb_desc_nb_muts_by_gene.R) contains the script to reproduce Figure 5C.
 - [](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure 5D.
 - [](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure 5E.
 
 ### Supplementary figures
+- [plot_fold_change_nb_desc_nb_muts_by_gene.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_fold_change_nb_desc_nb_muts_by_gene.R) contains the script to reproduce Figure S7.
