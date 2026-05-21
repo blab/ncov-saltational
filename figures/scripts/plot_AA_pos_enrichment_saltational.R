@@ -1,31 +1,37 @@
+### This script reproduces figures depicting the 
+### AA positions that are more / less likely to 
+### have nonsynonymous mutation in saltational 
+### than non saltattional branches
+
 library(tidyverse)
 library(ggrepel)
 source('config_plot.R')
 
-# Load gene coordinates
+
+#############################
+### LOADING MODEL RESULTS ###
+#############################
+# Load OR of NS mutation in saltational branches by AA position
+df_OR_AA_pos <- read_tsv('../../results/mutation_enrichment/df_AA_pos_enrichment_saltational_CV_1.8_BF_20.tsv')
+
+# Load name of saltational branches
+name_saltational_branches <- 
+  read.table('../../results/saltational_branches/name_saltational_branches_CV_1.8_BF_20.tsv', 
+             header = F) %>% unlist() %>% as.character()
+
+# Load gene coordinates used for visualizations
 gene_nuc_coord <- read_csv('../param/proteins_nucleotide_coordinates.csv')
 gene_aa_coord <- read_csv('../param/proteins_aa_coordinates.csv')
 
-# Load OR by AA position
-df_OR_AA_pos <- read_tsv('../../results/mutation_enrichment/df_AA_pos_enrichment_saltational_CV_1.8_BF_20.tsv')
+#############################
+### VISUALIZE RESULTS ###
+#############################
 
-# Load name of adaptive paths
-vec_name_node_adapt <- read.table('../../results/saltational_branches/name_saltational_branches_CV_1.8_BF_20.tsv') %>% unlist() %>% as.character()
-
-# Load AA mutations information and get proportion of adaptive branches with each mutation
-df_aa_muts <- read_tsv('../../results/mutations/nodes_aa_muts_summary_coded.tsv') %>% 
-  filter(is_coded) %>% # Coded AA mut
-  filter(aa_new != aa_initial) %>% # Non-synonymous
-  rename(strain = node_id) %>% 
-  filter(strain %in% vec_name_node_adapt) %>% 
-  mutate(has_mut = T) %>% 
-  select(strain, gene, aa_muts_position, has_mut) %>% 
-  group_by(gene, aa_muts_position) %>% 
-  summarise(n_adapt_branches_with_mut = n()) %>% 
-  mutate(prop_adapt_branches_with_mut = n_adapt_branches_with_mut / length(vec_name_node_adapt))
-
-# Manhattan plot
-get_manhattan_plot <- function(df_OR_AA_pos, threshold_inclusion = 1, 
+# Figure 3A
+# Manhattan plot with adjusted p-value (Benjamin Hochberg) by AA position
+# threshold_inclusion is the required number of times a position has to have NS mutations
+# on saltational branches to be included in the analysis
+get_manhattan_plot <- function(df_OR_AA_pos, threshold_inclusion = 2, 
                                gene_nuc_coord, gene_aa_coord,
                                add_gene_regions = T, add_position_outisde_spike = T){
   # Add nucleotide coordinates to df_OR_AA_pos
@@ -120,6 +126,8 @@ manhattan_plot <- get_manhattan_plot(df_OR_AA_pos, threshold_inclusion = 2,
                                      gene_nuc_coord, gene_aa_coord,
                                      add_gene_regions = T, add_position_outisde_spike = F)
 
+
+
 pdf('../figure_mutation_enrichment/manhattan_plot_more_frequent_AA_pos_saltational.pdf',
     height = 4., width = 9.5)
 plot(manhattan_plot)
@@ -129,7 +137,7 @@ png('../figure_mutation_enrichment/manhattan_plot_more_frequent_AA_pos_saltation
 plot(manhattan_plot)
 dev.off()
 
-# Barplot of nb of enriched positions by gene
+# Figure 3B - Barplot of nb of enriched positions by gene
 get_barplot_nb_enriched_positions <- function(df_OR_AA_pos, threshold_inclusion, ymax = 60){
   barplot_nb_enriched_positions_by_gene <- tibble(gene = names(palette_genes)[names(palette_genes) != 'Genome']) %>% 
     left_join(
@@ -158,6 +166,19 @@ get_barplot_nb_enriched_positions <- function(df_OR_AA_pos, threshold_inclusion,
   
   return(barplot_nb_enriched_positions_by_gene)
 }
+
+barplot_nb_enriched_positions_by_gene <- get_barplot_nb_enriched_positions(df_OR_AA_pos, 2)
+
+pdf('../figure_mutation_enrichment/barplot_nb_enriched_positions_by_gene_saltational.pdf',
+    height = 2.8, width = 4.)
+plot(barplot_nb_enriched_positions_by_gene)
+dev.off()
+png('../figure_mutation_enrichment/barplot_nb_enriched_positions_by_gene_saltational.png',
+    height = 2.8, width = 4., res = 350, units = 'in')
+plot(barplot_nb_enriched_positions_by_gene)
+dev.off()
+
+# Figure 3C - Barplot of nb of enriched positions within Spike
 get_barplot_nb_enriched_positions_within_S <- function(df_OR_AA_pos, threshold_inclusion, ymax = 60){
   
   df_nb_positions_per_S_region <- df_OR_AA_pos %>% 
@@ -190,6 +211,19 @@ get_barplot_nb_enriched_positions_within_S <- function(df_OR_AA_pos, threshold_i
   
   return(barplot_nb_enriched_positions_by_gene)
 }
+
+barplot_nb_enriched_positions_S_by_subunit <- get_barplot_nb_enriched_positions_within_S(df_OR_AA_pos, 2)
+
+pdf('../figure_mutation_enrichment/barplot_nb_enriched_positions_S_by_subunit_saltational.pdf',
+    height = 2.8, width = 2.8)
+plot(barplot_nb_enriched_positions_S_by_subunit)
+dev.off()
+png('../figure_mutation_enrichment/barplot_nb_enriched_positions_S_by_subunit_saltational.png',
+    height = 2.8, width = 2.8, res = 350, units = 'in')
+plot(barplot_nb_enriched_positions_S_by_subunit)
+dev.off()
+
+# Figure 3D - Barplot of nb of enriched positions within ORF1ab
 get_barplot_nb_enriched_positions_within_ORF1ab <- function(df_OR_AA_pos, threshold_inclusion, ymax = 60){
   
   df_nb_positions_per_NSPs <- df_OR_AA_pos %>% 
@@ -233,27 +267,8 @@ get_barplot_nb_enriched_positions_within_ORF1ab <- function(df_OR_AA_pos, thresh
   return(barplot_nb_enriched_positions_by_gene)
 }
 
-
-barplot_nb_enriched_positions_by_gene <- get_barplot_nb_enriched_positions(df_OR_AA_pos, 2)
-barplot_nb_enriched_positions_S_by_subunit <- get_barplot_nb_enriched_positions_within_S(df_OR_AA_pos, 2)
 barplot_nb_enriched_positions_ORF1ab <- get_barplot_nb_enriched_positions_within_ORF1ab(df_OR_AA_pos, 2)
 
-pdf('../figure_mutation_enrichment/barplot_nb_enriched_positions_by_gene_saltational.pdf',
-    height = 2.8, width = 4.)
-plot(barplot_nb_enriched_positions_by_gene)
-dev.off()
-png('../figure_mutation_enrichment/barplot_nb_enriched_positions_by_gene_saltational.png',
-    height = 2.8, width = 4., res = 350, units = 'in')
-plot(barplot_nb_enriched_positions_by_gene)
-dev.off()
-pdf('../figure_mutation_enrichment/barplot_nb_enriched_positions_S_by_subunit_saltational.pdf',
-    height = 2.8, width = 2.8)
-plot(barplot_nb_enriched_positions_S_by_subunit)
-dev.off()
-png('../figure_mutation_enrichment/barplot_nb_enriched_positions_S_by_subunit_saltational.png',
-    height = 2.8, width = 2.8, res = 350, units = 'in')
-plot(barplot_nb_enriched_positions_S_by_subunit)
-dev.off()
 pdf('../figure_mutation_enrichment/barplot_nb_enriched_positions_ORF1ab_by_NSP_saltational.pdf',
     height = 2.8, width = 3.4)
 plot(barplot_nb_enriched_positions_ORF1ab + guides(fill = guide_legend(ncol = 2)))
@@ -263,10 +278,35 @@ png('../figure_mutation_enrichment/barplot_nb_enriched_positions_ORF1ab_by_NSP_s
 plot(barplot_nb_enriched_positions_ORF1ab + guides(fill = guide_legend(ncol = 2)))
 dev.off()
 
+# Table S1 - Get list of enriched positions
+get_summary_enriched_positions <- function(df_OR_AA_pos, threshold_inclusion, df_aa_muts){
+  df_OR_AA_pos %>% 
+    filter(threshold_for_inclusion == threshold_inclusion) %>% 
+    left_join(df_aa_muts, by = c('position' = 'aa_muts_position', 'gene')) %>% 
+    filter(p_value_BH < 0.05, OR > 1.) %>% 
+    arrange(gene) %>% 
+    mutate(OR_char = paste0(round(OR, 1), ' (', round(OR_lower, 1), '-', round(OR_upper, 1), ')')) %>% 
+    select(gene, position, OR, OR_char, n_mut_of_interest_adapt_branches) %>% 
+    arrange(- n_mut_of_interest_adapt_branches) %>% return()
+}
 
+get_summary_enriched_positions(df_OR_AA_pos, 2, df_aa_muts) %>% 
+  write_csv('../figure_mutation_enrichment/summary_enriched_positions.csv')
 
+# Figure not included in the manuscript - OR as a function of mutation frequency
+## Load AA nonsynonymoys mutations information and get proportion of adaptive branches with each mutation
+df_aa_muts <- read_tsv('../../results/mutations/nodes_aa_muts_summary_coded.tsv') %>% 
+  filter(is_coded) %>% # Coded AA mut
+  filter(aa_new != aa_initial) %>% # Non-synonymous
+  rename(strain = node_id) %>% 
+  filter(strain %in% name_saltational_branches) %>% 
+  mutate(has_mut = T) %>% 
+  select(strain, gene, aa_muts_position, has_mut) %>% 
+  group_by(gene, aa_muts_position) %>% 
+  summarise(n_adapt_branches_with_mut = n()) %>% 
+  mutate(prop_adapt_branches_with_mut = n_adapt_branches_with_mut / length(name_saltational_branches))
 
-## Could make the same plot with prop of time it's mutated.
+## Display results
 get_plot_OR_func_prop_adapt_branches_labels <- function(df_OR_AA_pos, threshold_inclusion, df_aa_muts, 
                                                         vec_genes, 
                                                         prop_threshold = 0., OR_threshold = 1., 
@@ -322,8 +362,6 @@ get_plot_OR_func_prop_adapt_branches_labels <- function(df_OR_AA_pos, threshold_
 }
 
 
-
-
 scatter_plot_OR_func_get_plot_OR_func_prop_branches_with_mut <- 
   get_plot_OR_func_prop_adapt_branches_labels(df_OR_AA_pos, 2, df_aa_muts,
                                               names(palette_genes), 
@@ -346,20 +384,6 @@ png('../figure_mutation_enrichment/scatter_plot_OR_func_mut_prevalence_pos_salta
 plot(scatter_plot_OR_func_get_plot_OR_func_prop_branches_with_mut)
 dev.off()
 
-get_summary_enriched_positions <- function(df_OR_AA_pos, threshold_inclusion, df_aa_muts){
- df_OR_AA_pos %>% 
-    filter(threshold_for_inclusion == threshold_inclusion) %>% 
-    left_join(df_aa_muts, by = c('position' = 'aa_muts_position', 'gene')) %>% 
-    filter(p_value_BH < 0.05) %>% 
-    arrange(gene) %>% 
-    mutate(OR_char = paste0(round(OR, 1), ' (', round(OR_lower, 1), '-', round(OR_upper, 1), ')')) %>% 
-    select(gene, position, OR, OR_char, n_mut_of_interest_adapt_branches) %>% 
-    arrange(- n_mut_of_interest_adapt_branches) %>% return()
-}
-
-get_summary_enriched_positions(df_OR_AA_pos, 2, df_aa_muts) %>% 
-  filter(gene == 'S', position %in% c(95, 417, 440, 444, 452, 478, 484, 493, 498, 501, 681)) %>% View()
-  write_csv('../figure_mutation_enrichment/summary_enriched_positions.csv')
 
   
   
