@@ -1,3 +1,7 @@
+### This script reproduces figure 5C depicting
+### the expected fold-change in number of descendants
+### from one additional mutation by gene by mutation type
+
 library(tidyverse)
 library(glmmTMB)
 library(scales)
@@ -5,9 +9,14 @@ library(MASS)
 source('utils_descendants_analysis.R')
 source('config_plot.R')
 
-# Load saltational branches names
-name_saltational_branches <- read.table('../../results/saltational_branches/name_saltational_branches_CV_1.8_BF_20.tsv', header = F) %>%
-  unlist() %>% as.character()
+#############################
+### LOADING MODEL RESULTS ###
+#############################
+
+# Load name of saltational branches
+name_saltational_branches <- 
+  read.table('../../results/saltational_branches/name_saltational_branches_CV_1.8_BF_20.tsv', 
+             header = F) %>% unlist() %>% as.character()
 
 # Load AA mutations count information
 df_aa_muts_count_adaptive_branches <- get_mut_counts_per_gene_adapt_branches(
@@ -25,13 +34,15 @@ df_saltational_descendants <- df_descendants %>%
   left_join(df_aa_muts_count_adaptive_branches) %>% 
   mutate(n_terminal_descendants_counts = ifelse(n_terminal_descendants > 0, n_terminal_descendants - 1, n_terminal_descendants))
   
-#############
-# Assess whether Poisson, Negative Binomial
-# or Zero-inflated negative binomial
+#############################
+### Model runs
+#############################
+# 1) Assess whether Poisson or negative binomial
 # provides a lower AIC
-#############
+
 vec_genes <- names(palette_genes)[-length(names(palette_genes))]
 name_cols_syn_non_syn <- c(paste0('n_non_syn_', vec_genes), paste0('n_syn_', vec_genes))
+
 AIC_poisson <- get_AIC_poisson_reg(df_saltational_descendants, 
                                    name_cols_syn_non_syn,
                                    threshold_n_descendants_inclusion = 5e4)
@@ -43,7 +54,10 @@ likelihood_ratio_test_poisson_negbin(df_saltational_descendants,
                                      name_cols_syn_non_syn,
                                      threshold_n_descendants_inclusion = 5e4)
 
-## Run the negative binomial model across thresholds
+# 2) Run negative binomial model across thresholds defining the maximum number
+# of descendants for branches to be included in the model - This enables to assess
+# whether branches with many descendants have a strong impact on model estimates
+
 vec_thresholds_n_descendants <- c(1e3, 5e3, 1e4, 5e4, 1e5, 5e5, 1e6, Inf)
 df_negbin_param <- Reduce('bind_rows', lapply(vec_thresholds_n_descendants, FUN = function(curr_threshold){
   run_negbin_reg(df_saltational_descendants, 
@@ -52,7 +66,8 @@ df_negbin_param <- Reduce('bind_rows', lapply(vec_thresholds_n_descendants, FUN 
     mutate(threshold_n_descendants_inclusion = curr_threshold)
 }))
 
-## Sensitivity analysis - Impact of imposing a threshold on the number of descendants over model parameters
+
+## Figure S7 - Sensitivity analysis - Impact of imposing a threshold on the number of descendants over model parameters
 plot_sensitivity_threshold_param_estim <- function(df_negbin_param){
   plt_sensitivity_estimates_large_branches <- df_negbin_param %>% 
     mutate(gene = factor(gene, levels = names(palette_genes))) %>% 
@@ -95,53 +110,7 @@ pdf('../figure_descendant_analysis/sensitivity_fold_change_threshold.pdf',
 plot(plt_sensitivity_threshold)
 dev.off()
 
-
-## Display parameter estimates
-plot_negbbin <- function(df_negbin, threshold_to_plot){
-  label_1 <- function(x) {
-    m <- signif(x / 10^floor(log10(x)), 12)
-    ifelse(m %in% c(1), x, "")
-  }
-  
-  plot_zero_infl_negbin <- df_negbin %>% 
-    filter(abs(threshold_n_descendants_inclusion - threshold_to_plot) < 1e-6) %>% 
-    mutate(gene = factor(gene, levels = names(palette_genes)),
-           is_signif = (lower_param > 0) | (upper_param < 0)) %>%
-    ggplot(aes(x = gene, y = exp(param_estim), shape = mut_type, colour = gene)) +
-    geom_hline(yintercept = 1., linetype = 'dashed', color = 'gray50') +
-    geom_point(position = position_dodge(0.5)) +
-    geom_linerange(aes(ymin = exp(lower_param), ymax = exp(upper_param)),
-                   position = position_dodge(0.5))  +
-    scale_x_discrete(name = 'Gene', limits = rev) +
-    scale_y_continuous(minor_breaks = minor_breaks_log(smallest = 1, detail = 1),
-                       breaks = c(1e-4, 1e-3, 1e-2, 1e-1, 1e0, 1e1, 1e2, 1e3, 1e4),
-                       labels = c(expression(10^{-4}), expression(10^{-3}), expression(10^{-2}),
-                                  expression(10^{-1}), expression(10^{0}), expression(10^{1}),
-                                  expression(10^{2}), expression(10^{3}), expression(10^{4})),
-                       trans = 'log',
-                       name = 'Fold change in number of descendants\nfrom one additional mutation') +
-    scale_colour_manual(values = palette_genes, guide = 'none') +
-    scale_shape_manual(name = '', values = c(16, 17)) +
-    scale_alpha_manual(name = '', breaks = c(T, F), values = c(1.0, 0.5)) +
-    coord_flip() +
-    theme_bw() +
-    theme(axis.text.x = element_text(size = 11))
-  
-  return(plot_zero_infl_negbin)
-}
-
-plt_param_estim_negbin <- plot_negbbin(df_negbin_param, 5e4)
-
-pdf('../figure_descendant_analysis/fold_change_nb_descendants_1_extra_mutation_negbin.pdf',
-    height = 4., width = 5.)
-plot(plt_param_estim_negbin)
-dev.off()
-png('../figure_descendant_analysis/fold_change_nb_descendants_1_extra_mutation_negbin.png',
-    height = 4., width = 5., res = 350, units = 'in')
-plot(plt_param_estim_negbin)
-dev.off()
-
-## Display parameter estimates as a function of mutation frequency
+## Figure 3E - Fold changes as a function of mutation frequency
 plt_fold_change_func_prop_branches_with_mut <- function(df_negbin_param, 
                                                         df_saltational_descendants, 
                                                         threshold_to_plot){
@@ -206,11 +175,55 @@ png('../figure_descendant_analysis/fold_change_func_prop_salt_branches_with_mut.
 plot(plt_fold_change_func_prop_salt_branches)
 dev.off()
 
-# Get values for text
+## Get fold-change values for text
 df_negbin_param %>% 
-  filter(gene %in% c('S', 'ORF1a', 'ORF1b'), 
-         mut_type == 'Nonsynonymous', 
+  filter(gene %in% c('S', 'ORF1a', 'ORF1b'), mut_type == 'Nonsynonymous', 
          threshold_n_descendants_inclusion == 5e4) %>% 
   mutate(lower_param = exp(lower_param),
          upper_param = exp(upper_param),
          param_estim = exp(param_estim))
+
+## Figure not included in the manuscript - Only display fold change estimates
+plot_negbbin <- function(df_negbin, threshold_to_plot){
+  label_1 <- function(x) {
+    m <- signif(x / 10^floor(log10(x)), 12)
+    ifelse(m %in% c(1), x, "")
+  }
+  
+  plot_negbin <- df_negbin %>% 
+    filter(abs(threshold_n_descendants_inclusion - threshold_to_plot) < 1e-6) %>% 
+    mutate(gene = factor(gene, levels = names(palette_genes)),
+           is_signif = (lower_param > 0) | (upper_param < 0)) %>%
+    ggplot(aes(x = gene, y = exp(param_estim), shape = mut_type, colour = gene)) +
+    geom_hline(yintercept = 1., linetype = 'dashed', color = 'gray50') +
+    geom_point(position = position_dodge(0.5)) +
+    geom_linerange(aes(ymin = exp(lower_param), ymax = exp(upper_param)),
+                   position = position_dodge(0.5))  +
+    scale_x_discrete(name = 'Gene', limits = rev) +
+    scale_y_continuous(minor_breaks = minor_breaks_log(smallest = 1, detail = 1),
+                       breaks = c(1e-4, 1e-3, 1e-2, 1e-1, 1e0, 1e1, 1e2, 1e3, 1e4),
+                       labels = c(expression(10^{-4}), expression(10^{-3}), expression(10^{-2}),
+                                  expression(10^{-1}), expression(10^{0}), expression(10^{1}),
+                                  expression(10^{2}), expression(10^{3}), expression(10^{4})),
+                       trans = 'log',
+                       name = 'Fold change in number of descendants\nfrom one additional mutation') +
+    scale_colour_manual(values = palette_genes, guide = 'none') +
+    scale_shape_manual(name = '', values = c(16, 17)) +
+    scale_alpha_manual(name = '', breaks = c(T, F), values = c(1.0, 0.5)) +
+    coord_flip() +
+    theme_bw() +
+    theme(axis.text.x = element_text(size = 11))
+  
+  return(plot_negbin)
+}
+
+plt_param_estim_negbin <- plot_negbbin(df_negbin_param, 5e4)
+
+pdf('../figure_descendant_analysis/fold_change_nb_descendants_1_extra_mutation_negbin.pdf',
+    height = 4., width = 5.)
+plot(plt_param_estim_negbin)
+dev.off()
+png('../figure_descendant_analysis/fold_change_nb_descendants_1_extra_mutation_negbin.png',
+    height = 4., width = 5., res = 350, units = 'in')
+plot(plt_param_estim_negbin)
+dev.off()
