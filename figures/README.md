@@ -15,8 +15,14 @@
 - [plot_enriched_mut_on_spike_structure.pml](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_enriched_mut_on_spike_structure.pml) contains the script to reproduce Figure 3F (to be run with Pymol).
 
 ### Figure 4
-- [plot_saltational_branches_through_space.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_saltational_branches_through_space.R) contains the script to reproduce Figure 4C.
+- [full_figure_chronic.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure 4A-C.
 
 ### Figure 5
+- [](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) 
+contains the script to reproduce Figure 5A.
+- [](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure 5B.
+- [](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure 5C.
+- [](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure 5D.
+- [](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure 5E.
 
 ### Supplementary figures
