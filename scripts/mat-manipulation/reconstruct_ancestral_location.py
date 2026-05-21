@@ -78,6 +78,8 @@ def infer_location(df_nodes, tree):
         n_locations = len(location_descendant_counts[node.id])
         if n_locations == 1:
             list_inferred_locations.append(list(location_descendant_counts[node.id].keys())[0])
+        elif n_locations == 0:
+            list_inferred_locations.append(None)
         else:
             list_inferred_locations.append('Multiple descendant locations')
 
