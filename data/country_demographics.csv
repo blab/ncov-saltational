@@ -1,17 +1,17 @@
-﻿country,population_size_2022_worldbank,hiv_prevalence_percent_ihme_2022,hiv_deaths_ihme_2022
-Argentina,45407904,0.36,1824.54
-Australia,26018721,0.08,53.78
-Austria,9041851,0.09,27.85
-Canada,38935934,0.22,167.41
-Denmark,38935934,0.09,16.78
-Estonia,1348840,0.38,34.8
-Finland,5556106,0.05,4.76
-Germany,83177813,0.11,356.76
-India,1425423212,0.13,52091.08
-Netherlands,17700982,0.12,58.92
-Norway,5457127,0.14,13.58
-Portugal,10434332,0.67,247.45
-Slovakia,5431752,0,3.06
-South Africa,62378410,15.85,111128.95
-UK,67604000,0.2,207.78
-USA,334017321,0.56,6041.04
+﻿country,population_size_2022_worldbank
+Argentina,45407904
+Australia,26018721
+Austria,9041851
+Canada,38935934
+Denmark,38935934
+Estonia,1348840
+Finland,5556106
+Germany,83177813
+India,1425423212
+Netherlands,17700982
+Norway,5457127
+Portugal,10434332
+Slovakia,5431752
+South Africa,62378410
+UK,67604000
+USA,334017321
