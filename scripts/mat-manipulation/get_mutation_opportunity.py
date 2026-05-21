@@ -141,11 +141,11 @@ def count_opportunity_per_gene(tree_expansion_from_root, translations_index, dic
                 parent_state = node_aa[node.parent.id]
                 node_aa[node.id] = {pos: node_muts.get(pos, parent_state[pos]) for pos in batch_pos}
 
-                parent_min_stop = stop_codon_index.get((node.parent.id, gene), float("inf"))
+                node_min_stop = stop_codon_index.get((node.id, gene), float("inf"))
                 branch_type = "saltational" if node.id in saltational_set else "non_saltational"
                 n_ns = ns_muts_per_branch.get(node.id, 0)
                 for pos, aa_new in batch_triples:
-                    if pos < parent_min_stop and parent_state[pos] != aa_new:
+                    if pos <= node_min_stop and parent_state[pos] != aa_new:
                         counts[(pos, aa_new)][branch_type] += n_ns
 
     return counts
