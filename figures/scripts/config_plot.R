@@ -1,4 +1,5 @@
 library(RColorBrewer)
+library(paletteer)
 
 # Script containing color used for the visualization
 
@@ -43,3 +44,17 @@ col_posterior <-'black'
 ## Colour for adaptive and non-adaptive branches
 col_adaptive <- 'orange2'
 col_non_adaptive <- 'darkgrey'
+
+## Colour for recurrent mutations
+col_persistent <- '#fa4d56'
+col_minks <- '#6fdc8c'
+col_deers <- '#33b1ff'
+col_others <- 'gray80'
+
+# Colour for geographic regions
+palette_africa <- paletteer_dynamic(palette = "cartography::blue.pal", n = 20)
+palette_asia <- paletteer_dynamic(palette = "cartography::red.pal", n = 20)
+palette_north_america <- paletteer_dynamic(palette = "cartography::sand.pal", n = 20)
+palette_south_america <- paletteer_dynamic(palette = "cartography::brown.pal", n = 20)
+palette_europe <- paletteer_dynamic(palette = "cartography::green.pal", n = 20)
+palette_oceania <- paletteer_dynamic(palette = "cartography::purple.pal", n = 20)

@@ -116,7 +116,7 @@ get_manhattan_plot <- function(df_OR_AA_pos, threshold_inclusion = 1,
 }
 
 
-manhattan_plot <- get_manhattan_plot(df_OR_AA_pos, threshold_inclusion = 1, 
+manhattan_plot <- get_manhattan_plot(df_OR_AA_pos, threshold_inclusion = 2, 
                                      gene_nuc_coord, gene_aa_coord,
                                      add_gene_regions = T, add_position_outisde_spike = F)
 
@@ -130,11 +130,11 @@ plot(manhattan_plot)
 dev.off()
 
 # Barplot of nb of enriched positions by gene
-get_barplot_nb_enriched_positions <- function(df_OR_AA_pos, threshold_inclusion){
+get_barplot_nb_enriched_positions <- function(df_OR_AA_pos, threshold_inclusion, ymax = 60){
   barplot_nb_enriched_positions_by_gene <- tibble(gene = names(palette_genes)[names(palette_genes) != 'Genome']) %>% 
     left_join(
       df_OR_AA_pos %>% 
-        filter(threshold_for_inclusion == threshold_inclusion) %>% filter(p_value_BH < 0.05) %>% 
+        filter(threshold_for_inclusion == threshold_inclusion) %>% filter(p_value_BH < 0.05, OR > 1.) %>% 
         group_by(gene) %>% summarise(n_pos = n()),
       by = 'gene'
     ) %>% 
@@ -145,7 +145,9 @@ get_barplot_nb_enriched_positions <- function(df_OR_AA_pos, threshold_inclusion)
     geom_text(aes(label = n_pos, colour = gene), vjust = -0.5) +
     scale_x_discrete(name = 'Gene') +
     scale_y_continuous(name = 'Number of enriched positions', 
-                       expand = expansion(mult = c(0., 0.1))) +
+                       expand = expansion(mult = c(0., 0.1)),
+                       limits = c(0., ymax),
+                       breaks = seq(0., ymax, 20)) +
     scale_fill_manual(breaks = names(palette_genes), values = palette_genes, name = 'Gene', 
                       guide = 'none') +
     scale_colour_manual(breaks = names(palette_genes), values = palette_genes, name = 'Gene', 
@@ -156,10 +158,10 @@ get_barplot_nb_enriched_positions <- function(df_OR_AA_pos, threshold_inclusion)
   
   return(barplot_nb_enriched_positions_by_gene)
 }
-get_barplot_nb_enriched_positions_within_S <- function(df_OR_AA_pos, threshold_inclusion){
+get_barplot_nb_enriched_positions_within_S <- function(df_OR_AA_pos, threshold_inclusion, ymax = 60){
   
   df_nb_positions_per_S_region <- df_OR_AA_pos %>% 
-    filter(gene == 'S', threshold_for_inclusion == threshold_inclusion) %>% filter(p_value_BH < 0.05) %>% 
+    filter(gene == 'S', threshold_for_inclusion == threshold_inclusion) %>% filter(p_value_BH < 0.05, OR > 1.) %>% 
     mutate(region = case_when(position >= 13 & position <= 302 ~ 'NTD',
                               position >= 319 & position <= 541 ~ 'RBD',
                               position >= 13 & position <= 685 ~ 'Other S1',
@@ -177,7 +179,9 @@ get_barplot_nb_enriched_positions_within_S <- function(df_OR_AA_pos, threshold_i
     geom_bar(stat = 'identity') +
     scale_x_discrete(name = 'Subunit') +
     scale_y_continuous(name = 'Number of enriched positions', 
-                       expand = expansion(mult = c(0., 0.1))) +
+                       expand = expansion(mult = c(0., 0.1)),
+                       limits = c(0., ymax),
+                       breaks = seq(0., ymax, 20)) +
     scale_fill_manual(breaks = c('NTD', 'RBD'), values = c(palette_spike['NTD'], palette_spike['RBD']), name = 'Domain', 
                       na.value = palette_genes['S']) +
     theme_classic() +
@@ -186,9 +190,53 @@ get_barplot_nb_enriched_positions_within_S <- function(df_OR_AA_pos, threshold_i
   
   return(barplot_nb_enriched_positions_by_gene)
 }
+get_barplot_nb_enriched_positions_within_ORF1ab <- function(df_OR_AA_pos, threshold_inclusion, ymax = 60){
+  
+  df_nb_positions_per_NSPs <- df_OR_AA_pos %>% 
+    filter(gene %in% c('ORF1a', 'ORF1b'), threshold_for_inclusion == threshold_inclusion) %>% 
+    filter(p_value_BH < 0.05, OR > 1.) %>% 
+    mutate(position = as.integer(position)) %>% 
+    mutate(NSP = case_when((gene == 'ORF1a') & (position < 181) ~ 'NSP1',
+                           (gene == 'ORF1a') & (position < 819) ~ 'NSP2',
+                           (gene == 'ORF1a') & (position < 2764) ~ 'NSP3',
+                           (gene == 'ORF1a') & (position < 3264) ~ 'NSP4',
+                           (gene == 'ORF1a') & (position < 3570) ~ 'NSP5',
+                           (gene == 'ORF1a') & (position < 3860) ~ 'NSP6',
+                           (gene == 'ORF1a') & (position < 3943) ~ 'NSP7',
+                           (gene == 'ORF1a') & (position < 4141) ~ 'NSP8',
+                           (gene == 'ORF1a') & (position < 4254) ~ 'NSP9',
+                           (gene == 'ORF1a') & (position < 4393) ~ 'NSP10',
+                           (gene == 'ORF1a') ~ 'NSP12',
+                           (gene == 'ORF1b') & (position < 924) ~ 'NSP12',
+                           (gene == 'ORF1b') & (position < 1525) ~ 'NSP13',
+                           (gene == 'ORF1b') & (position < 2052) ~ 'NSP14',
+                           (gene == 'ORF1b') & (position < 2398) ~ 'NSP15',
+                           (gene == 'ORF1b') & (position <= 2696) ~ 'NSP16',
+                           T ~ 'Other'
+    )) %>% 
+    group_by(NSP, gene) %>% summarise(n_pos = n()) %>% 
+    mutate(NSP = factor(NSP, levels = c(paste0('NSP', 16:1), 'Other')))
+  
+  barplot_nb_enriched_positions_by_gene <- df_nb_positions_per_NSPs %>% 
+    ggplot(aes(x = gene, y = n_pos, fill = NSP, group = NSP)) +
+    geom_bar(stat = 'identity') +
+    scale_x_discrete(name = 'Gene') +
+    scale_y_continuous(name = 'Number of enriched positions', 
+                       expand = expansion(mult = c(0., 0.1)),
+                       breaks = seq(0., ymax, 20),
+                       limits = c(0., ymax)) +
+    scale_fill_manual(values = palette_NSPs, limits = rev) +
+    theme_classic() +
+    theme(axis.text = element_text(size = 11),
+          axis.text.x = element_text(angle = 45, hjust = 1., vjust = 1.))
+  
+  return(barplot_nb_enriched_positions_by_gene)
+}
 
-barplot_nb_enriched_positions_by_gene <- get_barplot_nb_enriched_positions(df_OR_AA_pos, 1)
-barplot_nb_enriched_positions_S_by_subunit <- get_barplot_nb_enriched_positions_within_S(df_OR_AA_pos, 1)
+
+barplot_nb_enriched_positions_by_gene <- get_barplot_nb_enriched_positions(df_OR_AA_pos, 2)
+barplot_nb_enriched_positions_S_by_subunit <- get_barplot_nb_enriched_positions_within_S(df_OR_AA_pos, 2)
+barplot_nb_enriched_positions_ORF1ab <- get_barplot_nb_enriched_positions_within_ORF1ab(df_OR_AA_pos, 2)
 
 pdf('../figure_mutation_enrichment/barplot_nb_enriched_positions_by_gene_saltational.pdf',
     height = 2.8, width = 4.)
@@ -206,6 +254,17 @@ png('../figure_mutation_enrichment/barplot_nb_enriched_positions_S_by_subunit_sa
     height = 2.8, width = 2.8, res = 350, units = 'in')
 plot(barplot_nb_enriched_positions_S_by_subunit)
 dev.off()
+pdf('../figure_mutation_enrichment/barplot_nb_enriched_positions_ORF1ab_by_NSP_saltational.pdf',
+    height = 2.8, width = 3.4)
+plot(barplot_nb_enriched_positions_ORF1ab + guides(fill = guide_legend(ncol = 2)))
+dev.off()
+png('../figure_mutation_enrichment/barplot_nb_enriched_positions_ORF1ab_by_NSP_saltational.png',
+    height = 2.8, width = 3.4, units = 'in', res = 350)
+plot(barplot_nb_enriched_positions_ORF1ab + guides(fill = guide_legend(ncol = 2)))
+dev.off()
+
+
+
 
 ## Could make the same plot with prop of time it's mutated.
 get_plot_OR_func_prop_adapt_branches_labels <- function(df_OR_AA_pos, threshold_inclusion, df_aa_muts, 
@@ -263,14 +322,16 @@ get_plot_OR_func_prop_adapt_branches_labels <- function(df_OR_AA_pos, threshold_
 }
 
 
+
+
 scatter_plot_OR_func_get_plot_OR_func_prop_branches_with_mut <- 
-  get_plot_OR_func_prop_adapt_branches_labels(df_OR_AA_pos, 1, df_aa_muts,
+  get_plot_OR_func_prop_adapt_branches_labels(df_OR_AA_pos, 2, df_aa_muts,
                                               names(palette_genes), 
                                               0.01, 5,
                                               NA, NA, 1., NA)
 
 scatter_plot_OR_func_get_plot_OR_func_prop_branches_with_mut_no_zoom <- 
-  get_plot_OR_func_prop_adapt_branches_labels(df_OR_AA_pos, 1, df_aa_muts,
+  get_plot_OR_func_prop_adapt_branches_labels(df_OR_AA_pos, 2, df_aa_muts,
                                               names(palette_genes), 
                                               1., 1000,
                                               NA, NA, NA, NA)
@@ -285,3 +346,20 @@ png('../figure_mutation_enrichment/scatter_plot_OR_func_mut_prevalence_pos_salta
 plot(scatter_plot_OR_func_get_plot_OR_func_prop_branches_with_mut)
 dev.off()
 
+get_summary_enriched_positions <- function(df_OR_AA_pos, threshold_inclusion, df_aa_muts){
+ df_OR_AA_pos %>% 
+    filter(threshold_for_inclusion == threshold_inclusion) %>% 
+    left_join(df_aa_muts, by = c('position' = 'aa_muts_position', 'gene')) %>% 
+    filter(p_value_BH < 0.05) %>% 
+    arrange(gene) %>% 
+    mutate(OR_char = paste0(round(OR, 1), ' (', round(OR_lower, 1), '-', round(OR_upper, 1), ')')) %>% 
+    select(gene, position, OR, OR_char, n_mut_of_interest_adapt_branches) %>% 
+    arrange(- n_mut_of_interest_adapt_branches) %>% return()
+}
+
+get_summary_enriched_positions(df_OR_AA_pos, 2, df_aa_muts) %>% 
+  filter(gene == 'S', position %in% c(95, 417, 440, 444, 452, 478, 484, 493, 498, 501, 681)) %>% View()
+  write_csv('../figure_mutation_enrichment/summary_enriched_positions.csv')
+
+  
+  

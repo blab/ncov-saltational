@@ -26,8 +26,8 @@ CI_prop_salt_with_descendants <- prop.test(x = n_salt_with_descendants, n = n_sa
 
   
 # Load mutation enrichment information
-df_OR_AA_mut <- read_tsv('../../results/mutation_enrichment/df_AA_mut_enrichment_saltational_CV_1.8_BF_20.tsv') %>% 
-  filter(threshold_for_inclusion == 1)
+df_OR_AA_mut <- read_tsv('../../results/mutation_enrichment/df_AA_mut_enrichment_saltational_opportunity_CV_1.8_BF_20.tsv') %>% 
+  filter(threshold_for_inclusion == 2)
 
 enriched_AA_mut <- df_OR_AA_mut %>% filter(p_value_BH < 0.05) %>% select(gene, mutation) %>% 
   mutate(mut_full = paste0(gene, ':', mutation))
@@ -169,7 +169,8 @@ df_prop_with_descendants_by_mut <-
                                                                     df_descendants,
                                                                     enriched_AA_mut) %>% 
   mutate(n_with_mut = n_with_mut_with_descendants + n_with_mut_without_descendants,
-         prop_with_descendants = n_with_mut_with_descendants/n_with_mut)
+         prop_with_descendants = n_with_mut_with_descendants/n_with_mut) %>% 
+  mutate(full_mut = paste0(gene, ":", aa_muts_direction))
 
 df_prop_with_descendants_by_mut$p_value_BH_descendants <- p.adjust(df_prop_with_descendants_by_mut$p_value, method = 'BH')
 
@@ -214,6 +215,70 @@ png('../figure_descendant_analysis/prop_branches_with_desc_func_nb_branches_with
     height = 5.5, width = 8.5, res = 350, units = 'in')
 plot(scatter_plot_prop_with_desc_func_nb_branches_with_muts)
 dev.off()  
+
+
+##
+df_aa_reference <- read_tsv('../../results/mutation_enrichment/df_aa_reference_sequence.tsv') %>% 
+  mutate(full_aa = paste0(gene, ':', AA_pos, AA))
+recombinants_clades_to_drop <- c('24F (XEC)', '25G (XFC)', '22F (XBB)', '25C (XFG)')
+df_mut_counts_by_nextstrain_clade <- read_tsv('../../results/mutation_enrichment/df_aa_freq_combined_CV_1.8_BF_20.tsv') %>% 
+  mutate(prop_AA = count / clade_size, full_mut = paste0(gene, ':', pos, AA)) %>% 
+  filter(AA != '-', ! clade %in% recombinants_clades_to_drop, is_lineage_defining | (is_within_clade_mut & (prop_AA > 0.8))) %>% 
+  group_by(full_mut) %>% summarise(n_clades = n())
+
+
+bootstrap_mean_function <-  function(x, B = 2000) {
+  boot_means <- replicate(B, mean(sample(x, replace = TRUE), na.rm = TRUE))
+  
+  tibble(
+    mean = mean(x, na.rm = TRUE),
+    lwr = quantile(boot_means, 0.025, na.rm = TRUE),
+    upr = quantile(boot_means, 0.975, na.rm = TRUE)
+  )
+}
+
+  
+df_for_plot <- df_prop_with_descendants_by_mut %>% 
+  left_join(df_mut_counts_by_nextstrain_clade %>% 
+              filter(full_mut %in% df_prop_with_descendants_by_mut$full_mut)) %>% 
+  mutate(n_clades = replace_na(n_clades, 0)) %>% 
+  mutate(quantile_prop = ntile(prop_with_descendants, 5)) 
+  
+
+df_for_plot %>% 
+  group_by(quantile_prop) %>% 
+  reframe(
+    mean_number_clades = mean(n_clades),
+    mean_prop_within_quantile = mean(prop_with_descendants, na.rm = TRUE),
+    bootstrap_mean_function(n_clades)
+  ) %>% 
+  ggplot(aes(x = quantile_prop, y = mean_number_clades)) +
+  geom_point() +
+  geom_linerange(aes(ymin = lwr, ymax = upr)) +
+  scale_x_continuous(name = 'Quintile of proportion of saltational\nbranches with descendants') +
+  scale_y_continuous(name = 'Mean number of clades\nin which mutation fixed',
+                     breaks = seq(0, 2., 0.2)) + 
+  theme_bw() +
+  theme(axis.text = element_text(size = 11),
+        panel.grid.minor = element_blank())
+    
+
+
+## Reversions
+df_prop_with_descendants_by_mut %>% 
+  mutate(is_reversion = full_mut %in% df_aa_reference$full_aa) %>% 
+  group_by(is_reversion) %>% summarise(n_with_mut_with_descendants = sum(n_with_mut_with_descendants), n_with_mut = sum(n_with_mut))
+  ggplot(aes(x = is_reversion, 
+             y = n_with_mut_with_descendants / n_with_mut)) +
+  geom_point()
+  geom_hline(yintercept = prop_salt_with_descendants, color = 'darkgrey') +
+  annotate("rect", 
+           xmin = 0, xmax = Inf, 
+           ymin = CI_prop_salt_with_descendants[1],
+           ymax = CI_prop_salt_with_descendants[2], 
+           alpha = 0.2, fill = 'darkgrey') +
+  geom_point() 
+  
 
 ### Volcano plot
 df_prop_with_descendants_by_mut %>% rename(OR_desc = OR) %>% 

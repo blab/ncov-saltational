@@ -4,8 +4,8 @@ library(ggpubr)
 source('config_plot.R')
 
 # Load OR by AA mutation
-df_OR_AA_mut <- read_tsv('../../results/mutation_enrichment/df_AA_mut_enrichment_saltational_CV_1.8_BF_20.tsv') %>% 
-  filter(threshold_for_inclusion == 1)
+df_OR_AA_mut <- read_tsv('../../results/mutation_enrichment/df_AA_mut_enrichment_saltational_opportunity_CV_1.8_BF_20.tsv') %>% 
+  filter(threshold_for_inclusion == 2)
 
 # Load name of adaptive paths
 vec_name_node_adapt <- read.table('../../results/saltational_branches/name_saltational_branches_CV_1.8_BF_20.tsv') %>% unlist() %>% as.character()
@@ -391,7 +391,7 @@ get_barplot_nb_enriched_mutations_within_ORF1ab <- function(df_OR_AA_mut, thresh
                            (gene == 'ORF1b') & (position < 1525) ~ 'NSP13',
                            (gene == 'ORF1b') & (position < 2052) ~ 'NSP14',
                            (gene == 'ORF1b') & (position < 2398) ~ 'NSP15',
-                           (gene == 'ORF1b') & (position <= 298) ~ 'NSP16',
+                           (gene == 'ORF1b') & (position <= 2696) ~ 'NSP16',
                            T ~ 'Other'
                            ))  %>% 
     group_by(NSP, gene) %>% summarise(n_pos = n()) %>% 
@@ -412,9 +412,9 @@ get_barplot_nb_enriched_mutations_within_ORF1ab <- function(df_OR_AA_mut, thresh
   return(barplot_nb_enriched_positions_by_gene)
 }
 
-barplot_nb_enriched_mutations_by_gene <- get_barplot_nb_enriched_mutations(df_OR_AA_mut, 1)
-barplot_nb_enriched_mutations_within_S <- get_barplot_nb_enriched_mutations_within_S(df_OR_AA_mut, 1)
-barplot_nb_enriched_mutations_within_ORF1ab <- get_barplot_nb_enriched_mutations_within_ORF1ab(df_OR_AA_mut, 1)
+barplot_nb_enriched_mutations_by_gene <- get_barplot_nb_enriched_mutations(df_OR_AA_mut, 2)
+barplot_nb_enriched_mutations_within_S <- get_barplot_nb_enriched_mutations_within_S(df_OR_AA_mut, 2)
+barplot_nb_enriched_mutations_within_ORF1ab <- get_barplot_nb_enriched_mutations_within_ORF1ab(df_OR_AA_mut, 2)
 
 pdf('../figure_mutation_enrichment/barplot_nb_enriched_mutations_by_gene_saltational.pdf',
     height = 2.8, width = 4.)
@@ -442,3 +442,13 @@ png('../figure_mutation_enrichment/barplot_nb_enriched_mutations_ORF1ab_by_NSP_s
     height = 3.8, width = 2.8, res = 350, units = 'in')
 plot(barplot_nb_enriched_mutations_within_ORF1ab)
 dev.off()
+
+
+######### Get dataframe with enriched AA muts
+df_OR_AA_mut %>% 
+  filter(threshold_for_inclusion == 2) %>% filter(p_value_BH < 0.05, OR > 1.) %>% 
+  arrange(- n_mut_of_interest_adapt_branches) %>% 
+  mutate(OR_char = paste0(round(OR, 2), ' (', round(OR_lower, 2), '-', round(OR_upper, 2), ')')) %>% 
+  select(gene, mutation, OR_char, n_mut_of_interest_adapt_branches) %>% 
+  write_csv('../figure_mutation_enrichment/summary_enriched_mutations.csv')
+  

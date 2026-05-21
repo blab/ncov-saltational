@@ -36,6 +36,13 @@ get_posterior_from_example <- function(df_prior, range_S_values, range_N_values,
                       'LS' = mean_syn_sites)
     
     mod <- create_model(data_gene, prior_param)
+    mod$get_quantile_posterior_dS(c(0.5))
+    mod$get_quantile_posterior_dS(c(0.975))
+    mod$get_quantile_posterior_dS(c(0.025))
+    
+    mod$get_quantile_posterior_dN(c(0.5))
+    mod$get_quantile_posterior_dN(c(0.975))
+    mod$get_quantile_posterior_dN(c(0.025))
     
     df_dN <- tibble(value = vec_dN,
                     posterior = mod$get_posterior_density_dN(vec_dN),
@@ -104,7 +111,7 @@ labs <- c(
   `10` = "paste(S[i], ' = ', 1, ', ', N[i], ' = ', 10)"
 )
 plt_posterior_rates <- get_posterior_from_example(df_prior, range_S_values = c(1), 
-                                                  range_N_values = c(2, 10), CV_prior = 1.7) %>% 
+                                                  range_N_values = c(2, 10), CV_prior = 1.8) %>% 
   filter(param %in% c('dN', 'dS')) %>% 
   mutate(N_label = paste0("paste(N[i], ' = ', ", N, ")")) %>% 
   ggplot(aes(x = value, y = posterior,
@@ -175,7 +182,7 @@ labs_split <- c(
 
 plt_proba_omega_above_1 <- get_omega_estim_from_example(df_prior, range_S_values = c(1), 
                                                         range_N_values = c(2, 10), 
-                                                        CV_prior = 1.7) %>% 
+                                                        CV_prior = 1.8) %>% 
   pivot_longer(cols = 1:2, names_pattern = "(.*)_proba_omega_greater_1", values_to = 'proba_omega_greater_1') %>% 
   filter(name == 'posterior' | N == 2) %>% 
   mutate(x_axis = ifelse(name == 'prior', 'Prior', as.character(N)),
@@ -206,7 +213,7 @@ dev.off()
 ## Illustrate Bayes Factor values across (N,S values) for Spike
 df_BF_Spike <- get_omega_estim_from_example(df_prior, range_S_values = 0:8, 
                                             range_N_values = 0:20,
-                                            CV_prior = 1.7) %>% 
+                                            CV_prior = 1.8) %>% 
   mutate(posterior_odds = posterior_proba_omega_greater_1 / (1. - posterior_proba_omega_greater_1),
          prior_odds = prior_proba_omega_greater_1 / (1. - prior_proba_omega_greater_1),
          BF = posterior_odds / prior_odds,
@@ -227,17 +234,17 @@ df_BF_Spike <- get_omega_estim_from_example(df_prior, range_S_values = 0:8,
 
 df_BF_Spike_Kass_Raftery <- get_omega_estim_from_example(df_prior, range_S_values = 0:8, 
                                                         range_N_values = 0:20,
-                                                        CV_prior = 1.7) %>% 
+                                                        CV_prior = 1.8) %>% 
   mutate(posterior_odds = posterior_proba_omega_greater_1 / (1. - posterior_proba_omega_greater_1),
          prior_odds = prior_proba_omega_greater_1 / (1. - prior_proba_omega_greater_1),
          BF = posterior_odds / prior_odds) %>%
   mutate(BF_bins_KR = case_when(BF < 1. ~ 'Negative (< 1)',
-                                BF < 3 ~ 'Not worth more than a bare mention (1-3)',
+                                BF < 3 ~ 'Weak (1-3)',
                                 BF < 20 ~ 'Positive (3-20)',
                                 BF < 150 ~ 'Strong (20-150)',
                                 T ~ 'Very strong (> 150)'),
          BF_bins_KR = factor(BF_bins_KR, levels = c('Negative (< 1)',
-                                                    'Not worth more than a bare mention (1-3)',
+                                                    'Weak (1-3)',
                                                     'Positive (3-20)',
                                                     'Strong (20-150)',
                                                     'Very strong (> 150)')))
@@ -266,13 +273,15 @@ heatmap_BF_func_SN <- df_BF_Spike %>%
         panel.grid.minor = element_blank())
 
 heatmap_BF_func_SN_Kass_Raftery <- df_BF_Spike_Kass_Raftery %>% 
-  ggplot(aes(x = N, y = S)) +
-  geom_tile(aes(fill = BF_bins_KR)) +
+  ggplot() +
+  geom_tile(aes(x = N, y = S, fill = BF_bins_KR)) +
+  geom_rect(xmin = 1.5, xmax = 2.5, ymin = 0.5, ymax = 1.5, fill = NA, color = 'black') + 
+  geom_rect(xmin = 9.5, xmax = 10.5, ymin = 0.5, ymax = 1.5, fill = NA, color = 'black', linetype = 'dashed') + 
   scale_fill_manual(values = brewer.pal(5, 'BuPu'),
-                    name = expression(paste(BF[omega > 1], ' interpretation'))) +
-  scale_y_continuous(name = expression(S[i]), breaks = seq(0., 10., 1.),
+                    name = 'Evidence for\npositive selection\n(BF range)') +
+  scale_y_continuous(name = expression(paste('Synonymous mutations count ', S[i])), breaks = seq(0., 10., 1.),
                      expand = expansion(mult = c(0., 0.))) +
-  scale_x_continuous(name = expression(N[i]), 
+  scale_x_continuous(name = expression(paste('Nonsynonymous mutations count ', N[i])), 
                      breaks = seq(0., 20., 1.),
                      labels = c(0, '', 2, '', 4, '', 6, '', 8, '', 10, '', 
                                 12, '', 14, '', 16, '', 18, '', 20),
@@ -289,11 +298,11 @@ heatmap_BF_func_SN_Kass_Raftery <- df_BF_Spike_Kass_Raftery %>%
 
 plot(heatmap_BF_func_SN_Kass_Raftery)
 
-pdf('../figure_model_illustration//heatmap_BF_spike_func_N_S.pdf',
+pdf('../figure_model_illustration/heatmap_BF_spike_func_N_S.pdf',
     height = 2.5, width = 7.)
 plot(heatmap_BF_func_SN)
 dev.off()
-png('../figure_model_illustration//heatmap_BF_spike_func_N_S.png',
+png('../figure_model_illustration/heatmap_BF_spike_func_N_S.png',
     height = 2.5, width = 7., res = 350, units = 'in')
 plot(heatmap_BF_func_SN)
 dev.off()

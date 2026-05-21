@@ -33,53 +33,114 @@ get_mut_counts_per_gene_adapt_branches <- function(file_path_aa_muts, name_adapt
   
 }
 
-get_AIC_multivariate_poisson_reg <- function(df_saltational_descendants, 
-                                             name_cols,
-                                             threshold_n_descendants_inclusion = Inf){
-  
+get_AIC_poisson_reg <-  function(df_saltational_descendants, 
+                                 name_cols,
+                                 threshold_n_descendants_inclusion = Inf){
   # Remove outliers and select predictor columns
-  df_for_reg <- df_saltational_descendants %>% filter(n_terminal_descendants_counts < Inf) %>% 
+  df_for_reg <- df_saltational_descendants %>% filter(n_terminal_descendants_counts < threshold_n_descendants_inclusion) %>% 
     dplyr::select(n_terminal_descendants_counts, all_of(name_cols))
   
   # Run model
-  poisson_model <- glm(
-    data = df_for_reg, 
-    n_terminal_descendants_counts ~ .,
-    family = 'poisson'
-  )
+  poisson_model <-  glmmTMB(data = df_for_reg, 
+                            n_terminal_descendants_counts ~ 
+                              n_non_syn_ORF1a + n_non_syn_ORF1b + n_non_syn_S + 
+                              n_non_syn_E + n_non_syn_M +
+                              n_non_syn_ORF3a + n_non_syn_ORF6 +
+                              n_non_syn_ORF7a + n_non_syn_ORF7b + n_non_syn_ORF8 + n_non_syn_ORF9b + n_non_syn_N +
+                              n_syn_ORF1a + n_syn_ORF1b + n_syn_S + n_syn_ORF3a + n_syn_ORF6 +
+                              n_syn_ORF7a + n_syn_ORF7b + n_syn_ORF8 + n_syn_ORF9b + n_syn_N +
+                              n_syn_E + n_syn_M, 
+                            ziformula = ~ 0, family = poisson)
   
-  # Get AIC
-  AIC_poisson_model <- AIC(poisson_model)
-  
-  return(
-    c('AIC' = AIC_poisson_model)
-  )
+  return(AIC(poisson_model))
 }
 
-run_zero_infl_negbin_reg <- function(df_saltational_descendants, 
-                                     name_cols,
-                                     threshold_n_descendants_inclusion = Inf){
+get_AIC_negbin_reg <-  function(df_saltational_descendants, 
+                                name_cols,
+                                threshold_n_descendants_inclusion = Inf){
+  # Remove outliers and select predictor columns
+  df_for_reg <- df_saltational_descendants %>% filter(n_terminal_descendants_counts < threshold_n_descendants_inclusion) %>% 
+    dplyr::select(n_terminal_descendants_counts, all_of(name_cols))
+  
+  # Run model
+  negbin_model <-  glmmTMB(data = df_for_reg, 
+                           n_terminal_descendants_counts ~ 
+                             n_non_syn_ORF1a + n_non_syn_ORF1b + n_non_syn_S + 
+                             n_non_syn_E + n_non_syn_M +
+                             n_non_syn_ORF3a + n_non_syn_ORF6 +
+                             n_non_syn_ORF7a + n_non_syn_ORF7b + n_non_syn_ORF8 + n_non_syn_ORF9b + n_non_syn_N +
+                             n_syn_ORF1a + n_syn_ORF1b + n_syn_S + n_syn_ORF3a + n_syn_ORF6 +
+                             n_syn_ORF7a + n_syn_ORF7b + n_syn_ORF8 + n_syn_ORF9b + n_syn_N +
+                             n_syn_E + n_syn_M, 
+                           ziformula = ~ 0, family = nbinom2)
+  
+  return(AIC(negbin_model))
+}
+
+likelihood_ratio_test_poisson_negbin <-  function(df_saltational_descendants, 
+                                                  name_cols,
+                                                  threshold_n_descendants_inclusion = Inf){
+  # Remove outliers and select predictor columns
+  df_for_reg <- df_saltational_descendants %>% filter(n_terminal_descendants_counts < threshold_n_descendants_inclusion) %>% 
+    dplyr::select(n_terminal_descendants_counts, all_of(name_cols))
+  
+  # Run Poisson model
+  poisson_model <-  glmmTMB(data = df_for_reg, 
+                            n_terminal_descendants_counts ~ 
+                              n_non_syn_ORF1a + n_non_syn_ORF1b + n_non_syn_S + 
+                              n_non_syn_E + n_non_syn_M +
+                              n_non_syn_ORF3a + n_non_syn_ORF6 +
+                              n_non_syn_ORF7a + n_non_syn_ORF7b + n_non_syn_ORF8 + n_non_syn_ORF9b + n_non_syn_N +
+                              n_syn_ORF1a + n_syn_ORF1b + n_syn_S + n_syn_ORF3a + n_syn_ORF6 +
+                              n_syn_ORF7a + n_syn_ORF7b + n_syn_ORF8 + n_syn_ORF9b + n_syn_N +
+                              n_syn_E + n_syn_M, 
+                            ziformula = ~ 0, family = poisson)
+  
+  # Run Negative Binomial model
+  negbin_model <-  glmmTMB(data = df_for_reg, 
+                           n_terminal_descendants_counts ~ 
+                             n_non_syn_ORF1a + n_non_syn_ORF1b + n_non_syn_S + n_non_syn_ORF3a + n_non_syn_ORF6 +
+                             n_non_syn_ORF7a + n_non_syn_ORF7b + n_non_syn_ORF8 + n_non_syn_ORF9b + n_non_syn_N +
+                             n_syn_ORF1a + n_syn_ORF1b + n_syn_S + n_syn_ORF3a + n_syn_ORF6 +
+                             n_syn_ORF7a + n_syn_ORF7b + n_syn_ORF8 + n_syn_ORF9b + n_syn_N, 
+                           ziformula = ~ 0, family = nbinom2)
+  
+  anova_poisson_negbin <- anova(poisson_model, negbin_model)
+  return(anova_poisson_negbin)
+}
+
+
+run_negbin_reg <- function(df_saltational_descendants, 
+                           name_cols,
+                           threshold_n_descendants_inclusion = Inf){
   
   # Remove outliers and select predictor columns
   df_for_reg <- df_saltational_descendants %>% filter(n_terminal_descendants_counts < threshold_n_descendants_inclusion) %>% 
     dplyr::select(n_terminal_descendants_counts, all_of(name_cols))
   
   # Run model
-  negbin_model <- zeroinfl(data = df_for_reg,
-                           formula = n_terminal_descendants_counts ~ . | 1, dist = 'negbin')
-  
+  negbin_model <-  glmmTMB(data = df_for_reg, 
+                           n_terminal_descendants_counts ~ 
+                             n_non_syn_ORF1a + n_non_syn_ORF1b + n_non_syn_S + 
+                             n_non_syn_E + n_non_syn_M +
+                             n_non_syn_ORF3a + n_non_syn_ORF6 +
+                             n_non_syn_ORF7a + n_non_syn_ORF7b + n_non_syn_ORF8 + n_non_syn_ORF9b + n_non_syn_N +
+                             n_syn_ORF1a + n_syn_ORF1b + n_syn_S + n_syn_ORF3a + n_syn_ORF6 +
+                             n_syn_ORF7a + n_syn_ORF7b + n_syn_ORF8 + n_syn_ORF9b + n_syn_N +
+                             n_syn_E + n_syn_M, 
+                           ziformula = ~ 0, family = nbinom2)
   # Get model parameters
-  df_param_estim <- confint(negbin_model)[startsWith(names(coef(negbin_model)), 'count_n_'), ] %>% 
+  df_param_estim <- confint(negbin_model)[- 1, ] %>% 
     as_tibble() %>% 
-    mutate(param_estim = coef(negbin_model)[startsWith(names(coef(negbin_model)), 'count_n_')]) %>% 
+    rename(param_estim = Estimate) %>% 
     rename(lower_param = `2.5 %`, upper_param = `97.5 %`) %>% 
-    mutate(name_col = names(coef(negbin_model))[startsWith(names(coef(negbin_model)), 'count_n_')]) %>% 
+    mutate(name_col = rownames(confint(negbin_model)[- 1, ])) %>% 
     group_by(name_col) %>% 
     mutate(gene = strsplit(name_col, '_')[[1]][length(strsplit(name_col, '_')[[1]])],
-           mut_type = ifelse(startsWith(name_col, 'count_n_syn'), 'Synonymous', 'Non-synonymous')) %>%
+           mut_type = ifelse(startsWith(name_col, 'n_syn'), 'Synonymous', 'Nonsynonymous')) %>%
     ungroup() %>% 
     dplyr::select(- name_col)
- 
+  
   return(df_param_estim) 
 }
 

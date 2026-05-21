@@ -176,7 +176,7 @@ get_summary_from_posterior_simul_PDF_S <- function(gene, CV_prior){
   )
 }
 
-vec_CV <- sprintf("%.1f", c(1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5))
+vec_CV <- sprintf("%.1f", c(0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5))
 vec_genes <- c('ORF1a', 'ORF1b', 'S', 'ORF3a', 'E', 'M', 'ORF6', 'ORF7a', 'ORF7b', 'ORF8', 'N', 'ORF9b')
 
 df_PDF_NS <- Reduce('bind_rows', lapply(vec_CV, FUN = function(CV_prior){
@@ -192,7 +192,7 @@ CV_maximizing_cor <- df_PDF_NS %>%
 
 df_PDF_NS %>% 
   group_by(CV) %>% 
-  summarise(cor = cor(log(n_branches_true + 1), log(median_n_branches_new + 1), method = 'pearson')) %>% View()
+  summarise(cor = cor(log(n_branches_true + 1), log(median_n_branches_new + 1), method = 'pearson')) 
 
 df_PDF_NS_Genome <- Reduce('bind_rows', lapply(CV_maximizing_cor, FUN = function(CV_prior){
   Reduce('bind_rows', lapply('Genome', FUN = function(gene){
@@ -255,7 +255,7 @@ plot_predicted_number_branches_func_observed_func_genes_CV <- function(df_PDF_NS
     geom_rect(ymin = -Inf, ymax = +Inf,
               xmin = log(value_zero + 0.03), xmax = log(value_zero + 0.5),
               fill = 'white') +
-    facet_grid(. ~ CV_label, labeller = label_parsed) +
+    facet_wrap(. ~ CV_label, labeller = label_parsed) +
     geom_text(data = df_cor_for_plot, aes(label = paste0('R = ', round(cor, 3))), 
               x = value_zero, y = log(1e6)) +
     scale_x_continuous(trans = 'log', 
@@ -270,12 +270,12 @@ plot_predicted_number_branches_func_observed_func_genes_CV <- function(df_PDF_NS
                                   expression(10^{3}), expression(10^{4}), expression(10^{5}),
                                   expression(10^{6}), expression(10^{7})),
                        name = 'Predicted number of branches\n(Median from posterior)') +
-    scale_colour_manual(name = 'Genome region', breaks = names(palette_genes), values = palette_genes) +
+    scale_colour_manual(name = 'Gene', breaks = names(palette_genes), values = palette_genes) +
     coord_fixed() +
     theme_bw() +
     theme(axis.text = element_text(size = 11),
           panel.grid.minor = element_blank(),
-          legend.position = 'bottom',
+          legend.position = 'right',
           strip.background = element_rect(fill = 'gray22'),
           strip.text = element_text(colour = 'white', size = 11))
   
@@ -350,14 +350,14 @@ get_CV_maximizing_cor <- function(df_PDF_NS){
 
 # Posterior predictive checks across CV
 panel_across_genes_CV <- plot_predicted_number_branches_func_observed_func_genes_CV(df_PDF_NS, 
-                                                                                   CVs_to_plot = c(1.0, 1.5, 2.0, 2.5))
+                                                                                   CVs_to_plot = c(0.8, 1.3, 1.8, 2.3))
 
 png('../figure_model_illustration/posterior_predictive_checks_func_CV.png',
-    height = 5., width = 8., res = 350, units = 'in')
+    height = 6., width = 8., res = 350, units = 'in')
 plot(panel_across_genes_CV)
 dev.off()
 pdf('../figure_model_illustration/posterior_predictive_checks_func_CV.pdf',
-    height = 5., width = 8.)
+    height = 6., width = 8.)
 plot(panel_across_genes_CV)
 dev.off()
 
@@ -365,11 +365,11 @@ dev.off()
 plt_cor_func_CV <- plot_cor_func_CV(df_PDF_NS)
 
 png('../figure_model_illustration/cor_posterior_predictive_checks_func_CV.png',
-    height = 3., width = 4., res = 350, units = 'in')
+    height = 3., width = 5.5, res = 350, units = 'in')
 plot(plt_cor_func_CV)
 dev.off()
 pdf('../figure_model_illustration/cor_posterior_predictive_checks_func_CV.pdf',
-    height = 3., width = 4.)
+    height = 3., width = 5.5)
 plot(plt_cor_func_CV)
 dev.off()
 
@@ -377,15 +377,15 @@ dev.off()
 plt_correlation_PPC_with_genome <- 
   plot_predicted_number_branches_func_observed_func_genes_specific_CV(bind_rows(df_PDF_NS_Genome %>% mutate(CV = as.character(CV)), 
                                                                                 df_PDF_NS),
-                                                                      1.7) +
+                                                                      1.) +
   theme(legend.position = 'right')
 
-png('../figure_model_illustration/posterior_predictive_checks_CV_1.7.png',
+png('../figure_model_illustration/posterior_predictive_checks_CV_1.8.png',
     height = 3.8, width = 5.5, res = 350, units = 'in')
 plot(plt_correlation_PPC_with_genome)
 dev.off()
-pdf('../figure_model_illustration/posterior_predictive_checks_CV_1.7.pdf',
-    height = 3.8, width = 5.5)
+pdf('../figure_model_illustration/posterior_predictive_checks_CV_1.8.pdf',
+    height = 4.5, width = 7.0)
 plot(plt_correlation_PPC_with_genome)
 dev.off()
 
@@ -417,8 +417,8 @@ plot_hist_comp_nb_branches_S_N <- function(gene_to_plot, CV_prior){
     mutate(n_aa_mut = as.character(n_aa_mut)) %>% 
     bind_rows(df_PDF_N %>% filter(gene == gene_to_plot) %>% rename(n_aa_mut = N) %>% mutate(type = 'N')) %>% 
     mutate(n_aa_mut = factor(n_aa_mut, levels = c(0:9, '10+', 10:100))) %>% 
-    mutate(type = ifelse(type == 'S', 'Synonymous', 'Non-synonymous')) %>% 
-    mutate(type = factor(type, levels = c('Synonymous', 'Non-synonymous'))) %>% 
+    mutate(type = ifelse(type == 'S', 'Synonymous', 'Nonsynonymous')) %>% 
+    mutate(type = factor(type, levels = c('Synonymous', 'Nonsynonymous'))) %>% 
     ggplot(aes(x = n_aa_mut)) +
     geom_bar(stat = 'identity', aes(y = n_branches_true, color = type, fill = type, alpha = "Data"), key_glyph = draw_key_diag_split) +
     geom_point(aes(y = mean_n_branches_new, color = 'Posterior draws', alpha = "Posterior draws")) +
@@ -453,10 +453,14 @@ plot_hist_comp_nb_branches_S_N <- function(gene_to_plot, CV_prior){
   return(plt_hist)
 }
 
-posterior_predictive_checks_S_N_Spike <- plot_hist_comp_nb_branches_S_N('S', '1.7')
+posterior_predictive_checks_S_N_Spike <- plot_hist_comp_nb_branches_S_N('S', '1.8')
 
-pdf('../figure_model_illustration/posterior_predictive_checks_S_N_Spike_CV_1.7.pdf', 
+pdf('../figure_model_illustration/posterior_predictive_checks_S_N_Spike_CV_1.8.pdf', 
     height = 2.8, width = 6.)
+plot(posterior_predictive_checks_S_N_Spike)
+dev.off()
+png('../figure_model_illustration/posterior_predictive_checks_S_N_Spike_CV_1.8.png', 
+    height = 2.8, width = 6., res = 350, units = 'in')
 plot(posterior_predictive_checks_S_N_Spike)
 dev.off()
 

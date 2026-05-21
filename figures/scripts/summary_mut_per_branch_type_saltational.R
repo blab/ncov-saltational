@@ -53,7 +53,7 @@ get_boxplot_mut_count_per_branch_type <- function(mut_count_genome, name_adaptiv
               quantile_50 = quantile(tot_muts, 0.5),
               quantile_75 = quantile(tot_muts, 0.75),
               quantile_97.5 = quantile(tot_muts, 0.975)) %>% 
-    mutate(type = 'Non-synonymous')
+    mutate(type = 'Nonsynonymous')
   
   # Wilcoxon test to compare results
   tmp_df_tot_muts <- mut_count_genome %>% 
@@ -76,9 +76,9 @@ get_boxplot_mut_count_per_branch_type <- function(mut_count_genome, name_adaptiv
   }
   
   signif_df <- tibble(
-    type = c("All", "Synonymous", "Non-synonymous"),
-    xmin = c("All", "Synonymous", "Non-synonymous"),
-    xmax = c("All", "Synonymous", "Non-synonymous"),
+    type = c("All", "Synonymous", "Nonsynonymous"),
+    xmin = c("All", "Synonymous", "Nonsynonymous"),
+    xmax = c("All", "Synonymous", "Nonsynonymous"),
     y_position = c(
       max(df_for_boxplot_tot_muts$quantile_97.5) + 2,
       max(df_for_boxplot_syn_muts$quantile_97.5) + 2,
@@ -130,11 +130,11 @@ get_boxplot_mut_count_per_branch_type <- function(mut_count_genome, name_adaptiv
 boxplot_mut_count_by_branch_type <- get_boxplot_mut_count_per_branch_type(mut_count_genome, name_adaptive_branches)
 
 pdf('../figure_saltational_branches/boxplot_mut_counts_per_branch_type.pdf',
-    height = 2.2, width = 5.)
+    height = 2., width = 5.)
 plot(boxplot_mut_count_by_branch_type)
 dev.off()
 png('../figure_saltational_branches/boxplot_mut_counts_per_branch_type.png',
-    height = 2.2, width = 5., res = 350, units = 'in')
+    height = 2., width = 5., res = 350, units = 'in')
 plot(boxplot_mut_count_by_branch_type)
 dev.off()
 

@@ -128,7 +128,7 @@ plt_prop_salt_branches <- df_for_CI %>%
                     labels = c('Internal', 'Terminal', 'All'), 
                     name = 'Branch type') +
   scale_x_date(name = '') +
-  scale_y_continuous(name = 'Proportion of saltational branches', labels = scales::percent) +
+  scale_y_continuous(name = 'Proportion of branches\nthat are saltational', labels = scales::percent) +
   theme_bw() +
   theme(panel.grid.minor = element_blank()) +
   coord_cartesian(ylim = c(0, 0.004))
@@ -198,7 +198,7 @@ plt_prop_branches_per_continent_per_year <- df_branch_count_per_year_per_contine
                      ymax = upper_prop_adaptive),
                  position = position_dodge(0.5)) +
   scale_x_date(name = '') +
-  scale_y_continuous(name = 'Proportion of saltational branches', labels = scales::percent) +
+  scale_y_continuous(name = 'Proportion of branches\nthat are saltational', labels = scales::percent) +
   scale_colour_manual(breaks = c('North America', 'South America', 'Europe', 'Africa', 'Asia', 'Oceania'),
                       values = c(palette_north_america[10], palette_south_america[10], 
                                  palette_europe[10], palette_africa[10], 

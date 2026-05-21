@@ -66,7 +66,7 @@ plt_continents <- df_prop_salt_per_location %>% bind_cols(df_CI_prop_salt_branch
   ggplot(aes(x = reorder(inferred_location, prop_saltational_branches), y = prop_saltational_branches, colour = inferred_location)) +
   geom_point() +
   geom_linerange(aes(ymin = lower_prop_salt, ymax = upper_prop_salt)) +
-  scale_y_continuous(name = 'Proportion of\nsaltational branches',
+  scale_y_continuous(name = 'Proportion of branches\nthat are saltational',
                      labels = scales::percent) +
   scale_x_discrete(name = '') +
   scale_colour_manual(breaks = c('North America', 'South America', 'Europe', 'Africa', 'Asia', 'Oceania'),
@@ -84,7 +84,7 @@ plt_regions <- df_prop_salt_per_location %>% bind_cols(df_CI_prop_salt_branches)
   ggplot(aes(x = reorder(inferred_location, prop_saltational_branches), y = prop_saltational_branches, colour = continent)) +
   geom_point() +
   geom_linerange(aes(ymin = lower_prop_salt, ymax = upper_prop_salt)) +
-  scale_y_continuous(name = 'Proportion of\nsaltational branches',
+  scale_y_continuous(name = 'Proportion of branches\nthat are saltational',
                      labels = scales::percent) +
   scale_x_discrete(name = '') +
   scale_colour_manual(breaks = c('North America', 'South America', 'Europe', 'Africa', 'Asia', 'Oceania'),
@@ -97,13 +97,13 @@ plt_regions <- df_prop_salt_per_location %>% bind_cols(df_CI_prop_salt_branches)
 
 plt_countries <- df_prop_salt_per_location %>% bind_cols(df_CI_prop_salt_branches) %>% 
   filter(inferred_location != 'Multiple descendant locations', n_tot_branches >= threshold_branches,
-         scale == 'Country') %>% 
+         scale == 'Country') %>% View()
   left_join(df_country_mapping_with_colors, by = c('inferred_location' = 'country')) %>% 
   mutate(inferred_location = ifelse(inferred_location == 'United Kingdom', 'UK', inferred_location)) %>% 
   ggplot(aes(x = reorder(inferred_location, prop_saltational_branches), y = prop_saltational_branches, colour = continent)) +
   geom_point() +
   geom_linerange(aes(ymin = lower_prop_salt, ymax = upper_prop_salt)) +
-  scale_y_continuous(name = 'Proportion of\nsaltational branches',
+  scale_y_continuous(name = 'Proportion of branches\nthat are saltational',
                      labels = scales::percent) +
   scale_x_discrete(name = '') +
   scale_colour_manual(breaks = c('North America', 'South America', 'Europe', 'Africa', 'Asia', 'Oceania'),

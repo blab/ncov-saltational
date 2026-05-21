@@ -27,8 +27,8 @@ name_saltational_branches <- read.table('../../results/saltational_branches/name
                                         header = F) %>% unlist() %>% as.character()
 
 # Load AA mut OR
-df_OR_AA_mut <- read_tsv('../../results/mutation_enrichment/df_AA_mut_enrichment_saltational_CV_1.8_BF_20.tsv') %>% 
-  filter(threshold_for_inclusion == 1)  %>% 
+df_OR_AA_mut <- read_tsv('../../results/mutation_enrichment/df_AA_mut_enrichment_saltational_opportunity_CV_1.8_BF_20.tsv') %>% 
+  filter(threshold_for_inclusion == 2)  %>% 
   mutate(aa_muts_tot = paste0(gene, ':', mutation)) %>% 
   select(OR, OR_lower, OR_upper, aa_muts_tot, p_value_BH, n_mut_of_interest_adapt_branches) %>% 
   mutate(is_signif = p_value_BH < 0.05) %>% 
@@ -44,17 +44,11 @@ df_OR_AA_mut <- read_tsv('../../results/mutation_enrichment/df_AA_mut_enrichment
   mutate(type = factor(type, levels = c('Persistent infections-like', 'Deer-like', 'Mink-like', 'Others'))) %>% 
   arrange(desc(type))
 
-label_125 <- function(x) {
-  m <- signif(x / 10^floor(log10(x)), 12) 
-  labs <- x
-  ifelse(m %in% c(1, 2, 5), labs, "")
-}
 
-col_persistent <- '#fa4d56'
-col_minks <- '#6fdc8c'
-col_deers <- '#33b1ff'
-col_others <- 'gray80'
 
+
+df_OR_AA_mut %>% filter(p_value_BH < 0.05) %>% 
+  group_by(type) %>% summarise(n_occ = n())
 
 plt_OR_func_mut_frequency_coloured_by_profile_type <- df_OR_AA_mut %>% 
   ggplot(aes(x = n_mut_of_interest_adapt_branches, y = OR, 
@@ -90,3 +84,8 @@ pdf('../figure_mutation_enrichment/scatter_plot_OR_func_mut_count_saltational_co
     height = 4., width = 7.)
 plot(plt_OR_func_mut_frequency_coloured_by_profile_type)
 dev.off()
+png('../figure_mutation_enrichment/scatter_plot_OR_func_mut_count_saltational_colour_mut_profile.png',
+    height = 4., width = 7., res = 350, units = 'in')
+plot(plt_OR_func_mut_frequency_coloured_by_profile_type)
+dev.off()
+ 
