@@ -21,8 +21,13 @@
 - [plot_saltational_branches_with_descendants.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_saltational_branches_with_descendants.R) 
 contains the script to reproduce Figure 5A and 5B.
 - [plot_fold_change_nb_desc_nb_muts_by_gene.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_fold_change_nb_desc_nb_muts_by_gene.R) contains the script to reproduce Figure 5C.
-- [](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure 5D.
-- [](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure 5E.
+- [plot_impact_mutation_descendant_proba.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_impact_mutation_descendant_proba.R) contains the script to reproduce Figure 5D and 5E.
 
 ### Supplementary figures
+-[](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure S1.
+-[](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure S2.
+-[](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure S3.
+-[](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure S4.
+-[](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure S5.
+-[](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure S6.
 - [plot_fold_change_nb_desc_nb_muts_by_gene.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_fold_change_nb_desc_nb_muts_by_gene.R) contains the script to reproduce Figure S7.
