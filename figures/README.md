@@ -18,9 +18,8 @@
 - [full_figure_chronic.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure 4A-C.
 
 ### Figure 5
-- [](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) 
-contains the script to reproduce Figure 5A.
-- [](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure 5B.
+- [plot_saltational_branches_with_descendants.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_saltational_branches_with_descendants.R) 
+contains the script to reproduce Figure 5A and 5B.
 - [](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure 5C.
 - [](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure 5D.
 - [](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/) contains the script to reproduce Figure 5E.
