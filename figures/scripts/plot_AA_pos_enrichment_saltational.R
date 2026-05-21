@@ -1,7 +1,7 @@
 ### This script reproduces figures depicting the 
 ### AA positions that are more / less likely to 
 ### have nonsynonymous mutation in saltational 
-### than non saltattional branches
+### than non saltational branches
 
 library(tidyverse)
 library(ggrepel)
