@@ -47,6 +47,21 @@ rule subset_viridian_tree:
             --write-mat {output.subset_tree}
         """
 
+rule downsample_final_tree_for_viz:
+    input:
+        tree = rules.subset_viridian_tree.output.subset_tree,
+    output:
+        nwk_tree = "results/viridian/small_tree_for_plot.nwk",
+    conda:
+        "../envs/bte.yaml"
+    shell:
+        """
+        matUtils extract \
+            --input-mat {input.tree} \
+            --add-random 50000 \
+            --write-tree {output.nwk_tree}
+        """
+
 rule convert_tree_newick:
     """Convert UShER tree to newick format - This will be used to run Chronumental"""
     input:

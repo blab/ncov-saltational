@@ -23,7 +23,8 @@ CV_prior_gene = 1.8
 CV_prior_genome = 1.8
 CV_PRIORS = [1.8]
 CV_PRIORS_POSTERIOR_PREDICTIVE_CHECKS = [0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5]
-BF_THRESHOLDS = [20, 31.62277660]
+#BF_THRESHOLDS = [20, 31.62277660]
+BF_THRESHOLDS = [20]
 
 rule all:
     input:
@@ -34,6 +35,7 @@ rule all:
 
         # Viridian analysis
         subset_tree = "results/viridian/viridian_tree_subset.pb.gz",
+         wk_tree = "results/viridian/small_tree_for_plot.nwk",
         df_nuc_mut = "results/mutations/df_nuc_mut.tsv",
         df_aa_muts_coded = "results/mutations/nodes_aa_muts_summary_coded.tsv",
         df_sites = "results/bte/df_sites_syn_non_syn_truncated_at_stop.tsv",
@@ -64,17 +66,20 @@ rule all:
         ancestral_saltational = expand("results/saltational_branches/sequences_saltational_internal_CV_{cv_prior}_BF_{BF_threshold}.fasta", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         tree_with_internal_saltational = expand("results/saltational_branches/viridian_tree_with_internal_nodes_CV_{cv_prior}_BF_{BF_threshold}.pb.gz", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         proximity_saltational_samples = expand("results/tree_with_saltational/proximity_samples_CV_{cv_prior}_BF_{BF_threshold}.txt", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
+        df_terminal_descendants = expand("results/saltational_branches/terminal_descendants_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
+        df_cum_aa_changes = expand("results/saltational_branches/df_cum_aa_changes_from_root_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
 
         taxonium = expand("results/saltational_branches/taxonium_saltational_CV_{cv_prior}_BF_{BF_threshold}.jsonl.gz", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
 
         # Enrichment analysis
-        #df_AA_pos_enrichment = expand("results/mutation_enrichment/df_AA_pos_enrichment_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
-        #df_AA_mut_enrichment = expand("results/mutation_enrichment/df_AA_mut_enrichment_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         df_opportunity = expand("results/mutation_enrichment/df_mutation_opportunity_saltational_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         df_AA_pos_enrichment_saltational = expand("results/mutation_enrichment/df_AA_pos_enrichment_saltational_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         df_AA_mut_enrichment_saltational = expand("results/mutation_enrichment/df_AA_mut_enrichment_saltational_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
-        df_AA_mut_enrichment_opportunity = expand("results/mutation_enrichment/df_AA_mut_enrichment_saltational_opportunity_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS)
+        df_AA_mut_enrichment_opportunity = expand("results/mutation_enrichment/df_AA_mut_enrichment_saltational_opportunity_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
 
+        # Nextstrain tree analysis
+        df_aa_freq_combined = expand("results/mutation_enrichment/df_aa_freq_combined_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
+        df_aa_reference_sequence = "results/mutation_enrichment/df_aa_reference_sequence.tsv",
 
     
 rule params:
@@ -83,7 +88,8 @@ rule params:
         usher_reference_fasta = "params/reference/reference_seq.fasta",
         viridian_tree = "data/viridian/tree.all_viridian.202409.pb.gz",
         viridian_taxonium = "data/viridian/tree.all_viridian.202409.jsonl.gz",
-        country_mapping = "params/mapping/country_to_continent_mapping.csv"
+        country_mapping = "params/mapping/country_to_continent_mapping.csv",
+        nextstrain_json = "data/nextstrain/ncov_open_global_all-time.json"
     params:
         ncbi_sra_url = "ftp://ftp.ncbi.nlm.nih.gov/sra/reports/Metadata/SRA_Accessions.tab",
         sra_metadata_download_batch_size = 1000

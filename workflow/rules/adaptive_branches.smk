@@ -73,6 +73,23 @@ rule name_saltational_branches:
             --output_name_saltational_branches {output.name_saltational_branches}
         """
 
+rule get_terminal_descendants_of_saltational_branches:
+    """Get the names of all terminal descendants for each saltational branch"""
+    input:
+        tree = rules.subset_viridian_tree.output.subset_tree,
+        name_saltational_branches = rules.name_saltational_branches.output.name_saltational_branches,
+    output:
+        df_terminal_descendants = "results/saltational_branches/terminal_descendants_CV_{cv_prior}_BF_{BF_threshold}.tsv"
+    conda:
+        "../envs/bte.yaml"
+    shell:
+        """
+        python scripts/mat-manipulation/get_terminal_descendants_of_saltational_branches.py \
+            --tree {input.tree} \
+            --name_saltational_branches {input.name_saltational_branches} \
+            --output {output.df_terminal_descendants}
+        """
+
 rule name_saltational_branches_by_genome_region:
     """Get the names of the saltational paths across the tree for each gene and each CV prior"""
     input:
@@ -292,4 +309,24 @@ rule export_tree_with_saltational_to_taxonium:
             -m {input.metadata} \
             -c {params.columns_to_include} \
             -t {params.title}
+        """
+
+rule get_cum_aa_changes_from_root:
+    input:
+        tree = rules.subset_viridian_tree.output.subset_tree,
+        name_saltational_branches = rules.name_saltational_branches.output.name_saltational_branches,
+        reference_seq_gtf = rules.params.input.usher_reference_gtf,
+        reference_seq_fasta = rules.params.input.usher_reference_fasta,
+    output:
+        df_cum_aa_changes = "results/saltational_branches/df_cum_aa_changes_from_root_CV_{cv_prior}_BF_{BF_threshold}.tsv"
+    conda:
+        "../envs/bte.yaml"
+    shell:
+        """
+        python scripts/mat-manipulation/get_cum_aa_changes_from_root.py \
+            --tree {input.tree} \
+            --name_saltational_branches {input.name_saltational_branches} \
+            --reference_gtf {input.reference_seq_gtf} \
+            --reference_fasta {input.reference_seq_fasta} \
+            --output_cum_aa_changes {output.df_cum_aa_changes}
         """

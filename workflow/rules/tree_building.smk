@@ -8,6 +8,7 @@ Steps:
 4. Prepare node data for Auspice (branch_type annotations)
 5. Export tree in Auspice JSON format
 """
+
 rule get_name_internal_nodes_adaptive:
     """Identify which adaptive branches are internal nodes (vs tips)"""
     input:
