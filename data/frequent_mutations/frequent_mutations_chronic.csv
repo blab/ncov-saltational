@@ -1,119 +1,99 @@
-﻿type,aa_mutation_full,gene,aa_mut_with_origin,aa_mut_direction,nuc_substitution,source
-Persistent,S:E340K,S,E340K,340K,G22580A,Khurana et al. 
-Persistent,S:N405D,S,N405D,405D,A22775G,Khurana et al. 
-Persistent,ORF1a:L3829F,ORF1a,L3829F,3829F,C11750T,Khurana et al. 
-Persistent,ORF1b:G662S,ORF1b,G662S,662S,G15451A,Khurana et al. 
-Persistent,ORF1a:T1638I,ORF1a,T1638I,1638I,C5178T,Khurana et al. 
-Persistent,S:R346T,S,R346T,346T,G22599C,Khurana et al. 
-Persistent,S:K444R,S,K444R,444R,A22893G,Khurana et al. 
-Persistent,N:R93R,N,R93R,93R,C28550A,Khurana et al. 
-Persistent,E:T30I,E,T30I,30I,C26333T,Khurana et al. 
-Persistent,S:N417I,S,N417I,417I,A22812T,Khurana et al. 
-Persistent,ORF1a:D1639N,ORF1a,D1639N,1639N,G5180A,Khurana et al. 
-Persistent,S:L452M,S,L452M,452M,C22916A,Khurana et al. 
-Persistent,ORF1b:V783I,ORF1b,V783I,783I,G15814A,Khurana et al. 
-Persistent,S:R346I,S,R346I,346I,G22599T,Khurana et al. 
-Persistent,S:D405N,S,D405N,405N,G22775A,Khurana et al. 
-Persistent,S:K764N,S,K764N,764N,A23854C,Khurana et al. 
-Persistent,ORF1a:T4175I,ORF1a,T4175I,4175I,C12789T,Khurana et al. 
-Persistent,S:T19I,S,T19I,19I,C21618T,Khurana et al. 
-Persistent,ORF3a:S74S,ORF3a,S74S,74S,C25614T,Khurana et al. 
-Persistent,N:P326L,N,P326L,326L,C29250T,Khurana et al. 
-Persistent,ORF1a:T1322I,ORF1a,T1322I,1322I,C4230T,Khurana et al. 
-Persistent,S:E340Q,S,E340Q,340Q,G22580C,Khurana et al. 
-Persistent,S:K444N,S,K444N,444N,G22894T,Khurana et al. 
-Persistent,S:I19T,S,I19T,19T,T21618C,Khurana et al. 
-Persistent,S:S494P,S,S494P,494P,T23042C,Khurana et al. 
-Persistent,S:K440R,S,K440R,440R,A22881G,Khurana et al. 
-Persistent,ORF1a:S4398L,ORF1a,S4398L,4398L,C13458T,Khurana et al. 
-Persistent,S:P9L,S,P9L,9L,C21588T,Khurana et al. 
-Persistent,S:T95I,S,T95I,95I,C21846T,Khurana et al. 
-Persistent,ORF1a:T1538I,ORF1a,T1538I,1538I,C4878T,Khurana et al. 
-Persistent,ORF1a:A2529V,ORF1a,A2529V,2529V,C7851T,Khurana et al. 
-Persistent,ORF1a:E102K,ORF1a,E102K,102K,G569A,Khurana et al. 
-Persistent,ORF1a:G3072C,ORF1a,G3072C,3072C,G9479T,Khurana et al. 
-Persistent,S:E484K,S,E484K,484K,,Wilkinson et al.
-Persistent,E:T30I,E,T30I,30I,,Wilkinson et al.
-Persistent,M:H125Y,M,H125Y,125Y,,Wilkinson et al.
-Persistent,ORF1a:T3058I,ORF1a,T3058I,3058I,,Wilkinson et al.
-Persistent,S:Q493Q,S,Q493Q,493Q,,Wilkinson et al.
-Persistent,S:S13I,S,S13I,13I,,Wilkinson et al.
-Persistent,ORF1b:V783I,ORF1b,V783I,783I,,Wilkinson et al.
-Persistent,ORF1a:P1640L,ORF1a,P1640L,1640L,,Wilkinson et al.
-Persistent,ORF1a:T1638I,ORF1a,T1638I,1638I,,Wilkinson et al.
-Persistent,ORF1a:T1322P,ORF1a,T1322P,1322P,,Wilkinson et al.
-Persistent,S:L452R,S,L452R,452R,,Wilkinson et al.
-Persistent,S:Q498R,S,Q498R,498R,,Wilkinson et al.
-Persistent,S:E484G,S,E484G,484G,,Wilkinson et al.
-Persistent,S:F486I,S,F486I,486I,,Wilkinson et al.
-Persistent,S:G142V,S,G142V,142V,,Wilkinson et al.
-Persistent,S:T95I,S,T95I,95I,,Wilkinson et al.
-Persistent,ORF1a:K1795Q,ORF1a,K1795Q,1795Q,,Wilkinson et al.
-Persistent,S:F490L,S,F490L,490L,,Wilkinson et al.
-Persistent,ORF1a:T1638I,ORF1a,T1638I,1638I,,Ghafari et al. Nature. Occurred 2+ times
-Persistent,ORF1a:T4175I,ORF1a,T4175I,4175I,,Ghafari et al. Nature. Occurred 2+ times
-Persistent,ORF1a:T4311I,ORF1a,T4311I,4311I,,Ghafari et al. Nature. Occurred 2+ times
-Persistent,ORF1b:L1504F,ORF1b,L1504F,1504F,,Ghafari et al. Nature. Occurred 2+ times
-Persistent,S:T376A,S,T376A,376A,,Ghafari et al. Nature. Occurred 2+ times
-Persistent,S:L452R,S,L452R,452R,,Ghafari et al. Nature. Occurred 2+ times
-Persistent,S:T547K,S,T547K,547K,13860,Ghafari et al. Nature. Occurred 2+ times
-Persistent,E:S55F,E,T547K,55F,C26408T,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,N:P151S,N,T547K,151S,C28724T,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,N:R413S,N,T547K,413S,C29510A,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,,,,,C823T,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,,,,,A1045C,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,ORF1a:Q1522*,ORF1a,T547K,1522*,C4829T,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,ORF1a:T1638I,ORF1a,T547K,1638I,C5178A/T,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,ORF1a:F2103S,ORF1a,T547K,2103S,T6573C,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,ORF1a:F2908L,ORF1a,T547K,2908L,T8987C,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,ORF1a:V2909A,ORF1a,T547K,2909A,T8991C,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,ORF1a:I3090T,ORF1a,T547K,3090T,T9534C,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,,,,,C10369T,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,,,,,T10492A/G,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,ORF1a:A3730V,ORF1a,T547K,3730V,C11454T,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,ORF1a:L3829F,ORF1a,T547K,3829F,C11750T,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,,,,,C12439T,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,ORF1b:L1504F,ORF1b,T547K,1504F,T17978C,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,ORF1b:C1906G,ORF1b,T547K,1906G,T19183G,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,ORF1b:F2030L,ORF1b,T547K,2030L,T19557G,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,ORF1b:T2040L,ORF1b,T547K,2040L,T19587A,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,ORF7:T39I,ORF7,T547K,39I,C27509T,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,ORF8:I71N,ORF8,T547K,71N,T28105A,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,S:V47I,S,T547K,47I,G21701A,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,S:K356T,S,T547K,356T,A22629C,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,S:N405D,S,T547K,405D,A22775G,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,S:T547K,S,T547K,547K,C23202A,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,S:S884F,S,T547K,884F,C24213T,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,S:T1009I,S,T547K,1009I,C24588T,Ghafari et al. Lancet ID. Occurred 4+ times
-Persistent,E:T30I,E,T30I,30I,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,,,,,C26681T,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,,,,,28271,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,,,,,C9430T,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,ORF1a:K1795Q,ORF1a,K1795Q,1795Q,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,ORF1a:P1803S,ORF1a,P1803S,1803S,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,ORF1a:T1638I,ORF1a,T1638I,1638I,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,ORF1a:V1887I,ORF1a,V1887I,1887I,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,,,,,C15240T,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,,,,,C18060T,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,,,,,T14646A,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,ORF3a:E239Q,ORF3a,E239Q,239Q,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,ORF3a:W131C,ORF3a,W131C,131C,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,,,,,A23767G,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,,,,,C21682T,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,S:A701V,S,A701V,701V,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,S:E340A,S,E340A,340A,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,S:E340D,S,E340D,340D,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,S:E340K,S,E340K,340K,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,S:E340Q,S,E340Q,340Q,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,S:G446V,S,G446V,446V,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,S:G476D,S,G476D,476D,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,S:K356T,S,K356T,356T,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,S:K444N,S,K444N,444N,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,S:L216F,S,L216F,216F,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,S:L455S,S,L455S,455S,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,S:N460K,S,N460K,460K,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,S:P337S,S,P337S,337S,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,S:R346T,S,R346T,346T,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,S:S371F,S,S371F,371F,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,S:T547K,S,T547K,547K,,Harari et al. Nat Comm. Occurred 3+ times
-Persistent,S:T95I,S,T95I,95I,,Harari et al. Nat Comm. Occurred 3+ times
+﻿type,aa_mutation_full,gene,aa_mut_with_origin,aa_mut_direction,nuc_substitution,source,
+Persistent,S:E340K,S,E340K,340K,G22580A,Khurana et al. ,
+Persistent,S:N405D,S,N405D,405D,A22775G,Khurana et al. ,
+Persistent,ORF1a:L3829F,ORF1a,L3829F,3829F,C11750T,Khurana et al. ,
+Persistent,ORF1b:G662S,ORF1b,G662S,662S,G15451A,Khurana et al. ,
+Persistent,ORF1a:T1638I,ORF1a,T1638I,1638I,C5178T,Khurana et al. ,
+Persistent,S:R346T,S,R346T,346T,G22599C,Khurana et al. ,
+Persistent,S:K444R,S,K444R,444R,A22893G,Khurana et al. ,
+Persistent,N:R93R,N,R93R,93R,C28550A,Khurana et al. ,
+Persistent,E:T30I,E,T30I,30I,C26333T,Khurana et al. ,
+Persistent,S:N417I,S,N417I,417I,A22812T,Khurana et al. ,
+Persistent,ORF1a:D1639N,ORF1a,D1639N,1639N,G5180A,Khurana et al. ,
+Persistent,S:L452M,S,L452M,452M,C22916A,Khurana et al. ,
+Persistent,ORF1b:V783I,ORF1b,V783I,783I,G15814A,Khurana et al. ,
+Persistent,S:R346I,S,R346I,346I,G22599T,Khurana et al. ,
+Persistent,S:D405N,S,D405N,405N,G22775A,Khurana et al. ,
+Persistent,S:K764N,S,K764N,764N,A23854C,Khurana et al. ,
+Persistent,ORF1a:T4175I,ORF1a,T4175I,4175I,C12789T,Khurana et al. ,
+Persistent,S:T19I,S,T19I,19I,C21618T,Khurana et al. ,
+Persistent,ORF3a:S74S,ORF3a,S74S,74S,C25614T,Khurana et al. ,
+Persistent,N:P326L,N,P326L,326L,C29250T,Khurana et al. ,
+Persistent,ORF1a:T1322I,ORF1a,T1322I,1322I,C4230T,Khurana et al. ,
+Persistent,S:E340Q,S,E340Q,340Q,G22580C,Khurana et al. ,
+Persistent,S:K444N,S,K444N,444N,G22894T,Khurana et al. ,
+Persistent,S:I19T,S,I19T,19T,T21618C,Khurana et al. ,
+Persistent,S:S494P,S,S494P,494P,T23042C,Khurana et al. ,
+Persistent,S:K440R,S,K440R,440R,A22881G,Khurana et al. ,
+Persistent,ORF1a:S4398L,ORF1a,S4398L,4398L,C13458T,Khurana et al. ,
+Persistent,S:P9L,S,P9L,9L,C21588T,Khurana et al. ,
+Persistent,S:T95I,S,T95I,95I,C21846T,Khurana et al. ,
+Persistent,ORF1a:T1538I,ORF1a,T1538I,1538I,C4878T,Khurana et al. ,
+Persistent,ORF1a:A2529V,ORF1a,A2529V,2529V,C7851T,Khurana et al. ,
+Persistent,ORF1a:E102K,ORF1a,E102K,102K,G569A,Khurana et al. ,
+Persistent,ORF1a:G3072C,ORF1a,G3072C,3072C,G9479T,Khurana et al. ,
+Persistent,S:E484K,S,E484K,484K,,Wilkinson et al.,
+Persistent,E:T30I,E,T30I,30I,,Wilkinson et al.,
+Persistent,M:H125Y,M,H125Y,125Y,,Wilkinson et al.,
+Persistent,ORF1a:T3058I,ORF1a,T3058I,3058I,,Wilkinson et al.,
+Persistent,S:Q493K,S,Q493K,493K,,Wilkinson et al.,
+Persistent,S:S13I,S,S13I,13I,,Wilkinson et al.,
+Persistent,ORF1b:V783I,ORF1b,V783I,783I,,Wilkinson et al.,
+Persistent,ORF1a:P1640L,ORF1a,P1640L,1640L,,Wilkinson et al.,
+Persistent,ORF1a:T1638I,ORF1a,T1638I,1638I,,Wilkinson et al.,
+Persistent,ORF1a:T1322P,ORF1a,T1322P,1322P,,Wilkinson et al.,
+Persistent,S:L452R,S,L452R,452R,,Wilkinson et al.,
+Persistent,S:Q498R,S,Q498R,498R,,Wilkinson et al.,
+Persistent,S:E484G,S,E484G,484G,,Wilkinson et al.,
+Persistent,S:F486I,S,F486I,486I,,Wilkinson et al.,
+Persistent,S:G142V,S,G142V,142V,,Wilkinson et al.,
+Persistent,S:T95I,S,T95I,95I,,Wilkinson et al.,
+Persistent,ORF1a:K1795Q,ORF1a,K1795Q,1795Q,,Wilkinson et al.,
+Persistent,S:F490L,S,F490L,490L,,Wilkinson et al.,
+Persistent,ORF1a:T1638I,ORF1a,T1638I,1638I,,Ghafari et al. Nature. Occurred 2+ times,
+Persistent,ORF1a:T4175I,ORF1a,T4175I,4175I,,Ghafari et al. Nature. Occurred 2+ times,
+Persistent,ORF1a:T4311I,ORF1a,T4311I,4311I,,Ghafari et al. Nature. Occurred 2+ times,
+Persistent,ORF1b:L1504F,ORF1b,L1504F,1504F,,Ghafari et al. Nature. Occurred 2+ times,
+Persistent,S:T376A,S,T376A,376A,,Ghafari et al. Nature. Occurred 2+ times,
+Persistent,S:L452R,S,L452R,452R,,Ghafari et al. Nature. Occurred 2+ times,
+Persistent,S:T547K,S,T547K,547K,,Ghafari et al. Nature. Occurred 2+ times,
+Persistent,ORF1a:V1887I,ORF1a,V1887I,1887I,,Harari et al. Nature Communications.,
+Persistent,S:T95I,S,T95I,95I,,Harari et al. Nature Communications.,
+Persistent,S:S371F,S,S371F,371F,,Harari et al. Nature Communications.,
+Persistent,ORF1a:T1638I,ORF1a,T1638I,1638I,,Harari et al. Nature Communications.,
+Persistent,S:A701V,S,A701V,701V,,Harari et al. Nature Communications.,
+Persistent,S:K356T,S,K356T,356T,,Harari et al. Nature Communications.,
+Persistent,S:E340D,S,E340D,340D,,Harari et al. Nature Communications.,
+Persistent,S:L455S,S,L455S,455S,,Harari et al. Nature Communications.,
+Persistent,S:N460K,S,N460K,460K,,Harari et al. Nature Communications.,
+Persistent,E:T30I,E,T30I,30I,,Harari et al. Nature Communications.,
+Persistent,ORF1a:P1803S,ORF1a,P1803S,1803S,,Harari et al. Nature Communications.,
+Persistent,S:E340K,S,E340K,340K,,Harari et al. Nature Communications.,
+Persistent,ORF3a:W131C,ORF3a,W131C,131C,,Harari et al. Nature Communications.,
+Persistent,S:E340A,S,E340A,340A,,Harari et al. Nature Communications.,
+Persistent,S:G446V,S,G446V,446V,,Harari et al. Nature Communications.,
+Persistent,S:R346T,S,R346T,346T,,Harari et al. Nature Communications.,
+Persistent,ORF1a:K1795Q,ORF1a,K1795Q,1795Q,,Harari et al. Nature Communications.,
+Persistent,S:K444N,S,K444N,444N,,Harari et al. Nature Communications.,
+Persistent,S:P337S,S,P337S,337S,,Harari et al. Nature Communications.,
+Persistent,ORF3a:E239Q,ORF3a,E239Q,239Q,,Harari et al. Nature Communications.,
+Persistent,S:E340Q,S,E340Q,340Q,,Harari et al. Nature Communications.,
+Persistent,S:G476D,S,G476D,476D,,Harari et al. Nature Communications.,
+Persistent,S:L216F,S,L216F,216F,,Harari et al. Nature Communications.,
+Persistent,S:T547K,S,T547K,547K,,Harari et al. Nature Communications.,
+Persistent,S:V615I,S,V615I,615I,,Harari et al. Nature Communications.,
+Persistent,S:E484K,S,E484K,484K,,Harari et al. Nat Medicine.,
+Persistent,E:T30I,E,T30I,30I,,Harari et al. Nat Medicine.,
+Persistent,ORF1a:P1640L,ORF1a,P1640L,1640L,,Harari et al. Nat Medicine.,
+Persistent,S:E484Q,S,E484Q,484Q,,Harari et al. Nat Medicine.,
+Persistent,M:H125Y,M,H125Y,125Y,,Harari et al. Nat Medicine.,
+Persistent,ORF1a:T1322I,ORF1a,T1322I,1322I,,Harari et al. Nat Medicine.,
+Persistent,ORF1a:T1638I,ORF1a,T1638I,1638I,,Harari et al. Nat Medicine.,
+Persistent,ORF1a:T3058I,S,T3058I,3058I,,Harari et al. Nat Medicine.,
+Persistent,S:P9L,S,P9L,9L,,Harari et al. Nat Medicine.,
+Persistent,S:S13I,S,S13I,13I,,Harari et al. Nat Medicine.,
+Persistent,S:R190K,S,R190K,190K,,Harari et al. Nat Medicine.,
+Persistent,S:S494P,S,S494P,494P,,Harari et al. Nat Medicine.,
+Persistent,S:N501Y,S,N501Y,501Y,,Harari et al. Nat Medicine.,
+Persistent,ORF7a:A105V,ORF7a,A105V,105V,,Harari et al. Nat Medicine.,
+Persistent,ORF8:T11I,ORF8,T11I,11I,,Harari et al. Nat Medicine.,
