@@ -1,25 +1,33 @@
+### This script reproduces figures depicting a few summary statistics about
+### saltational branches
+
 library(tidyverse)
 library(ggsignif)
 source('config_plot.R')
 
-vec_genes <- names(palette_genes)
+#############################
+### LOADING MODEL RESULTS ###
+#############################
 
-# Load adaptive branches names
-name_adaptive_branches <- read.table('../../results/saltational_branches/name_saltational_branches_CV_1.8_BF_20.tsv', 
-                                     header = F) %>% unlist() %>% as.character()
+# Load name of saltational branches
+name_saltational_branches <- 
+  read.table('../../results/saltational_branches/name_saltational_branches_CV_1.8_BF_20.tsv', 
+             header = F) %>% unlist() %>% as.character()
 
-# Load number of mutations by branch
+# Load number of mutation at the genome level by branch
 mut_count_genome <- read_tsv('../../results/input_model/data_viridian_Genome_aggregated.tsv')
-mut_count_S <- read_tsv('../../results/input_model/data_viridian_S.tsv')
 
-# Load AA mutation information
+# Load detailed AA mutation information (mutation by gene by branch, each row is a mutation in the viridian tree)
 df_aa_muts <- read_tsv('../../results/mutations/nodes_aa_muts_summary_coded.tsv') %>% 
   rename(strain = node_id) %>% filter(is_coded) %>% 
-  mutate(is_adaptive = strain %in% name_adaptive_branches) %>% 
+  mutate(is_adaptive = strain %in% name_saltational_branches) %>% 
   group_by(gene, is_adaptive) %>% 
   summarise(n_tot_mut = n(), n_non_syn = sum(aa_initial != aa_new))
 
-# Compare number of mutations by branch type
+##############################
+### SUMMARY OF THE RESULTS ###
+##############################
+# Figure 1D
 get_boxplot_mut_count_per_branch_type <- function(mut_count_genome, name_adaptive_branches){
   
   df_for_boxplot_tot_muts <- mut_count_genome %>% 
@@ -127,7 +135,7 @@ get_boxplot_mut_count_per_branch_type <- function(mut_count_genome, name_adaptiv
   return(boxplot_mut_count_func_branch_type) 
 }
 
-boxplot_mut_count_by_branch_type <- get_boxplot_mut_count_per_branch_type(mut_count_genome, name_adaptive_branches)
+boxplot_mut_count_by_branch_type <- get_boxplot_mut_count_per_branch_type(mut_count_genome, name_saltational_branches)
 
 pdf('../figure_saltational_branches/boxplot_mut_counts_per_branch_type.pdf',
     height = 2., width = 5.)
@@ -138,7 +146,7 @@ png('../figure_saltational_branches/boxplot_mut_counts_per_branch_type.png',
 plot(boxplot_mut_count_by_branch_type)
 dev.off()
 
-# Distribution of mutations oer gene
+# Figure 1E
 get_mut_frequency_by_gene_by_branch_type <- function(df_aa_muts){
   hist_mut_freq_by_branch_type <- df_aa_muts %>% 
     group_by(is_adaptive) %>% 
