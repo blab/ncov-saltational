@@ -1,34 +1,41 @@
-library(tidyverse)
-library(viridis)
-library(RColorBrewer)
-library(ggpubr)
-# Load name of saltational branches
-vec_name_node_saltational <- read.table('../../results/saltational_branches/name_saltational_branches_CV_1.8_BF_20.tsv') %>% unlist() %>% as.character()
+### This script reproduces Figure S2
+### depicting the persistence durations
+### clusters descending from saltational branches
 
-# Load number of descendants
+library(tidyverse)
+library(ggpubr)
+
+# Load name of saltational branches
+vec_name_node_saltational <- read.table('../../results/saltational_branches/name_saltational_branches_CV_1.8_BF_20.tsv') %>% 
+  unlist() %>% as.character()
+
+# Load number of descendants per saltational branch
 df_descendants <- read_tsv('../../results/bte/df_n_descendants_per_node.tsv') %>% 
   filter(strain %in% vec_name_node_saltational) %>% 
   mutate(earliest_date_descendants = as.Date(earliest_date_descendants),
          latest_date_descendant = as.Date(latest_date_descendant))
 
-# Load timeline of descendants
+# Load name of terminal descendants for each saltational branch
 df_name_terminal_descendants <- read_tsv('../../results/saltational_branches/terminal_descendants_CV_1.8_BF_20.tsv')
 
-# Load SRA metadata
-metadata_tips <- read_tsv('../../results/saltational_branches/metadata_taxonium_CV_1.8_BF_20.tsv')
+# Load SRA metadata date information
 metadata_clean_dates <- read_tsv('../../results/sra_metadata/sra_metadata_just_clean_dates.tsv')
+
+# Load chronumental information (used for internal branches)
 chronumental_dates <- read_tsv('../../results/chronumental/chronumental_inferred_dates.tsv')
 
+# Dataframe with date of saltational events and sequence collection date of descendants
 df_for_plot_cluster_timeline <- df_name_terminal_descendants %>% 
   left_join(metadata_clean_dates %>% rename(date_descendant = date), by = c('strain_descendant' = 'strain')) %>% 
   left_join(chronumental_dates %>% rename(date_saltational = predicted_date), by = c('strain_saltational' = 'strain')) %>% 
   mutate(month_descendant = as.Date(paste0(format(date_descendant, '%Y-%m'), '-01'), format = '%Y-%m-%d'),
          month_saltational = as.Date(paste0(format(date_saltational, '%Y-%m'), '-01'), format = '%Y-%m-%d')) %>% 
-  filter(date_saltational <= date_descendant) %>% 
+  filter(date_saltational <= date_descendant) %>% # Only keep descendant dates that are after the inferred saltational branch date
   group_by(strain_saltational, month_descendant, date_saltational,month_saltational) %>% 
   summarise(n_terminal_descendants = n()) %>% 
   mutate(strain_saltational = factor(strain_saltational))
   
+# Visualize clusters with descendants through time
 plt_cluster_through_time <- df_for_plot_cluster_timeline %>% 
   ggplot(aes(x = month_descendant, y = reorder(strain_saltational, date_saltational))) +
   geom_tile(aes(fill = n_terminal_descendants > 0, colour = n_terminal_descendants > 0)) +
@@ -44,12 +51,7 @@ plt_cluster_through_time <- df_for_plot_cluster_timeline %>%
         panel.grid = element_blank(),
         panel.background = element_rect(fill = 'white'))
 
-label_125 <- function(x) {
-  x <- ifelse(abs(x - round(x)) < 1e-5, round(x), x)
-  m <- as.integer(signif(x / 10^floor(log10(x) + 1e-8), 12))
-  ifelse(m %in% as.integer(c(1, 2, 5)), x, "")
-}
-
+# Plot ECDF of cluster duration
 label_1 <- function(x) {
   x <- ifelse(abs(x - round(x)) < 1e-5, round(x), x)
   m <- as.integer(signif(x / 10^floor(log10(x) + 1e-8), 12))
@@ -61,7 +63,7 @@ plt_ecdf_cluster_duration <- df_name_terminal_descendants %>%
   left_join(chronumental_dates %>% rename(date_saltational = predicted_date), by = c('strain_saltational' = 'strain')) %>% 
   mutate(month_descendant = as.Date(paste0(format(date_descendant, '%Y-%m'), '-01'), format = '%Y-%m-%d'),
          month_saltational = as.Date(paste0(format(date_saltational, '%Y-%m'), '-01'), format = '%Y-%m-%d')) %>% 
-  filter(date_saltational <= date_descendant) %>% 
+  filter(date_saltational <= date_descendant) %>%
   mutate(time_from_saltational = as.numeric(date_descendant - as.Date(date_saltational), units = 'days')) %>% 
   group_by(strain_saltational) %>% 
   summarise(max_time_from_saltational = max(time_from_saltational),
@@ -95,6 +97,7 @@ plot(panel_cluster_duration)
 dev.off()
 
 
+# Summary statistics of cluster persistence
 df_name_terminal_descendants %>% 
   left_join(metadata_clean_dates %>% rename(date_descendant = date), by = c('strain_descendant' = 'strain')) %>% 
   left_join(chronumental_dates %>% rename(date_saltational = predicted_date), by = c('strain_saltational' = 'strain')) %>% 
