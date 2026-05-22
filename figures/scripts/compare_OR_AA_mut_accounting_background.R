@@ -1,7 +1,13 @@
+### This script reproduces Figure S6 assessing the impact
+### of accounting or not for mutation opportunity (background)
+### on estimates of the OR of an AA mut of occurring
+## on a saltational branch
+
 library(tidyverse)
 library(ggpubr)
 source('config_plot.R')
 
+## Load OR of AA mut on saltational mutation accounting / not accounting for background AA
 df_OR_AA_mut <- read_tsv('../../results/mutation_enrichment/df_AA_mut_enrichment_saltational_CV_1.8_BF_20.tsv') %>% 
   select(gene, mutation, threshold_for_inclusion, p_value_BH, OR, OR_lower, OR_upper)
 df_OR_AA_mut_background <- read_tsv('../../results/mutation_enrichment/df_AA_mut_enrichment_saltational_opportunity_CV_1.8_BF_20.tsv') %>% 
@@ -11,7 +17,7 @@ df_OR_AA_mut_background <- read_tsv('../../results/mutation_enrichment/df_AA_mut
          OR_lower_account_background = OR_lower,
          OR_upper_account_background = OR_upper)
 
-
+## Compare the OR
 plt_OR_comparison_mut_opportunity <- df_OR_AA_mut %>% 
   left_join(df_OR_AA_mut_background, by = c('gene', 'mutation', 'threshold_for_inclusion')) %>% 
   filter(threshold_for_inclusion == 1) %>% 
