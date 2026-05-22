@@ -1,9 +1,11 @@
+### This script reproduces Figure S3, S4 and S5
+### visualizing posterior predictive checks of the model
 library(tidyverse)
 library(grid)
 library(ggpubr)
 source('config_plot.R')
 
-## Load posterior predictive checks runs
+## Functions to load posterior predictive checks runs
 get_summary_from_posterior_simul_PDF_NS <- function(gene, CV_prior){
   # Load posterior simulations
   if(gene == 'Genome'){
@@ -176,31 +178,35 @@ get_summary_from_posterior_simul_PDF_S <- function(gene, CV_prior){
   )
 }
 
+## Load posterior predictive checks across different CVs for the prior and for each gene
 vec_CV <- sprintf("%.1f", c(0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5))
 vec_genes <- c('ORF1a', 'ORF1b', 'S', 'ORF3a', 'E', 'M', 'ORF6', 'ORF7a', 'ORF7b', 'ORF8', 'N', 'ORF9b')
-
 df_PDF_NS <- Reduce('bind_rows', lapply(vec_CV, FUN = function(CV_prior){
   Reduce('bind_rows', lapply(vec_genes, FUN = function(gene){
     get_summary_from_posterior_simul_PDF_NS(gene, CV_prior) 
   }))
 }))
 
+## Get the CV maximising the correlation between the log of the true and the predicted number of branches
+## of a given size
 CV_maximizing_cor <- df_PDF_NS %>% 
   group_by(CV) %>% 
   summarise(cor = cor(log(n_branches_true + 1), log(median_n_branches_new + 1), method = 'pearson')) %>% 
   filter(cor == max(cor)) %>% select(CV) %>% unlist() %>% as.numeric()
 
-df_PDF_NS %>% 
-  group_by(CV) %>% 
-  summarise(cor = cor(log(n_branches_true + 1), log(median_n_branches_new + 1), method = 'pearson')) 
+print(CV_maximizing_cor)
 
-df_PDF_NS_Genome <- Reduce('bind_rows', lapply(CV_maximizing_cor, FUN = function(CV_prior){
-  Reduce('bind_rows', lapply('Genome', FUN = function(gene){
-    get_summary_from_posterior_simul_PDF_NS(gene, CV_prior) 
-  }))
-}))
+df_PDF_NS %>%  group_by(CV) %>% summarise(cor = cor(log(n_branches_true + 1), log(median_n_branches_new + 1), method = 'pearson')) 
 
-## Illustrate impact of CV on model fit
+# df_PDF_NS_Genome <- Reduce('bind_rows', lapply(CV_maximizing_cor, FUN = function(CV_prior){
+#   Reduce('bind_rows', lapply('Genome', FUN = function(gene){
+#     get_summary_from_posterior_simul_PDF_NS(gene, CV_prior)
+#   }))
+# }))
+# 
+# df_PDF_NS_Genome %>%  group_by(CV) %>% summarise(cor = cor(log(n_branches_true + 1), log(median_n_branches_new + 1), method = 'pearson')) 
+
+## Functions to visualize posterior predictive checks
 plot_cor_func_CV <- function(df_PDF_NS){
   plt_cor_func_CV <- df_PDF_NS %>%
     mutate(CV = as.numeric(CV),
@@ -347,49 +353,8 @@ get_CV_maximizing_cor <- function(df_PDF_NS){
     return()
 }
 
-
-# Posterior predictive checks across CV
-panel_across_genes_CV <- plot_predicted_number_branches_func_observed_func_genes_CV(df_PDF_NS, 
-                                                                                   CVs_to_plot = c(0.8, 1.3, 1.8, 2.3))
-
-png('../figure_model_illustration/posterior_predictive_checks_func_CV.png',
-    height = 6., width = 8., res = 350, units = 'in')
-plot(panel_across_genes_CV)
-dev.off()
-pdf('../figure_model_illustration/posterior_predictive_checks_func_CV.pdf',
-    height = 6., width = 8.)
-plot(panel_across_genes_CV)
-dev.off()
-
-# Correlation as a function of the CV
-plt_cor_func_CV <- plot_cor_func_CV(df_PDF_NS)
-
-png('../figure_model_illustration/cor_posterior_predictive_checks_func_CV.png',
-    height = 3., width = 5.5, res = 350, units = 'in')
-plot(plt_cor_func_CV)
-dev.off()
-pdf('../figure_model_illustration/cor_posterior_predictive_checks_func_CV.pdf',
-    height = 3., width = 5.5)
-plot(plt_cor_func_CV)
-dev.off()
-
-# Display posterior predictive checks for the best fitting model
-plt_correlation_PPC_with_genome <- 
-  plot_predicted_number_branches_func_observed_func_genes_specific_CV(bind_rows(df_PDF_NS_Genome %>% mutate(CV = as.character(CV)), 
-                                                                                df_PDF_NS),
-                                                                      1.) +
-  theme(legend.position = 'right')
-
-png('../figure_model_illustration/posterior_predictive_checks_CV_1.8.png',
-    height = 3.8, width = 5.5, res = 350, units = 'in')
-plot(plt_correlation_PPC_with_genome)
-dev.off()
-pdf('../figure_model_illustration/posterior_predictive_checks_CV_1.8.pdf',
-    height = 4.5, width = 7.0)
-plot(plt_correlation_PPC_with_genome)
-dev.off()
-
-## Illustrate comparison between distributions for S
+#############
+## Figure S3 - Posterior predictive checks on Spike
 plot_hist_comp_nb_branches_S_N <- function(gene_to_plot, CV_prior){
   
   # Load PDF on N
@@ -464,3 +429,48 @@ png('../figure_model_illustration/posterior_predictive_checks_S_N_Spike_CV_1.8.p
 plot(posterior_predictive_checks_S_N_Spike)
 dev.off()
 
+## Figure S4 - Correlation between predicted and observed number of branches
+## by mutation counts across different prior parametrizations
+panel_across_genes_CV <- plot_predicted_number_branches_func_observed_func_genes_CV(df_PDF_NS, 
+                                                                                    CVs_to_plot = c(0.8, 1.3, 1.8, 2.3))
+
+png('../figure_model_illustration/posterior_predictive_checks_func_CV.png',
+    height = 6., width = 8., res = 350, units = 'in')
+plot(panel_across_genes_CV)
+dev.off()
+pdf('../figure_model_illustration/posterior_predictive_checks_func_CV.pdf',
+    height = 6., width = 8.)
+plot(panel_across_genes_CV)
+dev.off()
+
+## Figure S5 - Correlation between predicted and observed
+## number of branches as a function of the CV of the prior
+plt_cor_func_CV <- plot_cor_func_CV(df_PDF_NS)
+
+png('../figure_model_illustration/cor_posterior_predictive_checks_func_CV.png',
+    height = 3., width = 5.5, res = 350, units = 'in')
+plot(plt_cor_func_CV)
+dev.off()
+pdf('../figure_model_illustration/cor_posterior_predictive_checks_func_CV.pdf',
+    height = 3., width = 5.5)
+plot(plt_cor_func_CV)
+dev.off()
+
+## Figure not included in the manuscript - Correlation between predicted and observed
+## number of branches for the best performing model (CV maximizing correlation)
+## for each genes and at the genome level
+
+plt_correlation_PPC_with_genome <- 
+  plot_predicted_number_branches_func_observed_func_genes_specific_CV(bind_rows(df_PDF_NS_Genome %>% mutate(CV = as.character(CV)), 
+                                                                                df_PDF_NS),
+                                                                      1.8) +
+  theme(legend.position = 'right')
+
+png('../figure_model_illustration/posterior_predictive_checks_CV_1.8.png',
+    height = 3.8, width = 5.5, res = 350, units = 'in')
+plot(plt_correlation_PPC_with_genome)
+dev.off()
+pdf('../figure_model_illustration/posterior_predictive_checks_CV_1.8.pdf',
+    height = 4.5, width = 7.0)
+plot(plt_correlation_PPC_with_genome)
+dev.off()
