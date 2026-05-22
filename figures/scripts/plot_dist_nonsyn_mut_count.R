@@ -1,13 +1,19 @@
-library(tidyverse)
+### This script reproduces Figure S1
+### depicting the distribution of 
+### mutation counts on each branch
+### of the tree.
 
+library(tidyverse)
 source('config_plot.R')
 
+# Get number of synonymous mutations and synonymous mutations on branches that have branch length > 0
 df_aa_muts <- read_tsv('../../results/mutations/nodes_aa_muts_summary_coded.tsv') %>% 
   filter(is_coded) %>% rename(strain = node_id) %>% 
   group_by(strain) %>% 
   summarise(n_non_syn = sum(aa_initial != aa_new),
             n_syn = sum(aa_initial == aa_new))
 
+# Get number of synonymous mutations and synonymous mutations across all branches
 df_non_syn_count_by_branch <- read_tsv('../../results/bte/df_parent_child_relationship.tsv') %>% 
   filter(strain != 'node_1') %>% 
   left_join(df_aa_muts) %>% 
@@ -15,6 +21,7 @@ df_non_syn_count_by_branch <- read_tsv('../../results/bte/df_parent_child_relati
          n_syn = replace_na(n_syn, 0)) %>% 
   select(strain, n_non_syn, n_syn)
 
+# Plot ECDF
 ecdf_mut_counts_by_branch <- df_non_syn_count_by_branch %>% 
   ggplot() +
   geom_step(aes(x = n_non_syn, y = after_stat(log10(1. - y)),
