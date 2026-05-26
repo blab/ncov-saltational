@@ -14,4 +14,3 @@ temp_*.xml
 *.checkpoint
 *.filtered
 *_failed_ids.txt
-config/config.yaml
