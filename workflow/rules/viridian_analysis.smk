@@ -122,7 +122,7 @@ rule get_translations_per_node:
         reference_seq_gtf = rules.params.input.usher_reference_gtf,
         reference_seq_fasta = rules.params.input.usher_reference_fasta,
     output:
-        node_translations = "results/mutations/nodes_translations.tsv"
+        node_translations = temp("results/mutations/nodes_translations.tsv")
     conda:
         "../envs/bte.yaml"
     shell:
@@ -139,8 +139,8 @@ rule tidy_node_translations:
     input:
         node_translations = rules.get_translations_per_node.output.node_translations
     output:
-        aa_muts = "results/mutations/nodes_aa_muts_summary.tsv",
-        nt_muts = "results/mutations/nodes_nt_muts_summary.tsv"
+        aa_muts = temp("results/mutations/nodes_aa_muts_summary.tsv"),
+        nt_muts = temp("results/mutations/nodes_nt_muts_summary.tsv")
     shell:
         """
         Rscript ./scripts/mat-manipulation/tidy_node_translations.R \
@@ -155,7 +155,7 @@ rule get_stop_codons:
         tree = rules.subset_viridian_tree.output.subset_tree,
         df_aa_muts = rules.tidy_node_translations.output.aa_muts,
     output:
-        df_stop_codons = "results/bte/df_stop_codons.tsv"
+        df_stop_codons = temp("results/bte/df_stop_codons.tsv")
     conda:
         "../envs/bte.yaml"
     shell:

@@ -13,9 +13,6 @@ Workflow stages:
     6. mutation_enrichment: Enrichment analysis of mutations in adaptive branches
 """
 
-# Load configuration
-configfile: "config/config.yaml"
-
 # Global configuration
 GENES = ['ORF1a', 'ORF1b', 'S', 'ORF3a', 'E', 'M', 'ORF6', 'ORF7a', 'ORF7b', 'ORF8', 'N', 'ORF9b', 'Genome']
 GENES_PPC = ['ORF1a', 'ORF1b', 'S', 'ORF3a', 'E', 'M', 'ORF6', 'ORF7a', 'ORF7b', 'ORF8', 'N', 'ORF9b']
