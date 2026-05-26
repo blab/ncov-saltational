@@ -29,3 +29,10 @@ contains the script to reproduce Figure 5A and 5B.
 - [plot_posterior_predictive_checks.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_posterior_predictive_checks.R) contains the script to reproduce Figure S3, S4 and S5.
 - [compare_OR_AA_mut_accounting_background.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/compare_OR_AA_mut_accounting_background.R) contains the script to reproduce Figure S6.
 - [plot_fold_change_nb_desc_nb_muts_by_gene.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_fold_change_nb_desc_nb_muts_by_gene.R) contains the script to reproduce Figure S7.
+
+## Utility scripts
+The following scripts are sourced by the figure scripts above and do not produce figures directly:
+- [config_plot.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/config_plot.R): color palettes and shared visual configuration used by most figure scripts.
+- [utils_plot_mutation_profile.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/utils_plot_mutation_profile.R): plot helper functions for Figure 3.
+- [utils_plot_chronic.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/utils_plot_chronic.R): plot helper functions for Figure 4.
+- [utils_descendants_analysis.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/utils_descendants_analysis.R): analysis and plot helper functions for Figure 5.
