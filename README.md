@@ -36,14 +36,3 @@ Place these files in the `data/viridian/` and `data/nextstrain/` directories res
 ```bash
 snakemake --use-conda -j <number_of_cores>
 ```
-
-**3. Generate figures**
-
-Figure scripts are located in `figures/scripts/` and must be run from that directory:
-
-```bash
-cd figures/scripts
-Rscript full_figure_mutational_profile.R
-```
-
-See [`figures/README.md`](figures/README.md) for the full list of figure scripts.
