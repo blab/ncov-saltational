@@ -20,13 +20,15 @@ This repository is organized in sub-folders as follows:
 - [conda](https://docs.conda.io/) or [mamba](https://mamba.readthedocs.io/) (for environment management)
 - Python 3.11 and R ≥4.2 (installed automatically via conda environments)
 
-## Getting started
+## Running the workflow
 
 **1. Obtain input data**
 
 The workflow requires two large input files that are not tracked in this repository:
 
-- **Viridian phylogeny** (`data/viridian/tree.all_viridian.202409.pb.gz` and `data/viridian/tree.all_viridian.202409.jsonl.gz`): available from the [Viridian World project](https://viridian.genomics.ox.ac.uk/).
+- **SARS-CoV-2 viridian phylogeny**. High quality mutation-annotated tree (described in [Hunt et al. ](https://doi.org/10.1038/s41592-025-02947-1)) made available at 
+`data/viridian/tree.all_viridian.202409.pb.gz` 
+-  (`data/viridian/tree.all_viridian.202409.pb.gz` and `data/viridian/tree.all_viridian.202409.jsonl.gz`): available from the [Viridian World project](https://viridian.genomics.ox.ac.uk/).
 - **Nextstrain global tree** (`data/nextstrain/ncov_open_global_all-time.json`): downloadable from [nextstrain.org](https://nextstrain.org/ncov/open/global/all-time) via the JSON export.
 
 Place these files in the `data/viridian/` and `data/nextstrain/` directories respectively.
