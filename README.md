@@ -9,32 +9,31 @@ SARS-CoV-2 evolution is characterized by the gradual accumulation of mutations b
 This repository is organized around a Snakemake workflow that enables to process and analyze the viridian data, download SRA metadata, run the Bayesian model we developed, identify adaptive branches, visualize the adaptive branches in the context of the global SARS-CoV-2 phylogeny and investigate mutation patterns in adaptive branches. 
 
 This repository is organized in sub-folders as follows:
+- ```data/``` stores input data.  Further information is available on the folder-level [README](data/README.md) file.
 - ```figures/``` contains the figures and the scripts to generate the figures (both from the main text and the supplementary information) associated with the manuscript. Further information is available on the folder-level [README](figures/README.md) file.
 - ```manuscript/``` contains the manuscript.
 - ```scripts/``` contains the custom scripts used in the workflow. Further information is available on the folder-level [README](scripts/README.md) file.
 - ```workflow/``` contains the Snakemake files and environment files used in the main Snakefile.
 
-## Requirements
-
-- [Snakemake](https://snakemake.readthedocs.io/) ≥7 with conda support
-- [conda](https://docs.conda.io/) or [mamba](https://mamba.readthedocs.io/) (for environment management)
-- Python 3.11 and R ≥4.2 (installed automatically via conda environments)
-
 ## Running the workflow
 
-**1. Obtain input data**
+### 0. Requirements
+- [Snakemake](https://snakemake.readthedocs.io/) with conda support
+- [conda](https://docs.conda.io/) or [mamba](https://mamba.readthedocs.io/) (for environment management)
 
-The workflow requires two large input files that are not tracked in this repository:
+### 1. Downloading required input data
 
-- **SARS-CoV-2 viridian phylogeny**. High quality mutation-annotated tree (described in [Hunt et al. ](https://doi.org/10.1038/s41592-025-02947-1)) made available at 
-`data/viridian/tree.all_viridian.202409.pb.gz` 
--  (`data/viridian/tree.all_viridian.202409.pb.gz` and `data/viridian/tree.all_viridian.202409.jsonl.gz`): available from the [Viridian World project](https://viridian.genomics.ox.ac.uk/).
-- **Nextstrain global tree** (`data/nextstrain/ncov_open_global_all-time.json`): downloadable from [nextstrain.org](https://nextstrain.org/ncov/open/global/all-time) via the JSON export.
+The workflow requires the following (large) input files for the **SARS-CoV-2 viridian phylogeny**. The files correspond to a large mutation-annotated tree from 4.4 million high-quality SARS-CoV-2 samples (described in [Hunt et al.](https://doi.org/10.1038/s41592-025-02947-1)). Hunt et al. provide a nice detailed description of available files from their processing pipeline. This large tree is also publicly available on Taxonium at [this link](https://www.taxonium.org/sars-cov-2/viridian).
 
-Place these files in the `data/viridian/` and `data/nextstrain/` directories respectively.
+To be able to rerun the workflow, these files should be downloaded from https://doi.org/10.6084/m9.figshare.27194547 for both the `.pb` and `.jsonl` format. For the workflow to run properly, these two files should be put at the following paths: `data/viridian/tree.all_viridian.202409.pb.gz` and `data/viridian/tree.all_viridian.202409.jsonl.gz`.
 
-**2. Run the workflow**
-
+### 2. Running the worfklow
+The workflow can be run using:
 ```bash
-snakemake --use-conda -j <number_of_cores>
+snakemake --use-conda --conda-frontend conda --cores <number_of_cores>
 ```
+
+## Reproducing the figures
+
+The workflow generates files in the `results/` folder which are subsequently used to perform descriptive analysis and figures (code in the `scripts/` folder). Our version of the `results` folder can be downloaded at **xxx (Add link)**.
+
