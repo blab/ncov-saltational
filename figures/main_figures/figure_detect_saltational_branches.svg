@@ -29,13 +29,13 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="1.4262854"
-     inkscape:cx="71.514439"
-     inkscape:cy="126.20195"
-     inkscape:window-width="1440"
-     inkscape:window-height="782"
+     inkscape:cx="303.23524"
+     inkscape:cy="196.31415"
+     inkscape:window-width="1920"
+     inkscape:window-height="1080"
      inkscape:window-x="0"
-     inkscape:window-y="30"
-     inkscape:window-maximized="1"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
      inkscape:current-layer="layer1"
      showguides="false" />
   <defs
@@ -9423,13 +9423,15 @@
              transform="matrix(0.21607953,0,0,-0.21607953,86.29317,42.706465)">
             <text
                xml:space="preserve"
-               transform="matrix(1,0,0,-1,183.68,7.9)"
+               transform="scale(1,-1)"
                style="font-variant:normal;font-weight:normal;font-size:11px;font-family:Helvetica;-inkscape-font-specification:Helvetica;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
-               id="text14083"><tspan
-                 x="0 7.9419999 14.058 17.115999 23.232 26.290001 31.514999 37.631001 40.073002 46.188999"
-                 y="0"
+               id="text14083"
+               x="159.19055"
+               y="-7.9000001"><tspan
+                 x="159.19055"
+                 y="-7.9000001"
                  sodipodi:role="line"
-                 id="tspan14081">Rate value</tspan></text>
+                 id="tspan14081">Substitutions per site</tspan></text>
           </g>
           <g
              id="g14087"
@@ -9460,10 +9462,10 @@
                transform="matrix(1,0,0,-1,386.78,111.27)"
                style="font-variant:normal;font-weight:normal;font-size:11px;font-family:Helvetica;-inkscape-font-specification:Helvetica;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
                id="text14115"><tspan
-                 x="0 7.9419999 14.058 17.115999"
-                 y="0"
                  sodipodi:role="line"
-                 id="tspan14113">Rate</tspan></text>
+                 id="tspan14113"
+                 x="0"
+                 y="0">Type</tspan></text>
           </g>
           <g
              id="g14119"

@@ -27,6 +27,10 @@ df_inferred_continents <- read_tsv('../../results/bte/inferred_continents.tsv') 
 
 df_inferred_locations <- bind_rows(df_inferred_continents, df_inferred_subregions, df_inferred_countries)
 
+# Get number of sequences per country
+df_n_seq_per_countries <- df_inferred_countries %>% filter(! startsWith(strain, 'node_')) %>% 
+  group_by(location) %>% summarise(n_seq = n())
+
 # Get proportion of saltational branches by location
 df_prop_salt_per_location <- df_inferred_locations %>% 
   filter(strain != 'node_1') %>% 
@@ -152,3 +156,104 @@ png('../figure_spatio_temporal_pattern/prop_saltational_branches_by_location.png
 plot(panel_prop_saltational_branches_by_location)
 dev.off()
      
+## 
+get_supplementary_plot_nb_salt_branch_func_nb_seq <- function(){
+  label_1 <- function(x) {
+    x <- ifelse(abs(x - round(x)) < 1e-5, round(x), x)
+    m <- as.integer(signif(x / 10^floor(log10(x) + 1e-8), 12))
+    ifelse(m %in% as.integer(c(1)), x, "")
+  }
+  
+  plt_nb_salt_branch_func_nb_sequences <- df_prop_salt_per_location %>% bind_cols(df_CI_prop_salt_branches) %>% 
+    filter(inferred_location != 'Multiple descendant locations', 
+           scale == 'Country') %>% 
+    left_join(df_country_mapping, by = c('inferred_location' = 'country')) %>% 
+    left_join(df_n_seq_per_countries, by = c('inferred_location' = 'location')) %>% 
+    ggplot(aes(x = n_seq + 1, y = n_saltational_branches + 1, colour = continent)) +
+    geom_point() +
+    geom_text_repel(data = df_prop_salt_per_location %>% bind_cols(df_CI_prop_salt_branches) %>% 
+                      filter(inferred_location != 'Multiple descendant locations', 
+                             scale == 'Country') %>% 
+                      left_join(df_country_mapping, by = c('inferred_location' = 'country')) %>% 
+                      left_join(df_n_seq_per_countries, by = c('inferred_location' = 'location')) %>% 
+                      filter(n_saltational_branches > 0),
+                    aes(label = inferred_location),
+                    size = 3,
+                    max.overlaps = Inf) +
+    scale_x_continuous(trans = 'log', 
+                       breaks = c(seq(1e0, 9e0, 1e0), seq(1e1, 9e1, 1e1), seq(1e2, 9e2, 1e2), 
+                                  seq(1e3, 9e3, 1e3), seq(1e4, 9e4, 1e4), seq(1e5, 9e5, 1e5),
+                                  seq(1e6, 9e6, 1e6)),
+                       labels = c(expression(10^{0}), rep('', 8),
+                                  expression(10^{1}), rep('', 8),
+                                  expression(10^{2}), rep('', 8),
+                                  expression(10^{3}), rep('', 8),
+                                  expression(10^{4}), rep('', 8),
+                                  expression(10^{5}), rep('', 8),
+                                  expression(10^{6}), rep('', 8)),
+                       name = 'Number of sequences + 1') +
+    scale_y_continuous(trans = 'log', labels = label_1,
+                       breaks = c(seq(1e0, 9e0, 1e0), seq(1e1, 9e1, 1e1), seq(1e2, 9e2, 1e2), 
+                                  seq(1e3, 9e3, 1e3)),
+                       name = 'Number of saltational branches + 1') +
+    scale_colour_manual(breaks = c('North America', 'South America', 'Europe', 'Africa', 'Asia', 'Oceania'),
+                        values = c(palette_north_america[10], palette_south_america[10], 
+                                   palette_europe[10], palette_africa[10], 
+                                   palette_asia[10], palette_oceania[10]),
+                        guide = 'none') +
+    theme_bw() +
+    theme(panel.grid.minor = element_blank(),
+          strip.background = element_blank(),
+          strip.text = element_blank(),
+          axis.text = element_text(size = 11))
+  
+  plt_prop_salt_branch_func_nb_sequences <- df_prop_salt_per_location %>% bind_cols(df_CI_prop_salt_branches) %>% 
+    filter(inferred_location != 'Multiple descendant locations', 
+           scale == 'Country') %>% 
+    left_join(df_country_mapping, by = c('inferred_location' = 'country')) %>% 
+    left_join(df_n_seq_per_countries, by = c('inferred_location' = 'location')) %>% 
+    ggplot(aes(x = n_seq + 1, y = prop_saltational_branches, colour = continent)) +
+    geom_point() +
+    geom_text_repel(data = df_prop_salt_per_location %>% bind_cols(df_CI_prop_salt_branches) %>% 
+                      filter(inferred_location != 'Multiple descendant locations', 
+                             scale == 'Country') %>% 
+                      left_join(df_country_mapping, by = c('inferred_location' = 'country')) %>% 
+                      left_join(df_n_seq_per_countries, by = c('inferred_location' = 'location')) %>% 
+                      filter(n_saltational_branches > 0),
+                    aes(label = inferred_location),
+                    size = 3,
+                    max.overlaps = Inf) +
+    scale_x_continuous(trans = 'log', 
+                       breaks = c(seq(1e0, 9e0, 1e0), seq(1e1, 9e1, 1e1), seq(1e2, 9e2, 1e2), 
+                                  seq(1e3, 9e3, 1e3), seq(1e4, 9e4, 1e4), seq(1e5, 9e5, 1e5),
+                                  seq(1e6, 9e6, 1e6)),
+                       labels = c(expression(10^{0}), rep('', 8),
+                                  expression(10^{1}), rep('', 8),
+                                  expression(10^{2}), rep('', 8),
+                                  expression(10^{3}), rep('', 8),
+                                  expression(10^{4}), rep('', 8),
+                                  expression(10^{5}), rep('', 8),
+                                  expression(10^{6}), rep('', 8)),
+                       name = 'Number of sequences + 1') +
+    scale_y_continuous(name = 'Proportion of branches that are saltational') +
+    scale_colour_manual(breaks = c('North America', 'South America', 'Europe', 'Africa', 'Asia', 'Oceania'),
+                        values = c(palette_north_america[10], palette_south_america[10], 
+                                   palette_europe[10], palette_africa[10], 
+                                   palette_asia[10], palette_oceania[10]),
+                        guide = 'none') +
+    theme_bw() +
+    theme(panel.grid.minor = element_blank(),
+          axis.text = element_text(size = 11))
+  
+  plt_nb_salt_branch_func_nb_sequences + plt_prop_salt_branch_func_nb_sequences &
+    plot_annotation(tag_levels = c('A')) &
+    theme(plot.tag = element_text(face = 'bold', size = 15)) %>% 
+    return()
+}
+
+panel_nb_salt_branches_func_nb_sequences <- get_supplementary_plot_nb_salt_branch_func_nb_seq()
+
+pdf('../figure_spatio_temporal_pattern/panel_nb_salt_branches_func_nb_sequences.pdf',
+    height = 5., width = 9.)
+plot(panel_nb_salt_branches_func_nb_sequences)
+dev.off()

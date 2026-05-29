@@ -102,10 +102,10 @@ get_manhattan_plot <- function(df_OR_AA_pos, threshold_inclusion = 2,
                 colour = palette_spike[c('Other S1', 'S2')]) +
       geom_rect(data = coord_RBD_NTD,
                 aes(xmin = start, xmax = stop, ymin = max_y_axis, ymax = max_y_axis + height_boxes),
-                alpha = 0.2, fill = palette_spike[c('NTD', 'RBD')]) +
+                alpha = 0.2, fill = palette_spike[c('RBD', 'NTD')]) +
       geom_text(data = coord_RBD_NTD,
                 aes(x = (start + stop)/2, y = max_y_axis + height_boxes / 2, label = gene),
-                colour =  colorspace::darken(palette_spike[c('NTD', 'RBD')], 0.1)) +
+                colour =  colorspace::darken(palette_spike[c('RBD', 'NTD')], 0.1)) +
       scale_fill_manual(values = palette_regions_binary, guide = 'none') 
   }
   if(add_position_outisde_spike){
