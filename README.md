@@ -1,4 +1,4 @@
-# SARS-CoV-2 saltational events are recurrent and consistent with evolution during prolonged human infections
+# Code and data for: SARS-CoV-2 saltational events are recurrent and consistent with evolution during prolonged human infections
 
 ## Abstract
 
