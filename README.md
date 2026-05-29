@@ -27,6 +27,12 @@ The workflow requires the following (large) input files for the **SARS-CoV-2 vir
 
 To be able to rerun the workflow, these files should be downloaded from https://doi.org/10.6084/m9.figshare.27194547 for both the `.pb` and `.jsonl` format. For the workflow to run properly, these two files should be put at the following paths: `data/viridian/tree.all_viridian.202409.pb.gz` and `data/viridian/tree.all_viridian.202409.jsonl.gz`.
 
+This can be done using the command line with:
+```bash
+curl -L -o data/viridian/tree.all_viridian.202409.pb.gz "https://ndownloader.figshare.com/files/49691037"
+curl -L -o data/viridian/tree.all_viridian.202409.jsonl.gz "https://ndownloader.figshare.com/files/49691040"
+```
+
 ### 2. Running the worfklow
 The workflow can be run using:
 ```bash
