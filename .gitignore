@@ -1,11 +1,13 @@
 .snakemake/*
 data/viridian/*
+data/frequent_mutations/ryan_folders/*
 results/*
+figures/cluster_spread_from_saltational_events/*
+params/amplicon
 
 *.Rhistory
 *.DS_Store
 
-config/config.yaml
 
 # SRA metadata extraction - working files
 scripts/sra-metadata-bulk/work/
@@ -14,3 +16,10 @@ temp_*.xml
 *.checkpoint
 *.filtered
 *_failed_ids.txt
+
+workflow/rules/diversity_within_host.smk
+figures/scripts/plot_within_host_diversity.R
+params/amplicon_schemes/*
+params/reference/reference_seq_all_MN908947.3.gtf
+params/reference/reference_seq.fasta.fai
+scripts/branch-analysis/sample_accessions_for_isnvs.R

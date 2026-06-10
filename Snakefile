@@ -94,7 +94,6 @@ rule all:
         inferred_dates_downsampled_tree = "results/sensitivity_analysis/chronumental/chronumental_inferred_dates.tsv",
 
 
-    
 rule params:
     input:
         usher_reference_gtf = "params/reference/reference_seq_all.gtf",

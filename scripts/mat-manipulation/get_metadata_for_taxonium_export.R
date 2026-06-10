@@ -37,9 +37,9 @@ df_aa_muts <- read_tsv(args$df_aa_muts) %>%
 # Load SRA metadata and tidy age, sex and subdivision info
 sra_metadata <- read_tsv(args$sra_metadata)
 
-sra_metadata_subdivisions <- 
-  sra_metadata %>% filter(! is.na(geo_loc_name_sam), geo_loc_name_country_calc == 'USA') %>% group_by(geo_loc_name_sam) %>% slice(1) %>% ungroup() %>% 
-  select(strain, geo_loc_name_country_calc, geo_loc_name_sam) %>% 
+sra_metadata_subdivisions <-
+  sra_metadata %>% filter(! is.na(geo_loc_name_sam)) %>%
+  select(strain, geo_loc_name_sam) %>%
   mutate(geo_clean = str_remove_all(geo_loc_name_sam, "^\\[|\\]$"),
          geo_clean = ifelse(geo_clean %in% c('unknown', 'B.7 cidade', 'missing', 'Nasopharyngeal swab and Oropharyngeal swab', 
                                              'Nasopharyngeal swab'),
