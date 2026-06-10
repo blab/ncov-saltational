@@ -284,9 +284,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
-     inkscape:zoom="0.79277594"
-     inkscape:cx="138.75295"
-     inkscape:cy="123.61626"
+     inkscape:zoom="1.0259306"
+     inkscape:cx="538.04811"
+     inkscape:cy="320.68447"
      inkscape:window-width="1920"
      inkscape:window-height="1022"
      inkscape:window-x="0"
@@ -11008,10 +11008,10 @@
                  transform="matrix(1,0,0,-1,285.83,92.62)"
                  style="font-variant:normal;font-weight:normal;font-size:11px;font-family:Helvetica;-inkscape-font-specification:Helvetica;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
                  id="text9535"><tspan
-                   x="0 7.3369999 14.674 17.732 23.848 29.964001 35.464001 37.905998 40.964001 43.405998 49.521999 55.638 58.695999 64.811996 67.253998 73.370003 79.486 85.601997 88.660004 91.718002 97.834 103.95 107.008 113.124 119.24 125.356 131.472 140.63499"
-                   y="0"
                    sodipodi:role="line"
-                   id="tspan9533">AA position along the genome</tspan></text>
+                   id="tspan9533"
+                   x="0"
+                   y="0">Position along the genome</tspan></text>
             </g>
             <g
                id="g9539"
