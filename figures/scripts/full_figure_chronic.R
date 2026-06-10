@@ -52,6 +52,12 @@ plt_OR_func_mut_frequency_coloured_by_profile_type <- plot_OR_func_nb_mut_colour
 # function of OR of mutation occurring in chronic infections
 #############
 plt_OR_salt_func_OR_chronic <- plot_OR_chronic_func_OR_saltational(df_OR_chronic_saltational)
+plt_OR_salt_func_OR_chronic_by_gene <- plot_OR_chronic_func_OR_saltational_cor_by_gene(df_OR_chronic_saltational)
+
+png('../../figures/figure_mutation_enrichment/plt_OR_salt_func_OR_chronic_by_gene.png',
+    height = 6.5, width = 8., res = 350, units = 'in')
+plot(plt_OR_salt_func_OR_chronic_by_gene)
+dev.off()
 
 #############
 # Figure 4C #
@@ -68,11 +74,11 @@ full_panel_chronic <- (plt_OR_func_mut_frequency_coloured_by_profile_type + plt_
 
 
 # Save results
-pdf('../../figures/figure_chronic_infections.pdf', height = 7.5, width = 10)
+pdf('../../figures/main_figures/figure_chronic_infections.pdf', height = 7.5, width = 10)
 plot(full_panel_chronic)
 dev.off()
 
-png('../../figures/figure_chronic_infections.png', height = 7.5, width = 10, res = 350, units = 'in')
+png('../../figures/main_figures/figure_chronic_infections.png', height = 7.5, width = 10, res = 350, units = 'in')
 plot(full_panel_chronic)
 dev.off()
 

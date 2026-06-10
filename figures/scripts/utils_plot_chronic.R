@@ -186,6 +186,134 @@ compute_OR_muts_chronic_infections_saltational <- function(file_large_chronic_mu
   
   return(df_OR_chronic_saltational)
 }
+compute_OR_muts_chronic_infections_saltational_by_gene <- function(file_large_chronic_mut_dataset, file_aa_muts, name_saltational_branches, gene_of_interest){
+  # Load chronic mutation counts
+  df_chronic_muts <- get_chronic_muts_count(file_large_chronic_mut_dataset)
+  
+  # Get mutations in viridian tree
+  df_aa_muts <- read_tsv(file_aa_muts) %>% 
+    filter(is_coded) %>% # Coded AA mut
+    filter(aa_new != aa_initial, gene == gene_of_interest) %>% # Non-synonymous
+    mutate(full_mut = paste0(aa_muts_position, aa_new),
+           is_saltational = node_id %in% name_saltational_branches) %>% 
+    group_by(gene, full_mut, is_saltational) %>% 
+    summarise(n_muts = n()) %>% 
+    group_by(is_saltational) %>% 
+    mutate(n_muts_tot = sum(n_muts)) %>% 
+    ungroup()
+  
+  # Get name of mutations observed in viridian tree
+  df_muts_in_persistent_inf <- df_aa_muts %>% 
+    group_by(gene, full_mut) %>% 
+    summarise(is_within_saltational = sum(is_saltational) > 0)
+  
+  # Get mutations observed in persistent infections dataset or in saltational branches
+  # but removing the ones that are never observed in any of the datasets
+  df_chronic_muts <- df_chronic_muts %>% 
+    filter(gene == gene_of_interest) %>% 
+    full_join(df_muts_in_persistent_inf, by = c('gene', 'mutation' = 'full_mut')) %>% 
+    filter(! is.na(is_within_saltational)) %>%   # Remove mutations not observed in the viridian tree
+    filter(! is.na(n_mut_chronic)) # Remove mutations not observed in the EPCI dataset
+  
+  df_chronic_muts_for_OR_comput <- df_chronic_muts %>% 
+    filter(is_within_saltational | n_mut_chronic > 0)
+  
+  # Get OR of mut in saltational branches
+  df_modif_OR_saltational <- Reduce('bind_rows', lapply(1:nrow(df_chronic_muts_for_OR_comput), FUN = function(i_row){
+    curr_gene <- df_chronic_muts_for_OR_comput$gene[i_row]
+    curr_mut <- df_chronic_muts_for_OR_comput$mutation[i_row]
+    
+    tmp_df <- df_aa_muts %>% 
+      filter((full_mut == curr_mut) & (gene == curr_gene))
+    
+    n_mut_saltational <- tmp_df$n_muts[tmp_df$is_saltational]
+    n_mut_saltational <- ifelse(length(n_mut_saltational) == 0, 0, n_mut_saltational)
+    
+    n_mut_background <- tmp_df$n_muts[(!tmp_df$is_saltational)]
+    n_mut_background <- ifelse(length(n_mut_background) == 0, 0, n_mut_background)
+    
+    n_other_muts_saltational <- tmp_df$n_muts_tot[tmp_df$is_saltational] - n_mut_saltational
+    n_other_muts_background <-  tmp_df$n_muts_tot[! tmp_df$is_saltational] - n_mut_background
+    
+    n_other_muts_saltational <- ifelse(length(n_other_muts_saltational) == 0, df_aa_muts$n_muts_tot[df_aa_muts$is_saltational][1], n_other_muts_saltational)
+    n_other_muts_background <-  ifelse(length(n_other_muts_background) == 0, df_aa_muts$n_muts_tot[!df_aa_muts$is_saltational][1], n_other_muts_background)
+    
+    mat_fisher <- matrix(c(n_mut_saltational, n_other_muts_saltational, n_mut_background, n_other_muts_background),
+                         ncol = 2, nrow = 2)
+    f_test <- fisher.test(x = mat_fisher)
+    
+    mat_fisher_modif <- matrix(c(n_mut_saltational + 1, n_other_muts_saltational + 1, 
+                                 n_mut_background + 1, n_other_muts_background + 1),
+                               ncol = 2, nrow = 2)
+    f_test_modif <- fisher.test(x = mat_fisher_modif)
+    
+    tibble(gene = curr_gene, 
+           mutation = curr_mut,
+           OR_saltational = f_test$estimate,
+           OR_saltational_lower = f_test$conf.int[1],
+           OR_saltational_upper = f_test$conf.int[2],
+           OR_saltational_modif = f_test_modif$estimate,
+           OR_saltational_modif_lower = f_test_modif$conf.int[1],
+           OR_saltational_modif_upper = f_test_modif$conf.int[2],
+           n_mut_saltational = n_mut_saltational,
+           n_mut_background = n_mut_background,
+           n_other_muts_saltational = n_other_muts_saltational,
+           n_other_muts_background = n_other_muts_background,
+           p_value_salt = f_test$p.value)
+  }))
+  
+  # Get OR of mutations in persistent infections
+  df_OR_chronic_modif <- Reduce('bind_rows', lapply(1:nrow(df_chronic_muts_for_OR_comput), FUN = function(i_row){
+    curr_gene <- df_chronic_muts_for_OR_comput$gene[i_row]
+    curr_mut <- df_chronic_muts_for_OR_comput$mutation[i_row]
+    
+    tmp_df <- df_chronic_muts %>% 
+      mutate(is_mut = (mutation == curr_mut) & (gene == curr_gene)) %>% 
+      group_by(is_mut) %>% 
+      summarise(n_chronic = sum(n_mut_chronic),
+                n_high_quality_sequences = sum(n_mut_high_quality_sequence))
+    
+    n_mut_chronic <- tmp_df$n_chronic[tmp_df$is_mut]
+    n_mut_background <- tmp_df$n_high_quality_sequences[tmp_df$is_mut]
+    
+    n_other_muts_chronic <- tmp_df$n_chronic[!tmp_df$is_mut]
+    n_other_muts_background <- tmp_df$n_high_quality_sequences[!tmp_df$is_mut]
+    
+    mat_fisher <- matrix(c(n_mut_chronic, n_other_muts_chronic, n_mut_background, n_other_muts_background),
+                         ncol = 2, nrow = 2)
+    f_test <- fisher.test(x = mat_fisher)
+    
+    mat_fisher_modif <- matrix(c(n_mut_chronic + 1, n_other_muts_chronic + 1,
+                                 n_mut_background + 1, n_other_muts_background + 1),
+                               ncol = 2, nrow = 2)
+    f_test_modif <- fisher.test(x = mat_fisher_modif)
+    
+    tibble(gene = curr_gene, 
+           mutation = curr_mut,
+           n_mut_chronic = n_mut_chronic, 
+           n_mut_background = n_mut_background,
+           n_other_muts_chronic = n_other_muts_chronic,
+           n_other_muts_background = n_other_muts_background,
+           OR_chronic = f_test$estimate,
+           OR_chronic_lower = f_test$conf.int[1],
+           OR_chronic_upper = f_test$conf.int[2],
+           OR_chronic_modif = f_test_modif$estimate,
+           OR_chronic_modif_lower = f_test_modif$conf.int[1],
+           OR_chronic_modif_upper = f_test_modif$conf.int[2],
+           p_value_chronic = f_test$p.value)
+  }))
+  
+  df_OR_chronic_saltational <- df_chronic_muts %>% select(gene, mutation) %>% 
+    left_join(df_OR_chronic_modif %>%
+                rename(n_mut_high_quality_sequence = n_mut_background,
+                       n_other_muts_high_quality_sequence = n_other_muts_background),
+              by = c('gene', 'mutation')) %>% 
+    left_join(df_modif_OR_saltational, by = c('gene', 'mutation')) %>% 
+    filter(n_mut_saltational + n_mut_background >= 1, 
+           n_mut_chronic + n_mut_high_quality_sequence >= 1)
+  
+  return(df_OR_chronic_saltational)
+}
 
 get_prop_salt_branches_per_location <- function(name_saltational_branches, df_inferred_countries){
   df_prop_salt_per_location <- df_inferred_countries %>% 
@@ -317,6 +445,41 @@ plot_OR_chronic_func_OR_saltational <- function(df_OR_chronic_saltational){
                      breaks = c(seq(1e-3, 9e-3, 1e-3), seq(1e-2, 9e-2, 1e-2), seq(1e-1, 9e-1, 1e-1),
                                 seq(1e0, 9e0, 1e0), seq(1e1, 9e1, 1e1), seq(1e2, 9e2, 1e2), 
                                 seq(1e3, 9e3, 1e3))) +
+    scale_y_continuous(trans = 'log', name = expression(OR['saltational']),
+                       labels = label_125,
+                       breaks = c(seq(1e-3, 9e-3, 1e-3), seq(1e-2, 9e-2, 1e-2), seq(1e-1, 9e-1, 1e-1),
+                                  seq(1e0, 9e0, 1e0), seq(1e1, 9e1, 1e1), seq(1e2, 9e2, 1e2))) +
+    scale_colour_manual(values = palette_genes, name = 'Gene') +
+    theme_classic() +
+    coord_fixed() +
+    theme(axis.text = element_text(size = 11))
+  
+  return(plt_comp_OR_saltational_OR_chronic)
+}
+
+plot_OR_chronic_func_OR_saltational_cor_by_gene <- function(df_OR_chronic_saltational){
+  label_125 <- function(x) {
+    x <- ifelse(abs(x - round(x)) < 1e-5, round(x), x)
+    m <- as.integer(signif(x / 10^floor(log10(x) + 1e-8), 12))
+    ifelse(m %in% as.integer(c(1, 2, 5)), x, "")
+  }
+  label_1 <- function(x) {
+    x <- ifelse(abs(x - round(x)) < 1e-5, round(x), x)
+    m <- as.integer(signif(x / 10^floor(log10(x) + 1e-8), 12))
+    ifelse(m %in% as.integer(c(1)), x, "")
+  }
+  
+  plt_comp_OR_saltational_OR_chronic <- df_OR_chronic_saltational %>% 
+    mutate(gene = factor(gene, levels = names(palette_genes))) %>% 
+    arrange(n_mut_high_quality_sequence) %>% 
+    ggplot(aes(x = OR_chronic_modif, y = OR_saltational_modif, colour = gene)) +
+    geom_point(alpha = 0.8) +
+    stat_cor(method = 'pearson') +
+    scale_x_continuous(trans = 'log', name = expression(OR['chronic']),
+                       labels = label_1,
+                       breaks = c(seq(1e-3, 9e-3, 1e-3), seq(1e-2, 9e-2, 1e-2), seq(1e-1, 9e-1, 1e-1),
+                                  seq(1e0, 9e0, 1e0), seq(1e1, 9e1, 1e1), seq(1e2, 9e2, 1e2), 
+                                  seq(1e3, 9e3, 1e3))) +
     scale_y_continuous(trans = 'log', name = expression(OR['saltational']),
                        labels = label_125,
                        breaks = c(seq(1e-3, 9e-3, 1e-3), seq(1e-2, 9e-2, 1e-2), seq(1e-1, 9e-1, 1e-1),
