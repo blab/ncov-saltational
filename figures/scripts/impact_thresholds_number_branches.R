@@ -187,7 +187,7 @@ plt_dNdS_func_threshold <- df_dNdS_by_branch_type_by_threshold %>%
     stat = "identity", width = 0.5, alpha = 0.3
   ) +
   scale_x_discrete(name = 'Bayes Factor threshold') +
-  scale_y_continuous('Estimated genome level\ndN/dS (posterior mean)') +
+  scale_y_continuous(expression(atop("Estimated genome level", d[N]/d[S]~"(posterior mean)"))) +
   scale_color_manual(name = 'Branch type', values = c(col_adaptive, col_non_adaptive),
                      breaks = c(T, F),
                      labels = c('Saltational\n(genome level)', 'Other')) +

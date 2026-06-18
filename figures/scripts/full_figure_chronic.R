@@ -84,7 +84,7 @@ dev.off()
 
 
 ######## Get Spearman correlation coefficients
-cor.test(df_prop_salt_branches_HIV_burden_per_country$modif_saltational_branches, 
+cor.test(df_prop_salt_branches_HIV_burden_per_country$prop_saltational_branches, 
          df_prop_salt_branches_HIV_burden_per_country$hiv_deaths_per_1000,
          method = 'spearman')
 cor.test(df_prop_salt_branches_HIV_burden_per_country$prop_saltational_branches[df_prop_salt_branches_HIV_burden_per_country$inferred_location != 'South Africa'], 

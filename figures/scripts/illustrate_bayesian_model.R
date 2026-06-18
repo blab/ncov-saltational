@@ -150,7 +150,7 @@ plot_posterior_dist_example <- function(){
   return(plt_posterior_rates)
 }
 
-plot_posterior_rates <- plot_posterior_dist_example()
+plt_posterior_rates <- plot_posterior_dist_example()
 
 pdf('../figure_model_illustration/plt_posterior_dNdS_rates.pdf', height = 2.5, width = 6.)
 plot(plt_posterior_rates)
