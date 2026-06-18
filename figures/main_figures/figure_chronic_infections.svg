@@ -139,14 +139,14 @@
      inkscape:deskcolor="#d1d1d1"
      showgrid="false"
      inkscape:zoom="1.1455144"
-     inkscape:cx="235.26549"
-     inkscape:cy="45.394455"
-     inkscape:window-width="1419"
-     inkscape:window-height="456"
+     inkscape:cx="440.41349"
+     inkscape:cy="182.88727"
+     inkscape:window-width="1761"
+     inkscape:window-height="731"
      inkscape:window-x="0"
      inkscape:window-y="30"
      inkscape:window-maximized="0"
-     inkscape:current-layer="g46778">
+     inkscape:current-layer="g51480">
     <inkscape:page
        x="0"
        y="0"
@@ -62983,12 +62983,14 @@
            id="path78280" />
         <text
            xml:space="preserve"
-           transform="matrix(1,0,0,-1,379.37,483.35)"
+           transform="scale(1,-1)"
            style="font-style:oblique;font-variant:normal;font-size:11px;font-family:Helvetica;-inkscape-font-specification:Helvetica-Oblique;writing-mode:lr-tb;fill:#000000;fill-opacity:1;fill-rule:nonzero;stroke:none"
-           id="text78284"><tspan
-             x="0"
-             y="0"
-             id="tspan78282">R</tspan></text>
+           id="text78284"
+           x="382.37"
+           y="-483.35001"><tspan
+             x="382.37"
+             y="-483.35001"
+             id="tspan78282">r</tspan></text>
         <text
            xml:space="preserve"
            transform="matrix(1,0,0,-1,390.06,483.35)"
