@@ -33,7 +33,7 @@ curl -L -o data/viridian/tree.all_viridian.202409.pb.gz "https://ndownloader.fig
 curl -L -o data/viridian/tree.all_viridian.202409.jsonl.gz "https://ndownloader.figshare.com/files/49691040"
 ```
 
-Downloading metadata from the SRA required some manual curation to collate both metadata directly available on the SRA but also adding metadata that we couldn't download but that were abailable in the Viridian metadata. This results in a complicated and somewhat messy workflow that we don't recommend rerunning. The resulting metadata files are available with the other workflow output on Figshare at *xxx (Add link)**.
+Downloading metadata from the SRA required some manual curation to collate both metadata directly available on the SRA but also adding metadata that we couldn't download but that were abailable in the Viridian metadata. This results in a complicated and somewhat messy workflow that we don't recommend rerunning. The resulting metadata files are available with the other workflow output on Figshare [here](https://doi.org/10.6084/m9.figshare.32736657).
 
 ### 2. Running the worfklow
 The workflow can be run using:
@@ -43,5 +43,5 @@ snakemake --use-conda --conda-frontend conda --cores <number_of_cores>
 
 ## Reproducing the figures
 
-The workflow generates files in the `results/` folder which are subsequently used to perform descriptive analysis and figures (code in the `scripts/` folder). Our version of the `results` folder can be downloaded at **xxx (Add link)**.
+The workflow generates files in the `results/` folder which are subsequently used to perform descriptive analysis and figures (code in the `scripts/` folder). Our version of the `results` folder can be downloaded [here](https://doi.org/10.6084/m9.figshare.32736657).
 
