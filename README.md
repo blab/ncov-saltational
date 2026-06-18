@@ -2,7 +2,7 @@
 
 ## Abstract
 
-SARS-CoV-2 evolution is characterized by the gradual accumulation of mutations but has also been punctuated by the emergence of highly mutated variants. Whether such saltational jumps are a broad feature of SARS-CoV-2 evolution or rare anomalies remains unclear. Here, we perform a systematic analysis of SARS-CoV-2 saltational evolution. We develop a scalable framework to detect saltational events and apply it to 4.4 million high-quality genomes. We find that saltational events occurred at a low but detectable rate throughout the pandemic and across geographies. They harbor a distinct mutational signature strongly resembling the one  observed in persistent infections, supporting the role of prolonged human infections in their emergence. While most saltational events don’t show evidence of onward transmission, those that do tend to carry mutations also found in successful clades. Our work suggests that the emergence of highly mutated SARS-CoV-2 variants reflects a persistent evolutionary process, with implications for epidemic preparedness. 
+SARS-CoV-2 evolution is characterized by gradual mutation accumulation but has been punctuated by rare yet impactful highly mutated variants. Whether such saltational jumps are a broad feature of SARS-CoV-2 evolution or rare anomalies remains unclear. We systematically investigate SARS-CoV-2 saltational evolution by developing a scalable framework to detect saltational events from 4.4 million high-quality viral genomes. Saltational events occurred at low but detectable rates during the pandemic and post-pandemic periods and across geographies. Their mutational signature closely matches that seen in persistent human infections but is inconsistent with the signatures of mink or deer infections. This points to persistent infection, rather than reverse zoonosis, as their primary source. While most saltational events lack evidence of onward transmission, those that do tend to carry mutations found in successful clades. Our work demonstrates that the emergence of highly mutated SARS-CoV-2 variants reflects a recurrent evolutionary process, with implications for preparedness. 
 
 
 ## Repository organization
@@ -32,6 +32,8 @@ This can be done using the command line with:
 curl -L -o data/viridian/tree.all_viridian.202409.pb.gz "https://ndownloader.figshare.com/files/49691037"
 curl -L -o data/viridian/tree.all_viridian.202409.jsonl.gz "https://ndownloader.figshare.com/files/49691040"
 ```
+
+Downloading metadata from the SRA required some manual curation to collate both metadata directly available on the SRA but also adding metadata that we couldn't download but that were abailable in the Viridian metadata. This results in a complicated and somewhat messy workflow that we don't recommend rerunning. The resulting metadata files are available with the other workflow output on Figshare at *xxx (Add link)**.
 
 ### 2. Running the worfklow
 The workflow can be run using:
