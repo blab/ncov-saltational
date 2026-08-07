@@ -1,5 +1,6 @@
 .snakemake/*
 data/viridian/*
+demo/demo_tree.pb.gz
 data/frequent_mutations/ryan_folders/*
 results/*
 figures/cluster_spread_from_saltational_events/*

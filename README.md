@@ -17,9 +17,18 @@ This repository is organized in sub-folders as follows:
 
 ## Running the workflow
 
-### 0. Requirements
-- [Snakemake](https://snakemake.readthedocs.io/) with conda support
+### 0. System requirements
+
+**Operating system**: Tested on macOS 26.5.2.
+
+**Required software** (versions used during development):
+- [Snakemake](https://snakemake.readthedocs.io/) with conda support (tested with v8.11.1)
 - [conda](https://docs.conda.io/) or [mamba](https://mamba.readthedocs.io/) (for environment management)
+- R (tested with v4.3.1)
+
+All other dependencies (Python, bioinformatics tools, and R packages) are managed automatically via conda environments defined in `workflow/envs/`.
+
+**Typical installation time**: ~5 minutes for conda environment setup.
 
 ### 1. Downloading required input data
 
@@ -43,5 +52,13 @@ snakemake --use-conda --conda-frontend conda --cores <number_of_cores>
 
 ## Reproducing the figures
 
-The workflow generates files in the `results/` folder which are subsequently used to perform descriptive analysis and figures (code in the `scripts/` folder). Our version of the `results` folder can be downloaded [here](https://doi.org/10.6084/m9.figshare.32736657).
+The workflow generates files in the `results/` folder which are subsequently used to perform descriptive analysis and figures (code in the `figures/scripts/` folder). Our version of the `results` folder can be downloaded [here](https://doi.org/10.6084/m9.figshare.32736657).
+
+To reproduce all manuscript figures:
+
+1. Download the pre-computed results from [Figshare](https://doi.org/10.6084/m9.figshare.32736657) and place in `results/`
+2. Run the figure scripts in `figures/scripts/` using R v4.3.1:
+   ```bash
+   Rscript figures/scripts/<script_name>.R
+   ```
 

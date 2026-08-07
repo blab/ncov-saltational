@@ -98,7 +98,7 @@ rule params:
     input:
         usher_reference_gtf = "params/reference/reference_seq_all.gtf",
         usher_reference_fasta = "params/reference/reference_seq.fasta",
-        viridian_tree = "data/viridian/tree.all_viridian.202409.pb.gz",
+        viridian_tree = config.get("viridian_tree", "data/viridian/tree.all_viridian.202409.pb.gz"),
         viridian_taxonium = "data/viridian/tree.all_viridian.202409.jsonl.gz",
         country_mapping = "params/mapping/country_to_continent_mapping.csv",
         nextstrain_json = "data/nextstrain/ncov_open_global_all-time.json"
