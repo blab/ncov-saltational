@@ -62,3 +62,27 @@ To reproduce all manuscript figures:
    Rscript figures/scripts/<script_name>.R
    ```
 
+## Demo
+
+A minimal demo can be run by subsampling the full Viridian tree to a single Pango lineage. After downloading the full tree (step 1 above), extract the B.1.177 lineage with 500 random tips:
+
+```bash
+matUtils extract \
+    --input-mat data/viridian/tree.all_viridian.202409.pb.gz \
+    --clade B.1.177 \
+    --set-size 500 \
+    --write-mat demo/demo_tree.pb.gz
+```
+
+The demo also requires a manually curated metadata file (`results/sra_metadata/sra_metadata_from_victor.csv`) that cannot be regenerated automatically. Download the pre-computed results from [Figshare](https://doi.org/10.6084/m9.figshare.32736657) and place this file at `results/sra_metadata/sra_metadata_from_victor.csv`.
+
+Then run the pipeline on the demo tree:
+
+```bash
+snakemake --use-conda --conda-frontend conda --cores 4 \
+    --config viridian_tree=demo/demo_tree.pb.gz
+```
+
+The demo produces the same output structure as the full pipeline in `results/`, but limited to the B.1.177 lineage. Given the small number of sequences, very few or no saltational branches are expected to be detected.
+
+**Expected run time**: The slowest step is downloading and processing metadata from NCBI, which can be skipped by using the pre-computed `sra_metadata/` outputs from [Figshare](https://doi.org/10.6084/m9.figshare.32736657). With pre-computed metadata, the remaining pipeline steps are only expected to take a few hours
