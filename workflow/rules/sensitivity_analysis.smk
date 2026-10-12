@@ -288,7 +288,7 @@ rule concat_name_adaptive_branches_downsampled_tree:
         concat_name_adaptive_branches = "results/sensitivity_analysis/adaptive_branches/concat_name_adaptive_branches_CV_{cv_prior}_BF_{BF_threshold}.tsv"
     shell:
         """
-        tsv-append -H {input.name_adaptive_branches_across_genes} | tsv-uniq >> {output.concat_name_adaptive_branches}
+        cat {input.name_adaptive_branches_across_genes} | sort -u > {output.concat_name_adaptive_branches}
         """
 
 rule name_saltational_branches_downsampled_tree:
