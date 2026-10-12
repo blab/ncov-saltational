@@ -79,6 +79,10 @@ rule run_posterior_predictive_checks:
         df_prior_parametrization = rules.get_prior_parametrization.output.df_prior_parametrization,
     output:
         posterior_simul = "results/posterior_predictive_checks/posterior_predictive_check_{gene}_CV_{cv_prior}.tsv"
+    log:
+        "logs/posterior_predictive_checks/{gene}_CV_{cv_prior}.log"
+    benchmark:
+        "benchmarks/posterior_predictive_checks/{gene}_CV_{cv_prior}.tsv"
     threads: lambda wildcards: 8 if wildcards.gene == "Genome" else 1
     params:
         script = lambda wildcards: (
@@ -97,7 +101,7 @@ rule run_posterior_predictive_checks:
             --CV_prior {wildcards.cv_prior} \
             --data_viridian_grouped {input.data_viridian_grouped} \
             --output_posterior_simul {output.posterior_simul} \
-            {params.n_cores_arg}
+            {params.n_cores_arg} > {log} 2>&1
         """
 
 
@@ -108,6 +112,10 @@ rule run_bayesian_model:
         df_prior_parametrization = rules.get_prior_parametrization.output.df_prior_parametrization,
     output:
         df_param_estim = "results/output_model/df_param_estim_{gene}_CV_{cv_prior}.tsv"
+    log:
+        "logs/bayesian_model/run_bayesian_model_{gene}_CV_{cv_prior}.log"
+    benchmark:
+        "benchmarks/bayesian_model/run_bayesian_model_{gene}_CV_{cv_prior}.tsv"
     threads: 8
     params:
         script = lambda wildcards: (
@@ -126,7 +134,7 @@ rule run_bayesian_model:
             --CV_prior {wildcards.cv_prior} \
             --output_param_estim {output.df_param_estim} \
             --genome_region {wildcards.gene} \
-            {params.n_cores_arg}
+            {params.n_cores_arg} > {log} 2>&1
         """
 
 
