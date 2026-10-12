@@ -14,6 +14,7 @@ collect_args <- function(){
   parser$add_argument('--genome_region', type = 'character', help = 'Genome region (should be "Genome")')
   parser$add_argument('--output_param_estim', type = 'character', help = 'TSV file for model run')
   parser$add_argument('--n_cores', type = 'integer', default = 1, help = 'Number of cores for parallel processing')
+  parser$add_argument('--seed', type = 'integer', default = 1, help = 'Random seed; branch pattern i_row is simulated with seed + i_row')
   return(parser$parse_args())
 }
 
@@ -21,7 +22,7 @@ args <- collect_args()
 
 # Run hierarchical Bayesian model for genome-wide analysis
 # Uses gene-level posteriors combined with site-weighted averaging
-run_genome_model <- function(df_prior, genome_data_grouped, CV_prior, n_cores = 8){
+run_genome_model <- function(df_prior, genome_data_grouped, CV_prior, n_cores = 8, seed = 1){
 
   # Define gene vector
   vec_genes <- c('ORF1a', 'ORF1b', 'S', 'ORF3a', 'E', 'M', 'ORF6', 'ORF7a', 'ORF7b', 'ORF8', 'N', 'ORF9b')
@@ -77,6 +78,9 @@ run_genome_model <- function(df_prior, genome_data_grouped, CV_prior, n_cores = 
     print(paste('Processing rows', chunk_beginning, 'to', chunk_end))
     
     df_param_estim <- Reduce('bind_rows', mclapply(chunk_beginning:chunk_end, FUN = function(i_row){
+      
+      # Seed per branch pattern so that draws do not depend on the number of cores or chunks
+      set.seed(seed + i_row)
       
       branch_row <- genome_data_grouped[i_row, ]
       
@@ -191,7 +195,7 @@ df_prior <- read_tsv(args$df_prior_param)
 genome_data_grouped <- read_tsv(args$data_viridian_grouped)
 
 # Run genome-wide model
-df_param_estim <- run_genome_model(df_prior, genome_data_grouped, args$CV_prior, args$n_cores)
+df_param_estim <- run_genome_model(df_prior, genome_data_grouped, args$CV_prior, args$n_cores, args$seed)
 
 # Save results
 write_tsv(df_param_estim, args$output_param_estim)
