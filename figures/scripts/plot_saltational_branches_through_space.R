@@ -5,6 +5,7 @@ library(tidyverse)
 library(binom)
 library(paletteer)
 library(ggpubr)
+library(patchwork)
 library(ggrepel)
 
 #############################
@@ -253,7 +254,7 @@ get_supplementary_plot_nb_salt_branch_func_nb_seq <- function(){
 
 panel_nb_salt_branches_func_nb_sequences <- get_supplementary_plot_nb_salt_branch_func_nb_seq()
 
-pdf('../figure_spatio_temporal_pattern/panel_nb_salt_branches_func_nb_sequences.pdf',
+pdf('../figure_spatio_temporal_pattern/panel_nb_salt_branches_func_nb_sequences_new.pdf',
     height = 5., width = 9.)
 plot(panel_nb_salt_branches_func_nb_sequences)
 dev.off()

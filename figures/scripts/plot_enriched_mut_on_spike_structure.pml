@@ -5,10 +5,10 @@ show cartoon, 7KRQ
 color 0xd3d3d3
 set seq_view, 1
 bg_color white
-select enriched_pos_RBD, 7KRQ and resi 332+339+340+346+356+368+373+375+376+385+403+417+440+444+445+446+449+450+452+460+477+478+484+486+490+493+494+496+498+500+501+505 and name CA
+select enriched_pos_RBD, 7KRQ and resi 332+339+340+346+356+368+373+375+376+385+403+417+440+444+445+446+449+450+452+460+477+478+481+484+486+490+493+494+496+498+500+501+505 and name CA
 show spheres, enriched_pos_RBD
 color 0x00cdcd, enriched_pos_RBD
-select enriched_pos_NTD, 7KRQ and resi 19+64+83+95+136+152+157+164+210+213+214+252+257 and name CA
+select enriched_pos_NTD, 7KRQ and resi 64+83+95+136+152+157+164+210+213+214+252+257 and name CA
 show spheres, enriched_pos_NTD
 color 0xcd1076, enriched_pos_NTD
 select enriched_pos_other_S1, 7KRQ and resi 568+655+681 and name CA

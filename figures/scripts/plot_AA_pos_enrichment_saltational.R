@@ -179,7 +179,7 @@ plot(barplot_nb_enriched_positions_by_gene)
 dev.off()
 
 # Figure 3C - Barplot of nb of enriched positions within Spike
-get_barplot_nb_enriched_positions_within_S <- function(df_OR_AA_pos, threshold_inclusion, ymax = 60){
+get_barplot_nb_enriched_positions_within_S <- function(df_OR_AA_pos, threshold_inclusion, ymax = 50){
   
   df_nb_positions_per_S_region <- df_OR_AA_pos %>% 
     filter(gene == 'S', threshold_for_inclusion == threshold_inclusion) %>% filter(p_value_BH < 0.05, OR > 1.) %>% 
@@ -202,7 +202,7 @@ get_barplot_nb_enriched_positions_within_S <- function(df_OR_AA_pos, threshold_i
     scale_y_continuous(name = 'Number of enriched positions', 
                        expand = expansion(mult = c(0., 0.1)),
                        limits = c(0., ymax),
-                       breaks = seq(0., ymax, 20)) +
+                       breaks = seq(0., ymax, 10)) +
     scale_fill_manual(breaks = c('NTD', 'RBD'), values = c(palette_spike['NTD'], palette_spike['RBD']), name = 'Domain', 
                       na.value = palette_genes['S']) +
     theme_classic() +
@@ -224,7 +224,7 @@ plot(barplot_nb_enriched_positions_S_by_subunit)
 dev.off()
 
 # Figure 3D - Barplot of nb of enriched positions within ORF1ab
-get_barplot_nb_enriched_positions_within_ORF1ab <- function(df_OR_AA_pos, threshold_inclusion, ymax = 60){
+get_barplot_nb_enriched_positions_within_ORF1ab <- function(df_OR_AA_pos, threshold_inclusion, ymax = 50){
   
   df_nb_positions_per_NSPs <- df_OR_AA_pos %>% 
     filter(gene %in% c('ORF1a', 'ORF1b'), threshold_for_inclusion == threshold_inclusion) %>% 
@@ -257,7 +257,7 @@ get_barplot_nb_enriched_positions_within_ORF1ab <- function(df_OR_AA_pos, thresh
     scale_x_discrete(name = 'Gene') +
     scale_y_continuous(name = 'Number of enriched positions', 
                        expand = expansion(mult = c(0., 0.1)),
-                       breaks = seq(0., ymax, 20),
+                       breaks = seq(0., ymax, 10),
                        limits = c(0., ymax)) +
     scale_fill_manual(values = palette_NSPs, limits = rev) +
     theme_classic() +

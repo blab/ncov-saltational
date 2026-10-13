@@ -93,12 +93,58 @@ plot(plt_OR_func_n_mut_salt_branches)
 dev.off()
 
 
-# df_OR_AA_pos_spike %>% 
-#   filter(p_value_BH < 0.05, OR > 1.) %>% 
-#   mutate(region = case_when(position >= 13 & position <= 302 ~ 'NTD',
-#                             position >= 319 & position <= 541 ~ 'RBD',
-#                             position >= 13 & position <= 685 ~ 'Other S1',
-#                             position >= 686 & position <= 1273 ~ 'S2',
-#                             T ~ 'Other S')) %>% 
-#   filter(region == 'Other S1') %>% 
-#   arrange(position) %>% select(position) %>% unlist() %>% as.character() %>% paste(collapse = '+')
+df_OR_AA_pos_spike %>%
+  filter(p_value_BH < 0.05, OR > 1.) %>%
+  mutate(region = case_when(position >= 13 & position <= 302 ~ 'NTD',
+                            position >= 319 & position <= 541 ~ 'RBD',
+                            position >= 13 & position <= 685 ~ 'Other S1',
+                            position >= 686 & position <= 1273 ~ 'S2',
+                            T ~ 'Other S')) %>%
+  filter(region == 'Other S1') %>%
+  arrange(position) %>% select(position) %>% unlist() %>% as.character() %>% paste(collapse = '+')
+
+
+df_OR_AA_pos_spike %>%
+  filter(p_value_BH < 0.05, OR > 1.)%>%
+  mutate(region = case_when(position >= 13 & position <= 302 ~ 'NTD',
+                            position >= 319 & position <= 541 ~ 'RBD',
+                            position >= 13 & position <= 685 ~ 'Other S1',
+                            position >= 686 & position <= 1273 ~ 'S2',
+                            T ~ 'Other S')) %>% 
+  filter(region == 'RBD') %>% 
+  select(position) %>% unlist() %>% as.integer() %>% 
+  paste(collapse = '+')
+
+
+df_OR_AA_pos_spike %>%
+  filter(p_value_BH < 0.05, OR > 1.)%>%
+  mutate(region = case_when(position >= 13 & position <= 302 ~ 'NTD',
+                            position >= 319 & position <= 541 ~ 'RBD',
+                            position >= 13 & position <= 685 ~ 'Other S1',
+                            position >= 686 & position <= 1273 ~ 'S2',
+                            T ~ 'Other S')) %>% 
+  filter(region == 'NTD') %>% 
+  select(position) %>% unlist() %>% as.integer() %>% 
+  paste(collapse = '+')
+
+
+df_OR_AA_pos_spike %>% 
+  filter(p_value_BH < 0.05, OR > 1.) %>%
+  mutate(region = case_when(position >= 13 & position <= 302 ~ 'NTD',
+                            position >= 319 & position <= 541 ~ 'RBD',
+                            position >= 13 & position <= 685 ~ 'Other S1',
+                            position >= 686 & position <= 1273 ~ 'S2',
+                            T ~ 'Other S')) %>%
+  filter(region == 'S2') %>%
+  arrange(position) %>% select(position) %>% unlist() %>% as.character() %>% paste(collapse = '+')
+
+
+df_OR_AA_pos_spike %>% 
+  filter(p_value_BH < 0.05, OR > 1.) %>%
+  mutate(region = case_when(position >= 13 & position <= 302 ~ 'NTD',
+                            position >= 319 & position <= 541 ~ 'RBD',
+                            position >= 13 & position <= 685 ~ 'Other S1',
+                            position >= 686 & position <= 1273 ~ 'S2',
+                            T ~ 'Other S')) %>%
+  filter(region == 'Other S') %>%
+  arrange(position) %>% select(position) %>% unlist() %>% as.character() %>% paste(collapse = '+')

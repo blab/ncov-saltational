@@ -131,7 +131,7 @@ plot_prop_salt_branches_per_year <- function(){
     scale_y_continuous(name = 'Proportion of branches\nthat are saltational', labels = scales::percent) +
     theme_bw() +
     theme(panel.grid.minor = element_blank()) +
-    coord_cartesian(ylim = c(0, 0.004))
+    coord_cartesian(ylim = c(0, 0.0035))
   
   return(plt_prop_salt_branches)
 }
