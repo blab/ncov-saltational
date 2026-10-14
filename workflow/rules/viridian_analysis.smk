@@ -155,7 +155,7 @@ rule get_stop_codons:
         tree = rules.subset_viridian_tree.output.subset_tree,
         df_aa_muts = rules.tidy_node_translations.output.aa_muts,
     output:
-        df_stop_codons = temp("results/bte/df_stop_codons.tsv")
+        df_stop_codons = "results/bte/df_stop_codons.tsv"
     conda:
         "../envs/bte.yaml"
     shell:
