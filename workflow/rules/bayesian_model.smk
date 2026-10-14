@@ -124,7 +124,7 @@ rule run_bayesian_model:
             else "./scripts/bayesian-model/run_bayesian_model_by_gene.R"
         ),
         n_cores_arg = lambda wildcards, threads: (
-            f"--n_cores {threads}" if wildcards.gene == "Genome" else ""
+            f"--n_cores {threads} --n_draws {N_DRAWS_GENOME}" if wildcards.gene == "Genome" else ""
         )
     shell:
         """
