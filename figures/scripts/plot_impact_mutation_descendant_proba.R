@@ -51,6 +51,11 @@ df_aa_muts <- read_tsv('../../results/mutations/nodes_aa_muts_summary_coded.tsv'
   filter(! is_synonymous) %>% 
   left_join(df_descendants)
 
+df_aa_muts %>% 
+  filter(strain %in% name_saltational_branches) %>% 
+  group_by(gene, aa_muts_position) %>% summarise(n_occ = n()) %>% 
+  filter(n_occ > 1) %>% nrow()
+
 #############################
 ### Plot number of branches with mutations with descendants among saltational branches (Figure 5D)
 #############################
@@ -105,12 +110,17 @@ df_prop_branches_with_mut_among_enriched_muts_branches_less_1000_desc <- get_pro
                                                                                                                  enriched_AA_mut) %>% 
   mutate(full_mut = paste0(gene, ':', aa_muts_direction))
 
+## Get numbers for text
+df_prop_branches_with_mut_among_enriched_muts %>% 
+  filter(scale == 'Multiple descendants') %>% 
+  filter(aa_muts_direction %in% c('440R', '9L'))
+
 ## Plot number of saltational branches with mutations with descendants
 ## as a function of number of saltational branches with mutations
 plot_figure_5D <- function(df_prop_branches_with_mut_among_enriched_muts){
   value_zero_desc <- 1e-2
   
-  plt_nb_branches <- test_plot <- df_prop_branches_with_mut_among_enriched_muts %>% 
+  plt_nb_branches <- df_prop_branches_with_mut_among_enriched_muts %>% 
     filter(scale == 'Multiple descendants') %>% 
     mutate(y_axis_to_plot = ifelse(n_with_mut_with_descendants == 0, value_zero_desc, n_with_mut_with_descendants)) %>% 
     mutate(gene = factor(gene, levels = names(palette_genes))) %>% 

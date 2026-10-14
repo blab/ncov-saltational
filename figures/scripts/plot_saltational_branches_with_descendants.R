@@ -19,11 +19,14 @@ name_saltational_branches <-
 df_descendants <- read_tsv('../../results/bte/df_n_descendants_per_node.tsv')
 
 # Load inferred geographic locations
-inferred_countries <- read_tsv('../../results/bte/inferred_countries.tsv') %>% select(strain, inferred_location) %>% 
+inferred_countries <- read_tsv('../../results/bte/inferred_countries.tsv') %>% 
+  dplyr::select(strain, inferred_location) %>% 
   rename(inferred_country = inferred_location)
-inferred_subregions <- read_tsv('../../results/bte/inferred_subregions.tsv') %>% select(strain, inferred_location) %>% 
+inferred_subregions <- read_tsv('../../results/bte/inferred_subregions.tsv') %>% 
+  dplyr::select(strain, inferred_location) %>% 
   rename(inferred_subregion = inferred_location)
-inferred_continents <- read_tsv('../../results/bte/inferred_continents.tsv') %>% select(strain, inferred_location) %>% 
+inferred_continents <- read_tsv('../../results/bte/inferred_continents.tsv') %>% 
+  dplyr::select(strain, inferred_location) %>% 
   rename(inferred_continent = inferred_location)
 
 # Load metadata 
@@ -49,7 +52,7 @@ df_multiple_distinct_metadata <- Reduce('bind_rows', lapply(1:nrow(df_descendant
   while(length(list_descendants_from_start_node) != (df_descendants_single_country$n_descendants[i_row] + 1)){
     list_descendants_from_start_node <- c(list_descendants_from_start_node,
                                           df_child_parent %>% filter(parent_name %in% list_descendants_from_start_node) %>% 
-                                            select(strain) %>% unlist() %>% as.character()
+                                            dplyr::select(strain) %>% unlist() %>% as.character()
     )
     list_descendants_from_start_node <- unique(list_descendants_from_start_node)
   }
@@ -62,7 +65,7 @@ df_multiple_distinct_metadata <- Reduce('bind_rows', lapply(1:nrow(df_descendant
            start_node = start_node)
 })) %>% 
   mutate(has_descendant_distinct_metadata = (n_distinct_ages > 1 | n_distinct_sexes > 1 | n_distinct_subdivision_1 > 1 | n_distinct_subdivision_2 > 1)) %>% 
-  select(start_node, has_descendant_distinct_metadata)
+  dplyr::select(start_node, has_descendant_distinct_metadata)
 
 
 ####################
@@ -102,8 +105,10 @@ df_descendants %>%
   mutate(n_terminal_descendants = ifelse(n_terminal_descendants == 1, 0, n_terminal_descendants),
          n_terminal_descendants_crop = ifelse(n_terminal_descendants > 10, 10, n_terminal_descendants)) %>%
   group_by(n_terminal_descendants_crop) %>% summarise(n_branches = n()) %>%
-  summarise(prop_with_desc = sum(n_branches[n_terminal_descendants_crop == 0])/sum(n_branches))
-
+  summarise(prop_with_desc = sum(n_branches[n_terminal_descendants_crop == 0])/sum(n_branches),
+            n_tot_branches = sum(n_branches),
+            n_branches_with_desc = sum(n_branches[n_terminal_descendants_crop == 0]))
+prop.test(x = 1079, n = 1535, conf.level = 0.95)
 
 # Figure 5B - Proportion of branches with descendants with different metrics 
 # of "cluster spread" (looking at clusters with descendants observed in different geographic regions)
@@ -111,7 +116,7 @@ df_desc_across_scales <- df_descendants %>%
   mutate(bool_spread_to_multiple_people = n_terminal_descendants > 1,
          is_saltational = strain %in% name_saltational_branches) %>% 
   filter(is_saltational) %>% 
-  select(strain, bool_spread_to_multiple_people, is_saltational) %>% 
+  dplyr::select(strain, bool_spread_to_multiple_people, is_saltational) %>% 
   left_join(inferred_countries) %>% left_join(inferred_subregions) %>% left_join(inferred_continents) %>% 
   mutate(bool_spread_to_multiple_countries = ((! is.na(inferred_country)) & (inferred_country == 'Multiple descendant locations')),
          bool_spread_to_multiple_subregions = ((! is.na(inferred_subregion)) & (inferred_subregion == 'Multiple descendant locations')),
@@ -121,8 +126,8 @@ df_desc_across_scales <- df_descendants %>%
                                                              bool_spread_to_multiple_countries ~ T,
                                                              has_descendant_distinct_metadata ~ T,
                                                              !has_descendant_distinct_metadata ~ F)) %>% 
-  select(- has_descendant_distinct_metadata) %>% 
-  select(strain, bool_spread_to_multiple_people, bool_spread_to_multiple_distinct_people, bool_spread_to_multiple_countries, bool_spread_to_multiple_subregions, bool_spread_to_multiple_continents)
+  dplyr::select(- has_descendant_distinct_metadata) %>% 
+  dplyr::select(strain, bool_spread_to_multiple_people, bool_spread_to_multiple_distinct_people, bool_spread_to_multiple_countries, bool_spread_to_multiple_subregions, bool_spread_to_multiple_continents)
 
 #write_tsv(df_desc_across_scales, '../figure_descendant_analysis/df_desc_across_scales.tsv')
 

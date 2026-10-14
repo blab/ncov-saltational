@@ -13,7 +13,7 @@ vec_name_node_saltational <- read.table('../../results/saltational_branches/name
 df_descendants <- read_tsv('../../results/bte/df_n_descendants_per_node.tsv') %>% 
   filter(strain %in% vec_name_node_saltational) %>% 
   mutate(earliest_date_descendants = as.Date(earliest_date_descendants),
-         latest_date_descendant = as.Date(latest_date_descendant))
+         latest_date_descendants = as.Date(latest_date_descendants))
 
 # Load name of terminal descendants for each saltational branch
 df_name_terminal_descendants <- read_tsv('../../results/saltational_branches/terminal_descendants_CV_1.8_BF_20.tsv')
@@ -111,4 +111,4 @@ df_name_terminal_descendants %>%
   mutate(cluster_duration = max_time_from_saltational - min_time_from_saltational) %>% 
   summarise(median_cluster_duration = median(cluster_duration),
             percentile_90_cluster_duration = quantile(cluster_duration, 0.9),
-            percentile_95_cluster_duration = quantile(cluster_duration, 0.95))
+            percentile_95_cluster_duration = quantile(cluster_duration, 0.95)) %>% View()

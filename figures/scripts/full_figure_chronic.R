@@ -96,3 +96,6 @@ df_OR_AA_mut %>%
   summarise(n_signif_deers = sum(is_within_profile_deers),
             n_signif_minks = sum(is_within_profile_minks),
             n_signif_persistent = sum(is_within_profile_persistent))
+
+df_OR_AA_mut %>% 
+  filter(is_signif, is_within_profile_persistent) %>% View()

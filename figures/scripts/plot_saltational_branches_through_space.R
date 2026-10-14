@@ -71,7 +71,7 @@ threshold_branches <- 5000
 get_prop_branches_per_continent <- function(){
   plt_continents <- df_prop_salt_per_location %>% bind_cols(df_CI_prop_salt_branches) %>% 
     filter(inferred_location != 'Multiple descendant locations', n_tot_branches >= threshold_branches,
-           scale == 'Continent') %>%
+           scale == 'Continent') %>% 
     ggplot(aes(x = reorder(inferred_location, prop_saltational_branches), y = prop_saltational_branches, colour = inferred_location)) +
     geom_point() +
     geom_linerange(aes(ymin = lower_prop_salt, ymax = upper_prop_salt)) +

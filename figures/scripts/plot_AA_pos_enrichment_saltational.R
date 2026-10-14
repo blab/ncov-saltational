@@ -384,6 +384,7 @@ png('../figure_mutation_enrichment/scatter_plot_OR_func_mut_prevalence_pos_salta
 plot(scatter_plot_OR_func_get_plot_OR_func_prop_branches_with_mut)
 dev.off()
 
-
+df_OR_AA_pos %>% 
+  filter(threshold_for_inclusion == 2, gene == 'S', position %in% c(484, 501, 681)) %>% View()
   
   

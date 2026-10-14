@@ -18,6 +18,9 @@ df_child_parent <- read_tsv('../../results/bte/df_parent_child_relationship.tsv'
   filter(parent_name != 'None') %>% # Remove root node (not a branch)
   mutate(is_saltational = strain %in% name_saltational_branches)
 
+## Total proportion of saltational events
+length(name_saltational_branches)/nrow(df_child_parent) * 100
+
 # Load SRA metadata
 metadata <- read_tsv('../../results/sra_metadata/sra_metadata_just_clean_dates.tsv') %>% 
   mutate(year = as.Date(paste0(substr(date, start = 1, stop = 4), '-01-01')),
