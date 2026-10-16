@@ -14,6 +14,7 @@ collect_args <- function(){
   parser$add_argument('--genome_region', type = 'character', help = 'Genome region (should be "Genome")')
   parser$add_argument('--output_param_estim', type = 'character', help = 'TSV file for model run')
   parser$add_argument('--n_cores', type = 'integer', default = 1, help = 'Number of cores for parallel processing')
+  parser$add_argument('--n_draws', type = 'integer', default = 1000, help = 'Number of Monte Carlo draws per branch pattern')
   parser$add_argument('--seed', type = 'integer', default = 1, help = 'Random seed; branch pattern i_row is simulated with seed + i_row')
   return(parser$parse_args())
 }
@@ -22,7 +23,7 @@ args <- collect_args()
 
 # Run hierarchical Bayesian model for genome-wide analysis
 # Uses gene-level posteriors combined with site-weighted averaging
-run_genome_model <- function(df_prior, genome_data_grouped, CV_prior, n_cores = 8, seed = 1){
+run_genome_model <- function(df_prior, genome_data_grouped, CV_prior, n_cores = 8, seed = 1, n_draws = 1000){
 
   # Define gene vector
   vec_genes <- c('ORF1a', 'ORF1b', 'S', 'ORF3a', 'E', 'M', 'ORF6', 'ORF7a', 'ORF7b', 'ORF8', 'N', 'ORF9b')
@@ -30,9 +31,9 @@ run_genome_model <- function(df_prior, genome_data_grouped, CV_prior, n_cores = 
   # Print progress information
   cat(sprintf("Running genome-wide model with %d cores on %d unique branch patterns\n",
               n_cores, nrow(genome_data_grouped)))
-  cat(sprintf("Each pattern processes %d genes with %d Monte Carlo draws\n", length(vec_genes), 1000))
+  cat(sprintf("Each pattern processes %d genes with %d Monte Carlo draws\n", length(vec_genes), n_draws))
   cat(sprintf("Estimated total computations: %s\n",
-              format(nrow(genome_data_grouped) * length(vec_genes) * 2000, big.mark = ",")))
+              format(nrow(genome_data_grouped) * length(vec_genes) * 2 * n_draws, big.mark = ",")))
 
   # Create gene-specific prior parameters list
   prior_params_list <- lapply(vec_genes, FUN = function(curr_gene){
@@ -88,12 +89,12 @@ run_genome_model <- function(df_prior, genome_data_grouped, CV_prior, n_cores = 
       # (compute_genome_draws imported from utils_model.R)
       posterior_draws <- compute_genome_draws(
         branch_row, vec_genes, prior_params_list,
-        n_rep = 1000, draw_type = 'posterior'
+        n_rep = n_draws, draw_type = 'posterior'
       )
       
       prior_draws <- compute_genome_draws(
         branch_row, vec_genes, prior_params_list,
-        n_rep = 1000, draw_type = 'prior'
+        n_rep = n_draws, draw_type = 'prior'
       )
       
       # Aggregate observed quantities across genes for output metadata
@@ -195,7 +196,7 @@ df_prior <- read_tsv(args$df_prior_param)
 genome_data_grouped <- read_tsv(args$data_viridian_grouped)
 
 # Run genome-wide model
-df_param_estim <- run_genome_model(df_prior, genome_data_grouped, args$CV_prior, args$n_cores, args$seed)
+df_param_estim <- run_genome_model(df_prior, genome_data_grouped, args$CV_prior, args$n_cores, args$seed, args$n_draws)
 
 # Save results
 write_tsv(df_param_estim, args$output_param_estim)
