@@ -260,3 +260,12 @@ plt_prop_branches_per_continent_per_year <- get_plot_prop_branches_per_continent
 #     height = 4., width = 7.5, res = 350, units = 'in')
 # plot(plt_prop_branches_per_continent_per_year)
 # dev.off()
+
+
+df_inferred_countries |> 
+  filter(location %in% c('Australia', 'New Zealand')) |> 
+  nrow()
+
+df_branch_count_per_year_per_continent |> 
+  filter(inferred_location == 'Oceania') |> 
+  mutate(n_terminal = n_branches - n_internal)
