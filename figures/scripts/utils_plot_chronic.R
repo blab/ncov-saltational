@@ -616,7 +616,7 @@ get_prop_salt_branches_HIV_burden_per_location <- function(name_saltational_bran
   
   # Load country demographic data
   countries_demographics <- read_csv(file_path_country_demographics) %>% 
-    select(country, population_size_2022_worldbank)
+    select(country, population_size_2022_worldbank, gdp_per_capita_2022_worldbank_dollars)
   countries_ihme_deaths <- read_csv(file_path_HIV_burden) %>% 
     filter(cause == 'HIV/AIDS') %>% 
     group_by(country) %>% summarise(n_deaths = sum(n_deaths)) %>% 
@@ -628,7 +628,7 @@ get_prop_salt_branches_HIV_burden_per_location <- function(name_saltational_bran
   df_for_ecological_plot <- df_prop_salt_per_location %>% 
     left_join(countries_ihme_deaths, by = c('inferred_location' = 'country')) %>% 
     left_join(countries_demographics, by = c('inferred_location' = 'country')) %>% 
-    group_by(inferred_location, scale) %>% 
+    group_by(inferred_location, scale, gdp_per_capita_2022_worldbank_dollars) %>% 
     mutate(hiv_deaths_per_1000 = n_deaths_hiv / population_size_2022_worldbank * 1000,
            modif_saltational_branches = (n_saltational_branches + 1) / (n_tot_branches + 1))
   
