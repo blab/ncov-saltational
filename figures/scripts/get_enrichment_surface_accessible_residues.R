@@ -63,23 +63,44 @@ df_AA_muts <- read_tsv('../../results/mutations/nodes_aa_muts_summary_coded.tsv'
   filter(is_coded, ! is_synonymous) %>% 
   mutate(is_saltational = node_id %in% name_saltational_branches)
   
+df_nonsyn_muts_all <- df_AA_muts %>% 
+  group_by(is_saltational, is_surface_spike) %>% 
+  summarise(n_muts = n())
 df_nonsyn_muts_S <- df_AA_muts %>% filter(gene == 'S') %>% 
   group_by(is_saltational, is_surface_spike) %>% 
   summarise(n_muts = n())
+df_nonsyn_muts_RBD <- df_AA_muts %>% 
+  filter(gene == 'S', as.integer(aa_muts_position) >= 319, as.integer(aa_muts_position) <= 541) |> 
+  group_by(is_saltational, is_surface_spike) %>% 
+  summarise(n_muts = n())
 
-# Get OR of a NS muts in S of being surface accessible in saltational branches
-mat_fisher <- matrix(
+# Get OR of a NS muts of being at
+# a surface accessible residue
+# in saltational branches
+
+mat_fisher_S <- matrix(
   c(df_nonsyn_muts_S$n_muts[df_nonsyn_muts_S$is_saltational & df_nonsyn_muts_S$is_surface_spike],
     df_nonsyn_muts_S$n_muts[df_nonsyn_muts_S$is_saltational & !df_nonsyn_muts_S$is_surface_spike],
     df_nonsyn_muts_S$n_muts[!df_nonsyn_muts_S$is_saltational & df_nonsyn_muts_S$is_surface_spike],
     df_nonsyn_muts_S$n_muts[!df_nonsyn_muts_S$is_saltational & !df_nonsyn_muts_S$is_surface_spike]),
   nrow = 2, ncol = 2, byrow = T
 )
-f_test <- fisher.test(x = mat_fisher, alternative = 'two.sided')
+f_test_S <- fisher.test(x = mat_fisher_S, alternative = 'two.sided')
 
-# Load OR by positions
-df_nonsyn_muts_S %>% 
-  group_by(is_saltational) %>% 
-  mutate(prop_mut = n_muts / sum(n_muts)) %>% 
-  ggplot(aes(x = is_saltational, y = prop_mut, fill = is_surface_spike)) +
-  geom_bar(stat = 'identity')
+mat_fisher_all <- matrix(
+  c(df_nonsyn_muts_all$n_muts[df_nonsyn_muts_all$is_saltational & df_nonsyn_muts_all$is_surface_spike],
+    df_nonsyn_muts_all$n_muts[df_nonsyn_muts_all$is_saltational & !df_nonsyn_muts_all$is_surface_spike],
+    df_nonsyn_muts_all$n_muts[!df_nonsyn_muts_all$is_saltational & df_nonsyn_muts_all$is_surface_spike],
+    df_nonsyn_muts_all$n_muts[!df_nonsyn_muts_all$is_saltational & !df_nonsyn_muts_all$is_surface_spike]),
+  nrow = 2, ncol = 2, byrow = T
+)
+f_test_all <- fisher.test(x = mat_fisher_all, alternative = 'two.sided')
+
+mat_fisher_RBD <- matrix(
+  c(df_nonsyn_muts_RBD$n_muts[df_nonsyn_muts_RBD$is_saltational & df_nonsyn_muts_RBD$is_surface_spike],
+    df_nonsyn_muts_RBD$n_muts[df_nonsyn_muts_RBD$is_saltational & !df_nonsyn_muts_RBD$is_surface_spike],
+    df_nonsyn_muts_RBD$n_muts[!df_nonsyn_muts_RBD$is_saltational & df_nonsyn_muts_RBD$is_surface_spike],
+    df_nonsyn_muts_RBD$n_muts[!df_nonsyn_muts_RBD$is_saltational & !df_nonsyn_muts_RBD$is_surface_spike]),
+  nrow = 2, ncol = 2, byrow = T
+)
+f_test_RBD <- fisher.test(x = mat_fisher_RBD, alternative = 'two.sided')
