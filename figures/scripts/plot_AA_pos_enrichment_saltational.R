@@ -282,7 +282,6 @@ dev.off()
 get_summary_enriched_positions <- function(df_OR_AA_pos, threshold_inclusion, df_aa_muts){
   df_OR_AA_pos %>% 
     filter(threshold_for_inclusion == threshold_inclusion) %>% 
-    left_join(df_aa_muts, by = c('position' = 'aa_muts_position', 'gene')) %>% 
     filter(p_value_BH < 0.05, OR > 1.) %>% 
     arrange(gene) %>% 
     mutate(OR_char = paste0(round(OR, 1), ' (', round(OR_lower, 1), '-', round(OR_upper, 1), ')')) %>% 
