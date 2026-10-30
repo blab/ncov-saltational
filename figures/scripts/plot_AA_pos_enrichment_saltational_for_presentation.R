@@ -327,7 +327,10 @@ manhattan_plot_antigenic <- get_manhattan_plot_antigenic_site_spike(df_OR_AA_pos
   theme(legend.position = 'none')
 
 
-
+manhattan_highlight_muts <- get_manhattan_plot_highlight_mutation_of_interest(df_OR_AA_pos, threshold_inclusion = 2,
+                                                                              gene_nuc_coord, gene_aa_coord, 
+                                                                              add_gene_regions = T, add_position_outisde_spike = T,
+                                                                              spike_position_of_interest = c(444, 484, 501, 681))
 
 png('../figure_mutation_enrichment/manhattan_plot_more_frequent_AA_pos_saltational_presentation.png',
     height = 3., width = 9., res = 350, units = 'in')
