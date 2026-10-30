@@ -1,7 +1,7 @@
 library(tidyverse)
 
 # Load Nextclade QC metrics on terminal saltational branches
-nextclade <- read_tsv('../../results/nextclade/nextclade_adaptive_branches_CV_1.8_BF_20.tsv')|> 
+nextclade <- read_tsv('../../results/nextclade/nextclade_saltational_branches_CV_1.8_BF_20.tsv')|> 
   select(seqName, totalSubstitutions, totalDeletions, 
          qc.overallScore, qc.overallStatus, 
          qc.missingData.score, qc.missingData.status,
@@ -77,3 +77,10 @@ png('../figure_mutation_enrichment/panel_quality_control_saltational_branches.pn
     height = 4.5, width = 6., res = 350, units = 'in')
 plot(panel_terminal_salt_branches_quality_control_nextclade)
 dev.off()
+
+# Compare branches classified as saltational when removing all mutations flagged by nextclade as 
+# mutation clusters, frameshifts, after stop codons or mixed sites
+vec_saltational_branches_new <- unlist(read.table('../../results/qc_check/name_saltational_branches_qc_filtered_CV_1.8_BF_20.tsv'))
+vec_saltational_branches_new <- vec_saltational_branches_new[!startsWith(vec_saltational_branches_new, 'node_')]
+length(vec_saltational_branches_new)
+
