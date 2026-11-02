@@ -81,6 +81,5 @@ dev.off()
 # Compare branches classified as saltational when removing all mutations flagged by nextclade as 
 # mutation clusters, frameshifts, after stop codons or mixed sites
 vec_saltational_branches_new <- unlist(read.table('../../results/qc_check/name_saltational_branches_qc_filtered_CV_1.8_BF_20.tsv'))
-vec_saltational_branches_new <- vec_saltational_branches_new[!startsWith(vec_saltational_branches_new, 'node_')]
 length(vec_saltational_branches_new)
-
+nrow(nextclade)
