@@ -1,0 +1,50 @@
+﻿variant,gene,mutation
+Alpha,S,501Y
+Alpha,S,570D
+Alpha,S,681H
+Alpha,S,716I
+Alpha,S,982A
+Alpha,S,1118H
+Beta,S,80A
+Beta,S,215G
+Beta,S,417N
+Beta,S,484K
+Beta,S,501Y
+Beta,S,701V
+Gamma,S,20N
+Gamma,S,18F
+Gamma,S,26S
+Gamma,S,138Y
+Gamma,S,190S
+Gamma,S,417T
+Gamma,S,484K
+Gamma,S,501Y
+Gamma,S,655Y
+Gamma,S,1027I
+Omicron (BA.1),S,67V
+Omicron (BA.1),S,95I
+Omicron (BA.1),S,145D
+Omicron (BA.1),S,212I
+Omicron (BA.1),S,339D
+Omicron (BA.1),S,371F
+Omicron (BA.1),S,373P
+Omicron (BA.1),S,375F
+Omicron (BA.1),S,417N
+Omicron (BA.1),S,440K
+Omicron (BA.1),S,477N
+Omicron (BA.1),S,484A
+Omicron (BA.1),S,493R
+Omicron (BA.1),S,501Y
+Omicron (BA.1),S,505H
+Omicron (BA.1),S,655Y
+Omicron (BA.1),S,679K
+Omicron (BA.1),S,764K
+Omicron (BA.1),S,796Y
+Omicron (BA.1),S,954H
+Omicron (BA.1),S,969K
+Omicron (BA.1),S,371L
+Omicron (BA.1),S,446S
+Omicron (BA.1),S,496S
+Omicron (BA.1),S,547K
+Omicron (BA.1),S,856K
+Omicron (BA.1),S,981F
