@@ -20,11 +20,17 @@ CV_prior_gene = 1.8
 CV_prior_genome = 1.8
 CV_PRIORS = [1.8]
 CV_PRIORS_POSTERIOR_PREDICTIVE_CHECKS = [0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5]
+
 BF_THRESHOLDS_SENSITIVITY = [3, 5, 10, 20, 31.62277660, 40, 80, 150]
 BF_THRESHOLDS = [20]
+N_DRAWS_GENOME = 10000 # Monte Carlo draws per branch pattern for the genome-wide model
+NULL_BASE_SEED = 20261009
+N_REPLICATES_FIXED_OMEGA_NULL = 20 # Replicates of the fixed dN/dS null; raise once the run is validated
 
 wildcard_constraints:
-    gene = "(" + "|".join(GENES) + ")"
+    gene = "(" + "|".join(GENES) + ")",
+    replicate = r"\d+",
+    background = "(observed|propagated)"
 
 rule all:
     input:
@@ -67,9 +73,11 @@ rule all:
         name_saltational_branches_by_genome_region = expand("results/saltational_branches/name_saltational_branches_{gene}_CV_{cv_prior}_BF_{BF_threshold}.tsv", gene=GENES, cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         ancestral_saltational = expand("results/saltational_branches/sequences_saltational_internal_CV_{cv_prior}_BF_{BF_threshold}.fasta", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         tree_with_internal_saltational = expand("results/saltational_branches/viridian_tree_with_internal_nodes_CV_{cv_prior}_BF_{BF_threshold}.pb.gz", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
-        proximity_saltational_samples = expand("results/tree_with_saltational/proximity_samples_CV_{cv_prior}_BF_{BF_threshold}.txt", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
+        #proximity_saltational_samples = expand("results/tree_with_saltational/proximity_samples_CV_{cv_prior}_BF_{BF_threshold}.txt", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         df_terminal_descendants = expand("results/saltational_branches/terminal_descendants_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
-        df_cum_aa_changes = expand("results/saltational_branches/df_cum_aa_changes_from_root_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
+        #df_cum_aa_changes = expand("results/saltational_branches/df_cum_aa_changes_from_root_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
+        alignment_adaptive_final_nodes = expand("results/tree_building/alignment_adaptive_final_nodes_CV_{cv_prior}_BF_{BF_threshold}.fasta", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
+        nextclade_saltational_branches = expand("results/nextclade/nextclade_saltational_branches_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
 
         taxonium = expand("results/saltational_branches/taxonium_saltational_CV_{cv_prior}_BF_{BF_threshold}.jsonl.gz", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
 
@@ -92,6 +100,15 @@ rule all:
         df_BF_downsampled_tree = expand("results/sensitivity_analysis/output_model/df_BF_{gene}_CV_{cv_prior}.tsv", gene=GENES, cv_prior = CV_PRIORS),
         name_saltational_branches_downsampled_tree = expand("results/sensitivity_analysis/saltational_branches/name_saltational_branches_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         inferred_dates_downsampled_tree = "results/sensitivity_analysis/chronumental/chronumental_inferred_dates.tsv",
+
+        # Null model
+        null_summary = expand("results/null_model/null_summary_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
+
+        # QC sensitivity check on the saltational branches
+        qc_check_summary = expand("results/qc_check/qc_check_summary_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
+
+        # Enrichment restricted by branch type (reviewer comment 3)
+        #df_AA_mut_enrichment_by_branch_type = expand("results/mutation_enrichment/df_AA_mut_enrichment_by_branch_type_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
 
 
 rule params:
@@ -116,3 +133,4 @@ include: "workflow/rules/nextclade.smk"
 include: "workflow/rules/mutation_enrichment.smk"
 include: "workflow/rules/sensitivity_analysis.smk"
 include: "workflow/rules/null_model.smk"
+include: "workflow/rules/qc_check.smk"
