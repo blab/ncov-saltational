@@ -1,23 +1,24 @@
 """
-Adaptive branch identification and analysis pipeline for SARS-CoV-2.
+Saltational adaptive evolution in the global SARS-CoV-2 phylogeny.
 
-This workflow identifies adaptive branches in the SARS-CoV-2 phylogeny using Bayesian
-modeling and performs proximity-based subsampling of background sequences.
+This workflow identifies adaptive branches in the Viridian SARS-CoV-2 phylogeny using a
+Bayesian dN/dS model, and characterizes the saltational branches among them.
 
 Workflow stages:
-    1. viridian: Tree preparation and temporal inference
-    2. sra_metadata: Extract sample metadata from NCBI SRA/BioSample databases
-    3. mutations: Mutation analysis and tree topology
-    4. bayesian_model: Selection analysis with Bayesian modeling
-    5. adaptive_branches: Identification and preparation of adaptive branches
-    6. mutation_enrichment: Enrichment analysis of mutations in adaptive branches
+    1. sra_metadata: Extract sample metadata from NCBI SRA/BioSample databases
+    2. viridian_analysis: Tree preparation, temporal inference, mutations and tree topology
+    3. bayesian_model: Selection analysis with Bayesian modeling
+    4. adaptive_branches: Identification of adaptive and saltational branches
+    5. nextclade: Nextclade annotation of the saltational branches
+    6. mutation_enrichment: Enrichment analysis of mutations in saltational branches
+    7. sensitivity_analysis: Rerun on a tree downsampled to the same number of tips per year
+    8. null_model: Expected number of saltational branches under a fixed dN/dS
+    9. qc_check: Sensitivity of the saltational branches to sequence quality
 """
 
 # Global configuration
 GENES = ['ORF1a', 'ORF1b', 'S', 'ORF3a', 'E', 'M', 'ORF6', 'ORF7a', 'ORF7b', 'ORF8', 'N', 'ORF9b', 'Genome']
 GENES_PPC = ['ORF1a', 'ORF1b', 'S', 'ORF3a', 'E', 'M', 'ORF6', 'ORF7a', 'ORF7b', 'ORF8', 'N', 'ORF9b']
-CV_prior_gene = 1.8
-CV_prior_genome = 1.8
 CV_PRIORS = [1.8]
 CV_PRIORS_POSTERIOR_PREDICTIVE_CHECKS = [0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5]
 
@@ -28,9 +29,7 @@ NULL_BASE_SEED = 20261009
 N_REPLICATES_FIXED_OMEGA_NULL = 20 # Replicates of the fixed dN/dS null; raise once the run is validated
 
 wildcard_constraints:
-    gene = "(" + "|".join(GENES) + ")",
-    replicate = r"\d+",
-    background = "(observed|propagated)"
+    gene = "(" + "|".join(GENES) + ")"
 
 rule all:
     input:
@@ -57,6 +56,7 @@ rule all:
         # Bayesian model run
         data_viridian = expand("results/input_model/data_viridian_{gene}.tsv", gene=GENES),
         data_viridian_grouped = expand("results/input_model/data_viridian_{gene}_grouped.tsv", gene=GENES),
+        data_viridian_genome_aggregated = "results/input_model/data_viridian_Genome_aggregated.tsv",
         df_prior_parametrization = "results/input_model/df_prior_parametrization.tsv",
         posterior_simul = expand("results/posterior_predictive_checks/posterior_predictive_check_{gene}_CV_{cv_prior}.tsv", gene=GENES_PPC, cv_prior = CV_PRIORS_POSTERIOR_PREDICTIVE_CHECKS),
         df_param_estim = expand("results/output_model/df_param_estim_{gene}_CV_{cv_prior}.tsv", gene=GENES, cv_prior = CV_PRIORS),
@@ -73,10 +73,8 @@ rule all:
         name_saltational_branches_by_genome_region = expand("results/saltational_branches/name_saltational_branches_{gene}_CV_{cv_prior}_BF_{BF_threshold}.tsv", gene=GENES, cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         ancestral_saltational = expand("results/saltational_branches/sequences_saltational_internal_CV_{cv_prior}_BF_{BF_threshold}.fasta", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         tree_with_internal_saltational = expand("results/saltational_branches/viridian_tree_with_internal_nodes_CV_{cv_prior}_BF_{BF_threshold}.pb.gz", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
-        #proximity_saltational_samples = expand("results/tree_with_saltational/proximity_samples_CV_{cv_prior}_BF_{BF_threshold}.txt", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         df_terminal_descendants = expand("results/saltational_branches/terminal_descendants_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
-        #df_cum_aa_changes = expand("results/saltational_branches/df_cum_aa_changes_from_root_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
-        alignment_adaptive_final_nodes = expand("results/tree_building/alignment_adaptive_final_nodes_CV_{cv_prior}_BF_{BF_threshold}.fasta", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
+        df_cum_aa_changes = expand("results/saltational_branches/df_cum_aa_changes_from_root_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
         nextclade_saltational_branches = expand("results/nextclade/nextclade_saltational_branches_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
 
         taxonium = expand("results/saltational_branches/taxonium_saltational_CV_{cv_prior}_BF_{BF_threshold}.jsonl.gz", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
@@ -108,7 +106,7 @@ rule all:
         qc_check_summary = expand("results/qc_check/qc_check_summary_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
 
         # Enrichment restricted by branch type (reviewer comment 3)
-        #df_AA_mut_enrichment_by_branch_type = expand("results/mutation_enrichment/df_AA_mut_enrichment_by_branch_type_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
+        df_AA_mut_enrichment_by_branch_type = expand("results/mutation_enrichment/df_AA_mut_enrichment_by_branch_type_CV_{cv_prior}_BF_{BF_threshold}.tsv", cv_prior = CV_PRIORS, BF_threshold = BF_THRESHOLDS),
 
 
 rule params:
@@ -128,7 +126,6 @@ include: "workflow/rules/sra_metadata.smk"
 include: "workflow/rules/viridian_analysis.smk"
 include: "workflow/rules/bayesian_model.smk"
 include: "workflow/rules/adaptive_branches.smk"
-include: "workflow/rules/tree_building.smk"
 include: "workflow/rules/nextclade.smk"
 include: "workflow/rules/mutation_enrichment.smk"
 include: "workflow/rules/sensitivity_analysis.smk"

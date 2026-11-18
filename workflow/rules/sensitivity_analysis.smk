@@ -179,19 +179,6 @@ rule prepare_data_model_downsampled_tree:
             --genome_region {wildcards.gene}
         """
 
-rule aggregate_genome_data_downsampled_tree:
-    """Convert genome-wide gene-level data to aggregated format for downstream compatibility"""
-    input:
-        data_viridian_wide = "results/sensitivity_analysis/input_model/data_viridian_Genome.tsv"
-    output:
-        data_viridian_aggregated = "results/sensitivity_analysis/input_model/data_viridian_Genome_aggregated.tsv"
-    shell:
-        """
-        Rscript ./scripts/bayesian-model/aggregate_genome_data.R \
-            --data_viridian_wide {input.data_viridian_wide} \
-            --output {output.data_viridian_aggregated}
-        """
-
 rule get_prior_parametrization_downsampled_tree:
     """Get prior parametrization for model run"""
     input:
