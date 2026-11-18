@@ -179,19 +179,6 @@ rule prepare_data_model_downsampled_tree:
             --genome_region {wildcards.gene}
         """
 
-rule aggregate_genome_data_downsampled_tree:
-    """Convert genome-wide gene-level data to aggregated format for downstream compatibility"""
-    input:
-        data_viridian_wide = "results/sensitivity_analysis/input_model/data_viridian_Genome.tsv"
-    output:
-        data_viridian_aggregated = "results/sensitivity_analysis/input_model/data_viridian_Genome_aggregated.tsv"
-    shell:
-        """
-        Rscript ./scripts/bayesian-model/aggregate_genome_data.R \
-            --data_viridian_wide {input.data_viridian_wide} \
-            --output {output.data_viridian_aggregated}
-        """
-
 rule get_prior_parametrization_downsampled_tree:
     """Get prior parametrization for model run"""
     input:
@@ -226,7 +213,7 @@ rule run_bayesian_model_downsampled_tree:
             else "./scripts/bayesian-model/run_bayesian_model_by_gene.R"
         ),
         n_cores_arg = lambda wildcards, threads: (
-            f"--n_cores {threads}" if wildcards.gene == "Genome" else ""
+            f"--n_cores {threads} --n_draws {N_DRAWS_GENOME}" if wildcards.gene == "Genome" else ""
         )
     shell:
         """
@@ -288,7 +275,7 @@ rule concat_name_adaptive_branches_downsampled_tree:
         concat_name_adaptive_branches = "results/sensitivity_analysis/adaptive_branches/concat_name_adaptive_branches_CV_{cv_prior}_BF_{BF_threshold}.tsv"
     shell:
         """
-        tsv-append -H {input.name_adaptive_branches_across_genes} | tsv-uniq >> {output.concat_name_adaptive_branches}
+        cat {input.name_adaptive_branches_across_genes} | sort -u > {output.concat_name_adaptive_branches}
         """
 
 rule name_saltational_branches_downsampled_tree:

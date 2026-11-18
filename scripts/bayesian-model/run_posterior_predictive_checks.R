@@ -14,6 +14,7 @@ collect_args <- function(){
   parser$add_argument('--CV_prior', type = 'double', help = 'CV for prior parametrization')
   parser$add_argument('--data_viridian_grouped', type = 'character', help = 'TSV file with data used to run model')
   parser$add_argument('--output_posterior_simul', type = 'character', help = 'TSV file for posterior simul')
+  parser$add_argument('--seed', type = 'integer', default = 1, help = 'Random seed; branch pattern i_row is simulated with seed + i_row')
   return(parser$parse_args())
 }
 
@@ -27,7 +28,7 @@ gene_data <- read_tsv(args$data_viridian_grouped) %>%
   mutate(i_row = 1:n())
 
 # Function to run posterior simulation
-simulate_from_posterior <- function(df_prior, gene_data, gene, CV_prior){
+simulate_from_posterior <- function(df_prior, gene_data, gene, CV_prior, seed = 1){
   
   # Define prior parameters
   prior_param <- list('alpha_N' = get_gamma_param_from_mean_CV(mu = exp(df_prior$log_mean_dN[df_prior$gene == gene]), cv = CV_prior)['alpha'], 
@@ -43,6 +44,8 @@ simulate_from_posterior <- function(df_prior, gene_data, gene, CV_prior){
   registerDoParallel(cl)
   t0 <- Sys.time()
   df_simul_from_posterior <- Reduce('bind_rows', foreach(i_row = 1:nrow(gene_data), .packages = c('tidyverse')) %dopar% {
+    # Seed per branch pattern so that draws do not depend on the number of cores
+    set.seed(seed + i_row)
     data_gene <- list('N' = gene_data$non_synonymous_muts[i_row], 
                       'S' = gene_data$synonymous_muts[i_row], 
                       'LN' = gene_data$nonsyn_sites[i_row],
@@ -66,5 +69,5 @@ simulate_from_posterior <- function(df_prior, gene_data, gene, CV_prior){
   return(df_simul_from_posterior)
 }
 
-df_simul_from_posterior <- simulate_from_posterior(df_prior, gene_data, args$genome_region, args$CV_prior)
+df_simul_from_posterior <- simulate_from_posterior(df_prior, gene_data, args$genome_region, args$CV_prior, args$seed)
 write_tsv(df_simul_from_posterior, args$output_posterior_simul)

@@ -26,7 +26,7 @@ df_param_estim_genome <- read_tsv('../../results/output_model/df_BF_Genome_CV_1.
 
 input_data_genome <- input_data_genome %>% 
   left_join(input_data_genome_group) %>% 
-  select(strain, i_row) %>% 
+  dplyr::select(strain, i_row) %>% 
   left_join(df_param_estim_genome, by = c('i_row'))
 
 vec_BF <- c('5', '10', '20', '40', '80')

@@ -16,6 +16,7 @@ Scripts for processing the Viridian UShER/MAT phylogeny (protobuf format) and ex
 | `get_child_parent_relationship.py` | Extracts parent–child relationships for all nodes in the tree. |
 | `get_n_descendants_per_node.py` | Counts total and terminal descendants per node, with earliest/latest tip dates. |
 | `get_mutation_opportunity.py` | Computes the number of synonymous and non-synonymous sites available per branch per gene (mutation opportunity). |
+| `get_mutation_opportunity_by_branch_type.py` | Same as `get_mutation_opportunity.py`, with saltational branches split into internal and terminal ones. |
 | `count_sites_per_branch.py` | Counts synonymous and non-synonymous sites per branch using codon-level logic. |
 | `get_stop_codons_across_tree.py` | Identifies branches carrying premature stop codons across the tree. |
 | `reconstruct_ancestral_location.py` | Infers ancestral geographic location (country/continent) by parsimony on the tree. |
@@ -65,6 +66,7 @@ Scripts for computing enrichment of amino acid mutations and positions in saltat
 | `calculate_AA_mut_enrichment.R` | Computes odds ratios for each AA mutation being enriched in saltational vs. background branches. |
 | `calculate_AA_pos_enrichment.R` | Computes odds ratios for each AA position being enriched in saltational vs. background branches. |
 | `calculate_AA_mut_enrichment_account_background.R` | Computes mutation enrichment odds ratios with correction for background mutation opportunity. |
+| `calculate_AA_mut_enrichment_by_branch_type.R` | Computes opportunity-corrected enrichment odds ratios separately for internal and terminal saltational branches. |
 | `get_AA_reference_sequence.py` | Extracts the amino acid reference sequence for each gene from the SARS-CoV-2 reference. |
 | `get_AA_frequency_nextstrain_tree.py` | Computes the frequency of each amino acid state at each position across the Nextstrain global tree. |
 
@@ -84,11 +86,26 @@ Scripts for downloading and curating NCBI SRA/BioSample metadata for all samples
 
 ---
 
-## `tree-proximity/`
-
-Scripts for constructing a background subsample of sequences in phylogenetic proximity to saltational branches.
+## `sensitivity-analysis/`
 
 | Script | Description |
 |---|---|
-| `convert_tree_units_to_mutations_per_site.py` | Converts MAT tree branch lengths to mutations-per-site units for use with Augur. |
-| `get_metadata_proximity_samples.R` | Compiles metadata for background samples selected based on phylogenetic proximity to saltational branches. |
+| `subsample_tips_same_every_year.R` | Subsamples tips so that every year contributes the same number of tips, for the downsampled-tree sensitivity analysis. |
+
+---
+
+## `null-model/`
+
+| Script | Description |
+|---|---|
+| `fixed_omega_null_saltational.R` | Expected number of adaptive and saltational branches when each branch keeps its per-gene mutation count and the synonymous / non-synonymous split is redrawn with dN/dS fixed to each gene's tree-wide average. |
+
+---
+
+## `qc-check/`
+
+| Script | Description |
+|---|---|
+| `get_qc_regions_from_nextclade.R` | Flags regions of each saltational branch where an amino acid mutation call may be an artefact, based on Nextclade annotations. |
+| `flag_qc_affected_mutations.R` | Identifies the saltational-branch mutations falling in flagged regions and recomputes mutation counts without them. |
+| `recompute_saltational_after_qc.R` | Recomputes Bayes Factors and saltational status of the affected branches from the filtered counts. |

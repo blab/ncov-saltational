@@ -18,6 +18,9 @@ df_child_parent <- read_tsv('../../results/bte/df_parent_child_relationship.tsv'
   filter(parent_name != 'None') %>% # Remove root node (not a branch)
   mutate(is_saltational = strain %in% name_saltational_branches)
 
+## Total proportion of saltational events
+length(name_saltational_branches)/nrow(df_child_parent) * 100
+
 # Load SRA metadata
 metadata <- read_tsv('../../results/sra_metadata/sra_metadata_just_clean_dates.tsv') %>% 
   mutate(year = as.Date(paste0(substr(date, start = 1, stop = 4), '-01-01')),
@@ -168,7 +171,7 @@ plot_prop_salt_branches_per_year <- function(){
     scale_y_continuous(name = 'Proportion of branches\nthat are saltational', labels = scales::percent) +
     theme_bw() +
     theme(panel.grid.minor = element_blank()) +
-    coord_cartesian(ylim = c(0, 0.004))
+    coord_cartesian(ylim = c(0, 0.0058))
   
   return(plt_prop_salt_branches)
 }
@@ -257,3 +260,12 @@ plt_prop_branches_per_continent_per_year <- get_plot_prop_branches_per_continent
 #     height = 4., width = 7.5, res = 350, units = 'in')
 # plot(plt_prop_branches_per_continent_per_year)
 # dev.off()
+
+
+df_inferred_countries |> 
+  filter(location %in% c('Australia', 'New Zealand')) |> 
+  nrow()
+
+df_branch_count_per_year_per_continent |> 
+  filter(inferred_location == 'Oceania') |> 
+  mutate(n_terminal = n_branches - n_internal)

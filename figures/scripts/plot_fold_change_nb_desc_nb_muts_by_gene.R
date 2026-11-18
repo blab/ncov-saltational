@@ -110,7 +110,7 @@ pdf('../figure_descendant_analysis/sensitivity_fold_change_threshold.pdf',
 plot(plt_sensitivity_threshold)
 dev.off()
 
-## Figure 3E - Fold changes as a function of mutation frequency
+## Figure 3C- Fold changes as a function of mutation frequency
 plt_fold_change_func_prop_branches_with_mut <- function(df_negbin_param, 
                                                         df_saltational_descendants, 
                                                         threshold_to_plot){

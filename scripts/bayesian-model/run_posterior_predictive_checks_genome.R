@@ -14,13 +14,14 @@ collect_args <- function(){
   parser$add_argument('--data_viridian_grouped', type = 'character', help = 'TSV file with grouped genome data')
   parser$add_argument('--output_posterior_simul', type = 'character', help = 'TSV file for posterior simulations')
   parser$add_argument('--n_cores', type = 'integer', default = 1, help = 'Number of cores for parallel processing')
+  parser$add_argument('--seed', type = 'integer', default = 1, help = 'Random seed; branch pattern i_row is simulated with seed + i_row')
   return(parser$parse_args())
 }
 
 args <- collect_args()
 
 # Function to run posterior predictive checks for genome-wide model
-run_genome_posterior_predictive_checks <- function(df_prior, genome_data_grouped, CV_prior, n_cores = 1){
+run_genome_posterior_predictive_checks <- function(df_prior, genome_data_grouped, CV_prior, n_cores = 1, seed = 1){
 
   # Define gene vector
   vec_genes <- c('ORF1a', 'ORF1b', 'S', 'ORF3a', 'E', 'M', 'ORF6', 'ORF7a', 'ORF7b', 'ORF8', 'N', 'ORF9b')
@@ -52,6 +53,8 @@ run_genome_posterior_predictive_checks <- function(df_prior, genome_data_grouped
 
   # Process each unique branch pattern
   process_branch_ppc <- function(i_row) {
+    # Seed per branch pattern so that draws do not depend on the number of cores
+    set.seed(seed + i_row)
     branch_row <- genome_data_grouped[i_row, ]
 
     # For each replicate simulation
@@ -135,7 +138,8 @@ df_simul_from_posterior <- run_genome_posterior_predictive_checks(
   df_prior,
   genome_data_grouped,
   args$CV_prior,
-  args$n_cores
+  args$n_cores,
+  args$seed
 )
 
 # Save results

@@ -4,6 +4,7 @@ library(ggrepel)
 library(ggpubr)
 library(patchwork)
 library(binom)
+library(ppcor)
 source('utils_plot_chronic.R')
 source('config_plot.R')
 
@@ -91,8 +92,16 @@ cor.test(df_prop_salt_branches_HIV_burden_per_country$prop_saltational_branches[
          df_prop_salt_branches_HIV_burden_per_country$hiv_deaths_per_1000[df_prop_salt_branches_HIV_burden_per_country$inferred_location != 'South Africa'],
          method = 'spearman')
 
+pcor.test(x = df_prop_salt_branches_HIV_burden_per_country$prop_saltational_branches,
+          y = df_prop_salt_branches_HIV_burden_per_country$hiv_deaths_per_1000,
+          z = df_prop_salt_branches_HIV_burden_per_country$gdp_per_capita_2022_worldbank_dollars,
+          method = 'spearman')
+
 df_OR_AA_mut %>% 
   filter(is_signif) %>% 
   summarise(n_signif_deers = sum(is_within_profile_deers),
             n_signif_minks = sum(is_within_profile_minks),
             n_signif_persistent = sum(is_within_profile_persistent))
+
+df_OR_AA_mut %>% 
+  filter(is_signif, is_within_profile_persistent) %>% View()

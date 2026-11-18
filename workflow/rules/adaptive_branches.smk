@@ -52,7 +52,7 @@ rule concat_name_adaptive_branches:
         concat_name_adaptive_branches = "results/adaptive_branches/concat_name_adaptive_branches_CV_{cv_prior}_BF_{BF_threshold}.tsv"
     shell:
         """
-        tsv-append -H {input.name_adaptive_branches_across_genes} | tsv-uniq >> {output.concat_name_adaptive_branches}
+        cat {input.name_adaptive_branches_across_genes} | sort -u > {output.concat_name_adaptive_branches}
         """
 
 rule name_saltational_branches:
@@ -210,7 +210,7 @@ rule convert_internal_nodes_saltational_to_vcf:
         """
 
 rule add_internal_nodes_saltational_to_tree:
-    """Add renamed internal nodes to Viridian tree using UShER - this tree will then be used for proximity-based subsampling of background sequences for adaptive branches"""
+    """Add renamed internal saltational nodes to the Viridian tree using UShER, for the Taxonium export"""
     input:
         tree = rules.subset_viridian_tree.output.subset_tree,
         vcf = rules.convert_internal_nodes_saltational_to_vcf.output.vcf,
@@ -226,76 +226,6 @@ rule add_internal_nodes_saltational_to_tree:
             --vcf {input.vcf} \
             --save-mutation-annotated-tree {output.tree_updated} \
             --threads {threads}
-        """
-
-rule get_saltational_nodes_list_for_proximity:
-    """Create renamed list of internal saltational nodes and combine with tips"""
-    input:
-        saltational_branches = rules.name_saltational_branches.output.name_saltational_branches,
-    output:
-        renamed_nodes = "results/saltational_branches/internal_nodes_renamed_list_CV_{cv_prior}_BF_{BF_threshold}.txt",
-        tips_only = "results/saltational_branches/saltational_branches_tips_only_CV_{cv_prior}_BF_{BF_threshold}.txt",
-        combined_saltational_branches = "results/saltational_branches/saltational_branches_combined_CV_{cv_prior}_BF_{BF_threshold}.txt"
-    shell:
-        """
-        # Extract internal nodes and rename them
-        grep "^node_" {input.saltational_branches} | sed 's/^node_/adaptive_node_/' > {output.renamed_nodes}
-
-        # Extract tips only (no internal nodes)
-        grep -v "^node_" {input.saltational_branches} > {output.tips_only}
-
-        # Combine renamed internal nodes and tips
-        cat {output.renamed_nodes} {output.tips_only} > {output.combined_saltational_branches}
-        """
-
-rule sample_proximity_to_saltational_from_tree:
-    """Sample background sequences in proximity to saltational branches from updated tree with internal nodes"""
-    input:
-        tree = rules.add_internal_nodes_saltational_to_tree.output.tree_updated,
-        name_saltational_branches = rules.get_saltational_nodes_list_for_proximity.output.combined_saltational_branches,
-    output:
-        mat = "results/tree_with_saltational/proximity_tree_CV_{cv_prior}_BF_{BF_threshold}.pb.gz",
-        tree = "results/tree_with_saltational/proximity_tree_CV_{cv_prior}_BF_{BF_threshold}.nwk",
-        taxodium = "results/tree_with_saltational/proximity_tree_CV_{cv_prior}_BF_{BF_threshold}.jsonl.gz",
-        proximity_samples = "results/tree_with_saltational/proximity_samples_CV_{cv_prior}_BF_{BF_threshold}.txt"
-    params:
-        proximity_param = 10,
-        n_random_samples = 3000,
-        reference_gtf = rules.params.input.usher_reference_gtf,
-        reference_fasta = rules.params.input.usher_reference_fasta
-    conda:
-        "../envs/tree-proximity.yaml"
-    shell:
-        """
-        matUtils extract \
-            --input-mat {input.tree} \
-            --samples {input.name_saltational_branches} \
-            --select-nearest {params.proximity_param} \
-            --add-random {params.n_random_samples} \
-            --used-samples {output.proximity_samples} \
-            --write-mat {output.mat} \
-            --write-tree {output.tree} \
-            --write-taxodium {output.taxodium} \
-            --title "Phylogenetic tree with adaptive branches" \
-            --include-nt \
-            --input-gtf {params.reference_gtf} \
-            --input-fasta {params.reference_fasta}
-        """
-
-rule normalize_saltational_tree_branch_lengths:
-    """Normalize branch lengths from mutation counts to substitutions per site for TreeTime compatibility"""
-    input:
-        tree = rules.sample_proximity_to_saltational_from_tree.output.mat,
-    output:
-        tree_normalized = "results/tree_with_saltational/proximity_tree_normalized_CV_{cv_prior}_BF_{BF_threshold}.nwk"
-    conda:
-        "../envs/bte.yaml"
-    shell:
-        """
-        python scripts/tree-proximity/convert_tree_units_to_mutations_per_site.py \
-            --tree {input.tree} \
-            --genome_length 29903 \
-            --output_newick {output.tree_normalized}
         """
 
 rule export_metadata_for_taxonium_visualization:

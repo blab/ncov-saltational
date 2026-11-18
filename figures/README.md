@@ -25,13 +25,20 @@ contains the script to reproduce Figure 5A and 5B.
 
 ### Supplementary figures
 - [plot_dist_nonsyn_mut_count.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_dist_nonsyn_mut_count.R) contains the script to reproduce Figure S1.
-- [plot_saltational_branches_through_time_sensitivity.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_saltational_branches_through_time_sensitivity.R) contains the script to reproduce Figure S2.
-- [plot_saltational_branches_through_space.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_saltational_branches_through_space.R) contains the script to reproduce Figure S3.
-- [plot_timeline_cluster_from_saltational_branches.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_timeline_cluster_from_saltational_branches.R) contains the script to reproduce Figure S4.
-- [impact_thresholds_number_branches.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/impact_thresholds_number_branches.R) contains the script to reproduce Figure S5.
-- [plot_posterior_predictive_checks.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_posterior_predictive_checks.R) contains the script to reproduce Figure S6, S7 and S8.
-- [compare_OR_AA_mut_accounting_background.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/compare_OR_AA_mut_accounting_background.R) contains the script to reproduce Figure S9.
-- [plot_fold_change_nb_desc_nb_muts_by_gene.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_fold_change_nb_desc_nb_muts_by_gene.R) contains the script to reproduce Figure S10.
+- [impact_thresholds_number_branches.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/impact_thresholds_number_branches.R) contains the script to reproduce Figure S2.
+- [compare_branches_phylogenetic_null.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/compare_branches_phylogenetic_null.R) contains the script to reproduce Figure S3.
+- [plot_qc_terminal_saltational_branches.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_qc_terminal_saltational_branches.R) contains the script to reproduce Figure S4.
+- [plot_saltational_branches_through_time_sensitivity.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_saltational_branches_through_time_sensitivity.R) contains the script to reproduce Figure S5.
+- [plot_saltational_branches_through_space.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_saltational_branches_through_space.R) contains the script to reproduce Figure S6.
+- [plot_nb_muts_from_different_profiles.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_nb_muts_from_different_profiles.R) contains the script to reproduce Figure S7.
+- [compare_OR_chronic_saltational_split_internal_terminal.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/compare_OR_chronic_saltational_split_internal_terminal.R) contains the script to reproduce Figure S8.
+- [impact_thresholds_cor_OR_salt_chronic.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/impact_thresholds_cor_OR_salt_chronic.R) contains the script to reproduce Figure S9.
+- [plot_ecdf_nb_descendants_by_branch_type.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_ecdf_nb_descendants_by_branch_type.R) contains the script to reproduce Figure S10.
+- [plot_timeline_cluster_from_saltational_branches.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_timeline_cluster_from_saltational_branches.R) contains the script to reproduce Figure S11.
+- [impact_thresholds_descendants.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/impact_thresholds_descendants.R) contains the script to reproduce Figure S12.
+- [plot_posterior_predictive_checks.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_posterior_predictive_checks.R) contains the script to reproduce Figure S13, S14 and S15.
+- [compare_OR_AA_mut_accounting_background.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/compare_OR_AA_mut_accounting_background.R) contains the script to reproduce Figure S16.
+- [plot_fold_change_nb_desc_nb_muts_by_gene.R](https://github.com/blab/ncov-adapt-branches/blob/main/figures/scripts/plot_fold_change_nb_desc_nb_muts_by_gene.R) contains the script to reproduce Figure S17.
 
 ## Utility scripts
 The following scripts are sourced by the figure scripts above and do not produce figures directly:

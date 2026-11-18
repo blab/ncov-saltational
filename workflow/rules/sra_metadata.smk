@@ -312,9 +312,9 @@ rule extract_dates_from_json:
             if (collection_date == "" || collection_date ~ /^[[:space:]]*$/) {{
                 # Extract collection_date_sam from JSON: "collection_date_sam": ["2021"]
                 # Use simpler regex that works with all awk versions
-                if (match(jattr, /"collection_date_sam"[[:space:]]*:[[:space:]]*\["[^"]+"]/)) {{
+                if (match(jattr, /"collection_date_sam"[[:space:]]*:[[:space:]]*\\["[^"]+"]/)) {{
                     date_str = substr(jattr, RSTART, RLENGTH);
-                    if (match(date_str, /\["[^"]+"\]/)) {{
+                    if (match(date_str, /\\["[^"]+"\\]/)) {{
                         date_val = substr(date_str, RSTART+2, RLENGTH-4);
                         collection_date = date_val;
                     }}
@@ -331,9 +331,9 @@ rule extract_dates_from_json:
 
             # If isolation_source is empty, try to extract from JSON
             if (isolation_source == "" || isolation_source ~ /^[[:space:]]*$/) {{
-                if (match(jattr, /"isolation_source_sam"[[:space:]]*:[[:space:]]*\["[^"]+"]/)) {{
+                if (match(jattr, /"isolation_source_sam"[[:space:]]*:[[:space:]]*\\["[^"]+"]/)) {{
                     iso_str = substr(jattr, RSTART, RLENGTH);
-                    if (match(iso_str, /\["[^"]+"\]/)) {{
+                    if (match(iso_str, /\\["[^"]+"\\]/)) {{
                         iso_val = substr(iso_str, RSTART+2, RLENGTH-4);
                         isolation_source = iso_val;
                     }}
@@ -343,9 +343,9 @@ rule extract_dates_from_json:
             # If purpose_of_sequencing is empty, try to extract from JSON
             if (purpose_of_sequencing == "" || purpose_of_sequencing ~ /^[[:space:]]*$/) {{
                 # Try array format first: "purpose_of_sequencing_sam": ["value"]
-                if (match(jattr, /"purpose_of_sequencing_sam"[[:space:]]*:[[:space:]]*\["[^"]+"]/)) {{
+                if (match(jattr, /"purpose_of_sequencing_sam"[[:space:]]*:[[:space:]]*\\["[^"]+"]/)) {{
                     pur_str = substr(jattr, RSTART, RLENGTH);
-                    if (match(pur_str, /\["[^"]+"\]/)) {{
+                    if (match(pur_str, /\\["[^"]+"\\]/)) {{
                         pur_val = substr(pur_str, RSTART+2, RLENGTH-4);
                         purpose_of_sequencing = pur_val;
                     }}
@@ -367,9 +367,9 @@ rule extract_dates_from_json:
             # If host_age is empty, try to extract from JSON
             # host_age_sam uses array format: ["56"], ["64"], etc.
             if (host_age == "" || host_age ~ /^[[:space:]]*$/) {{
-                if (match(jattr, /"host_age_sam"[[:space:]]*:[[:space:]]*\["[^"]+"]/)) {{
+                if (match(jattr, /"host_age_sam"[[:space:]]*:[[:space:]]*\\["[^"]+"]/)) {{
                     age_str = substr(jattr, RSTART, RLENGTH);
-                    if (match(age_str, /\["[^"]+"\]/)) {{
+                    if (match(age_str, /\\["[^"]+"\\]/)) {{
                         age_val = substr(age_str, RSTART+2, RLENGTH-4);
                         host_age = age_val;
                     }}
@@ -379,9 +379,9 @@ rule extract_dates_from_json:
             # If host_sex is empty, try to extract from JSON
             # host_sex_sam uses array format: ["male"], ["female"], etc.
             if (host_sex == "" || host_sex ~ /^[[:space:]]*$/) {{
-                if (match(jattr, /"host_sex_sam"[[:space:]]*:[[:space:]]*\["[^"]+"]/)) {{
+                if (match(jattr, /"host_sex_sam"[[:space:]]*:[[:space:]]*\\["[^"]+"]/)) {{
                     sex_str = substr(jattr, RSTART, RLENGTH);
-                    if (match(sex_str, /\["[^"]+"\]/)) {{
+                    if (match(sex_str, /\\["[^"]+"\\]/)) {{
                         sex_val = substr(sex_str, RSTART+2, RLENGTH-4);
                         host_sex = sex_val;
                     }}

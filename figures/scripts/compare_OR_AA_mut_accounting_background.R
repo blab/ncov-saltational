@@ -9,9 +9,9 @@ source('config_plot.R')
 
 ## Load OR of AA mut on saltational mutation accounting / not accounting for background AA
 df_OR_AA_mut <- read_tsv('../../results/mutation_enrichment/df_AA_mut_enrichment_saltational_CV_1.8_BF_20.tsv') %>% 
-  select(gene, mutation, threshold_for_inclusion, p_value_BH, OR, OR_lower, OR_upper)
+  dplyr::select(gene, mutation, threshold_for_inclusion, p_value_BH, OR, OR_lower, OR_upper)
 df_OR_AA_mut_background <- read_tsv('../../results/mutation_enrichment/df_AA_mut_enrichment_saltational_opportunity_CV_1.8_BF_20.tsv') %>% 
-  select(gene, mutation, threshold_for_inclusion, p_value_BH, OR, OR_lower, OR_upper) %>% 
+  dplyr::select(gene, mutation, threshold_for_inclusion, p_value_BH, OR, OR_lower, OR_upper) %>% 
   rename(p_value_BH_account_background = p_value_BH,
          OR_account_background = OR,
          OR_lower_account_background = OR_lower,
